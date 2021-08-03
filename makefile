@@ -1,0 +1,2 @@
+main:
+	dotnet build
