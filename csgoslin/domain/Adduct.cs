@@ -106,4 +106,5 @@ namespace csgoslin
         {
             return charge * charge_sign;
         }
+    }
 }
