@@ -226,13 +226,15 @@ class Program
                     sw.Write("\n");
                     sw.Write("namespace csgoslin\n");
                     sw.Write("{\n");
-                    sw.Write("    public enum LipidClass {NO_CLASS, UNDEFINED_CLASS");
+                    sw.Write("    public enum LipidClass\n");
+                    sw.Write("    {\n");
+                    sw.Write("        NO_CLASS, UNDEFINED_CLASS");
                     foreach (string list_key in list_keys)
                     {
                         sw.Write(", ");
                         sw.Write(list_key);
                     }
-                    sw.Write("};\n");
+                    sw.Write("\n    };\n");
                     sw.Write("}");
                 }
             }
