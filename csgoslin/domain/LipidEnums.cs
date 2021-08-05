@@ -46,7 +46,8 @@ namespace csgoslin
         SL // Saccharo lipids
     };
     
-    public class LipidEnum {
+    public class LipidEnum
+    {
         public static Dictionary<LipidCategory, string> CategoryString = new Dictionary<LipidCategory, string>
         {
             {LipidCategory.NO_CATEGORY, "NO_CATEGORY"},
@@ -60,7 +61,8 @@ namespace csgoslin
         };
     }
 
-    public enum LipidLevel {
+    public enum LipidLevel
+    {
         NO_LEVEL,
         UNDEFINED_LEVEL,
         CATEGORY, // Mediators, Glycerolipids, Glycerophospholipids, Sphingolipids, Steroids, Prenols
@@ -73,7 +75,8 @@ namespace csgoslin
 
 
 
-    public struct LipidClassMeta {
+    public class LipidClassMeta
+    {
         public LipidCategory lipid_category;
         public string class_name;
         public int max_num_fa;
@@ -81,6 +84,17 @@ namespace csgoslin
         public HashSet<string> special_cases;
         public ElementTable elements;
         public List<string> synonyms;
+        
+        public LipidClassMeta(LipidCategory _lipid_category, string _class_name, int _max_num_fa, int _possible_num_fa, HashSet<string> _special_cases, ElementTable _elements, List<string> _synonyms){
+            lipid_category = _lipid_category;
+            class_name = _class_name;
+            max_num_fa = _max_num_fa;
+            possible_num_fa = _possible_num_fa;
+            special_cases = _special_cases;
+            elements = _elements;
+            synonyms = _synonyms;
+            Console.WriteLine(class_name);
+        }
     }
 
 
