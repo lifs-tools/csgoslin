@@ -105,7 +105,7 @@ namespace csgoslin
         }
 
 
-        ElementTable get_functional_group_elements(){
+        public ElementTable get_functional_group_elements(){
             ElementTable _elements = StringFunctions.create_empty_table();
             
             foreach (KeyValuePair<string, List<FunctionalGroup> > kv in functional_groups)
@@ -165,7 +165,8 @@ namespace csgoslin
         }
 
 
-        public virtual int get_double_bonds(){
+        public virtual int get_double_bonds()
+        {
             int db = count * double_bonds.get_num();
             foreach (KeyValuePair<string, List<FunctionalGroup> > kv in functional_groups)
             {

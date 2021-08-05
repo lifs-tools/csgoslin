@@ -85,7 +85,7 @@ namespace csgoslin
 
 
 
-    enum LipidFaBondType {
+    public enum LipidFaBondType {
         NO_FA,
         UNDEFINED_FA,
         ESTER,
