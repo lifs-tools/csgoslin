@@ -34,7 +34,7 @@ namespace csgoslin
     
     public class LipidMolecularSubspecies : LipidSpecies
     {
-        public LipidMolecularSubspecies (Headgroup _headgroup, List<FattyAcid> _fa) : base(_headgroup, _fa)
+        public LipidMolecularSubspecies (Headgroup _headgroup, List<FattyAcid> _fa = null) : base(_headgroup, _fa)
         {
             info.level = LipidLevel.MOLECULAR_SUBSPECIES;
             foreach (FattyAcid fatty_acid in fa_list)

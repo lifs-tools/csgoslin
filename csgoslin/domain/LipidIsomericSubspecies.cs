@@ -32,20 +32,18 @@ namespace csgoslin
 {
     using ElementTable = System.Collections.Generic.Dictionary<Element, int>;
     
-    public class LipidStructuralSubspecies : LipidMolecularSubspecies
+    public class LipidIsomericSubspecies : LipidStructuralSubspecies
     {
-        public LipidStructuralSubspecies(Headgroup _headgroup, List<FattyAcid> _fa = null) : base (_headgroup, _fa)
+        public LipidIsomericSubspecies(Headgroup _headgroup, List<FattyAcid> _fa = null) : base(_headgroup, _fa)
         {
-            info.level = LipidLevel.STRUCTURAL_SUBSPECIES;
+            info.level = LipidLevel.ISOMERIC_SUBSPECIES;
         }
-
 
 
         public override LipidLevel get_lipid_level()
         {
-            return LipidLevel.STRUCTURAL_SUBSPECIES;
+            return LipidLevel.ISOMERIC_SUBSPECIES;
         }
-
 
 
         public override string get_lipid_string(LipidLevel level = LipidLevel.NO_LEVEL)
@@ -53,17 +51,18 @@ namespace csgoslin
             switch(level)
             {
                 case LipidLevel.NO_LEVEL:
+                case LipidLevel.ISOMERIC_SUBSPECIES:
+                    return base.build_lipid_subspecies_name(LipidLevel.ISOMERIC_SUBSPECIES);
+                    
+                case LipidLevel.SPECIES:
                 case LipidLevel.STRUCTURAL_SUBSPECIES:
-                    return build_lipid_subspecies_name(LipidLevel.STRUCTURAL_SUBSPECIES);
-            
                 case LipidLevel.MOLECULAR_SUBSPECIES:
                 case LipidLevel.CATEGORY:
                 case LipidLevel.CLASS:
-                case LipidLevel.SPECIES:
                     return base.get_lipid_string(level);
-                
+            
                 default:
-                    throw new RuntimeException("LipidStructuralSubspecies does not know how to create a lipid string for level " + Convert.ToString(level));
+                    throw new IllegalArgumentException("LipidIsomericSubspecies does not know how to create a lipid string for level " + Convert.ToString(level));
             }
         }
         
