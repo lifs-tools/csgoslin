@@ -58,7 +58,7 @@ namespace csgoslin
         }
 
 
-        public FunctionalGroup copy()
+        public virtual FunctionalGroup copy()
         {
             DoubleBonds db = double_bonds.copy();
             Dictionary<string, List<FunctionalGroup> > fg = new Dictionary<string, List<FunctionalGroup> >();
@@ -82,20 +82,7 @@ namespace csgoslin
         }
 
 
-
-        public bool position_sort_function (FunctionalGroup f1, FunctionalGroup f2)
-        {
-            return (f1.position < f2.position);
-        }
-
-
-        public bool lower_name_sort_function (string s1, string s2)
-        {
-            return String.Compare(s1.ToLower(), s2.ToLower()) > 0;
-        }
-
-
-        public ElementTable get_elements()
+        public virtual ElementTable get_elements()
         {
             compute_elements();
             ElementTable _elements = StringFunctions.create_empty_table();
@@ -107,7 +94,7 @@ namespace csgoslin
         }
 
 
-        public void shift_positions(int shift)
+        public virtual void shift_positions(int shift)
         {
             position += shift;
             foreach (KeyValuePair<string, List<FunctionalGroup> > kv in functional_groups)
@@ -137,7 +124,7 @@ namespace csgoslin
         }
 
 
-        public void compute_elements()
+        public virtual void compute_elements()
         {
             foreach (KeyValuePair<string, List<FunctionalGroup> > kv in functional_groups)
             {
@@ -151,7 +138,7 @@ namespace csgoslin
 
 
                 
-        public string to_string(LipidLevel level)
+        public virtual string to_string(LipidLevel level)
         {
             string fg_string = "";
             if (level == LipidLevel.ISOMERIC_SUBSPECIES)
@@ -178,7 +165,7 @@ namespace csgoslin
         }
 
 
-        public int get_double_bonds(){
+        public virtual int get_double_bonds(){
             int db = count * double_bonds.get_num();
             foreach (KeyValuePair<string, List<FunctionalGroup> > kv in functional_groups)
             {
@@ -192,7 +179,7 @@ namespace csgoslin
         }
 
 
-        public void add_position(int pos)
+        public virtual void add_position(int pos)
         {
             position += (position >= pos) ? 1 : 0;
             
@@ -213,5 +200,58 @@ namespace csgoslin
             }
         }
     }
+    
+    
+    public class HeadgroupDecorator : FunctionalGroup
+    {
+        public bool suffix;
+        public LipidLevel lowest_visible_level;
+            
+        public HeadgroupDecorator(string _name, int _position = -1, int _count = 1, ElementTable _elements = null, bool _suffix = false, LipidLevel _level = LipidLevel.NO_LEVEL) : base(_name, _position, _count, null, false, "", _elements)
+        {
+            suffix = _suffix;
+            lowest_visible_level = _level;
+        }
 
+        public override HeadgroupDecorator copy()
+        {
+            ElementTable e = StringFunctions.create_empty_table();
+            foreach (KeyValuePair<Element, int> kv in elements)
+            {
+                e[kv.Key] = kv.Value;
+            }
+            return new HeadgroupDecorator(name, position, count, e, suffix, lowest_visible_level);
+        }
+
+
+
+        public override string to_string(LipidLevel level)
+        {
+            if (!suffix) return name;
+
+            string decorator_string = "";
+            if (lowest_visible_level == LipidLevel.NO_LEVEL || lowest_visible_level <= level)
+            {
+                
+                if (functional_groups.ContainsKey("decorator_alkyl") && functional_groups["decorator_alkyl"].Count > 0)
+                {
+                    decorator_string = (level != LipidLevel.SPECIES) ? functional_groups["decorator_alkyl"][0].to_string(level) : "Alk";
+                }
+                else if (functional_groups.ContainsKey("decorator_acyl") && functional_groups["decorator_acyl"].Count > 0)
+                {
+                    decorator_string = (level != LipidLevel.SPECIES) ? ("FA " + functional_groups["decorator_acyl"][0].to_string(level)) : "FA";
+                }
+                else
+                {
+                    decorator_string = name;
+                }
+                decorator_string = "(" + decorator_string + ")";
+            }
+                
+            return decorator_string;
+        }
+        
+        
+        
+    }
 }

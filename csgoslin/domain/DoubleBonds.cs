@@ -38,7 +38,7 @@ namespace csgoslin
         public int num_double_bonds;
         public Dictionary<int, string> double_bond_positions;
         
-        public DoubleBonds(int num)
+        public DoubleBonds(int num = 0)
         {
             num_double_bonds = num;
             double_bond_positions = new Dictionary<int, string>();
