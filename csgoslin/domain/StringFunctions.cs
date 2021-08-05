@@ -51,7 +51,7 @@ namespace csgoslin
 
 
 
-        public ElementTable create_empty_table(){
+        public static ElementTable create_empty_table(){
             return new ElementTable{{Element.C, 0}, {Element.C13, 0}, {Element.H, 0}, {Element.H2, 0}, {Element.N, 0}, {Element.N15, 0}, {Element.O, 0}, {Element.O17, 0}, {Element.O18, 0}, {Element.P, 0}, {Element.P32, 0}, {Element.S, 0}, {Element.S34, 0}, {Element.S33, 0}, {Element.F, 0}, {Element.Cl, 0}, {Element.Br, 0}, {Element.I, 0}, {Element.As, 0}};
         }
 
