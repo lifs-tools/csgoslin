@@ -83,7 +83,7 @@ namespace csgoslin
         }
 
 
-        public virtual string get_lipid_string(LipidLevel level)
+        public virtual string get_lipid_string(LipidLevel level = LipidLevel.NO_LEVEL)
         {
             switch (level)
             {
@@ -131,16 +131,19 @@ namespace csgoslin
         }
 
 
-        public List<FattyAcid> get_fa_list(){
+        public List<FattyAcid> get_fa_list()
+        {
             return fa_list;
         }
 
 
 
-        public ElementTable get_elements(){
+        public virtual ElementTable get_elements()
+        {
             ElementTable elements = StringFunctions.create_empty_table();
             
-            switch(info.level){
+            switch(info.level)
+            {
                 case LipidLevel.STRUCTURAL_SUBSPECIES:
                 case LipidLevel.ISOMERIC_SUBSPECIES:
                 case LipidLevel.SPECIES:
