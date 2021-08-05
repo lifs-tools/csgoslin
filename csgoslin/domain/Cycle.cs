@@ -37,7 +37,7 @@ namespace csgoslin
         public int end;
         public ArrayList bridge_chain;
         
-        public Cycle(int _cycle, int _start, int _end, DoubleBonds _double_bonds, Dictionary<string, List< FunctionalGroup > > _functional_groups, List< Element > _bridge_chain) : FunctionalGroup("cy", _start, 1, _double_bonds, false, "", 0, _functional_groups)
+        public Cycle(int _cycle, int _start, int _end, DoubleBonds _double_bonds, Dictionary<string, List< FunctionalGroup > > _functional_groups, List< Element > _bridge_chain) : base("cy", _start, 1, _double_bonds, false, "", 0, _functional_groups)
         {
             cycle = _cycle;
             start = _start;
@@ -223,7 +223,7 @@ namespace csgoslin
                 cycle_string.Append(start).Append("-").Append(end);
             }
             
-            if ((level == LipidLevelISOMERIC_SUBSPECIES || level == LipidLevel.STRUCTURAL_SUBSPECIES) && bridge_chain.Any())
+            if ((level == LipidLevel.ISOMERIC_SUBSPECIES || level == LipidLevel.STRUCTURAL_SUBSPECIES) && bridge_chain.Any())
             {
                 foreache (Element e in bridge_chain) cycle_string.Append(element_shortcut[e]);
             }
