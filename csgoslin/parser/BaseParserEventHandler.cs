@@ -31,14 +31,14 @@ namespace csgoslin
 {
     public abstract class BaseParserEventHandler
     {
-        public Dictionary<string, Action<Parser.TreeNode>> registeredEvents = new Dictionary<string, Action<Parser.TreeNode>>();
+        public Dictionary<string, Action<TreeNode>> registeredEvents = new Dictionary<string, Action<TreeNode>>();
         public HashSet<string> ruleNames = new HashSet<string>();
         public Parser parser = null;
         public string debug = "";
     
         public BaseParserEventHandler()
         {
-            registeredEvents = new Dictionary<string, Action<Parser.TreeNode>>();
+            registeredEvents = new Dictionary<string, Action<TreeNode>>();
             ruleNames = new HashSet<string>();
         }
         
@@ -62,7 +62,7 @@ namespace csgoslin
         }
         
         
-        public void handleEvent(string eventName, Parser.TreeNode node)
+        public void handleEvent(string eventName, TreeNode node)
         {
             if (registeredEvents.ContainsKey(eventName))
             {
