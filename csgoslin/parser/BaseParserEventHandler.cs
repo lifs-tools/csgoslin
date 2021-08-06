@@ -29,44 +29,53 @@ using System.Collections.Generic;
 
 namespace csgoslin
 {
-    public abstract class BaseParserEventHandler
+    public abstract class BaseParserEventHandler<T>
     {
-        public Dictionary<string, Action<TreeNode>> registeredEvents = new Dictionary<string, Action<TreeNode>>();
-        public HashSet<string> ruleNames = new HashSet<string>();
-        public Parser parser = null;
+        public Dictionary<string, Action<TreeNode>> registered_events = new Dictionary<string, Action<TreeNode>>();
+        public HashSet<string> rule_names = new HashSet<string>();
+        public Parser<T> parser = null;
         public string debug = "";
     
         public BaseParserEventHandler()
         {
-            registeredEvents = new Dictionary<string, Action<TreeNode>>();
-            ruleNames = new HashSet<string>();
+            registered_events = new Dictionary<string, Action<TreeNode>>();
+            rule_names = new HashSet<string>();
         }
-        
         
         
         // checking if all registered events are reasonable and orrur as rules in the grammar
         public void sanityCheck()
         {
-            foreach (string eventName in registeredEvents.Keys)
+            foreach (string event_name in registered_events.Keys)
             {
-                if (!eventName.EndsWith("_pre_event") && !eventName.EndsWith("_post_event"))
+                if (!event_name.EndsWith("_pre_event") && !event_name.EndsWith("_post_event"))
                 {
-                    throw new Exception("Parser event handler error: event '" + eventName + "' does not contain the suffix '_pre_event' or '_post_event'");
+                    throw new Exception("Parser event handler error: event '" + event_name + "' does not contain the suffix '_pre_event' or '_post_event'");
                 }
-                string ruleName = eventName.Replace("_pre_event", "").Replace("_post_event", "");
-                if (!ruleNames.Contains(ruleName))
+                string rule_name = event_name.Replace("_pre_event", "").Replace("_post_event", "");
+                if (!rule_names.Contains(rule_name))
                 {
-                    throw new Exception("Parser event handler error: rule '" + ruleName + "' in event '" + eventName + "' is not present in the grammar" + (parser != null ? " '" + parser.grammarName + "'" : ""));
+                    throw new Exception("Parser event handler error: rule '" + rule_name + "' in event '" + event_name + "' is not present in the grammar" + (parser != null ? " '" + parser.grammar_name + "'" : ""));
                 }
             }
         }
         
         
-        public void handleEvent(string eventName, TreeNode node)
+        public void handleEvent(string event_name, TreeNode node)
         {
-            if (registeredEvents.ContainsKey(eventName))
+            if (debug == "full")
             {
-                registeredEvents[eventName](node);
+                string reg_event = registered_events.ContainsKey(event_name) ? "*" : "";
+                Console.WriteLine(event_name + reg_event + ": \"" + node.get_text() + "\"");
+            }
+            
+            if (registered_events.ContainsKey(event_name))
+            {
+                if (debug != "" && debug != "full")
+                {
+                    Console.WriteLine(event_name + ": \"" + node.get_text() + "\"");
+                }
+                registered_events[event_name](node);
             }
         }
     }    

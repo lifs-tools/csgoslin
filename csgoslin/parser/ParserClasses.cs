@@ -115,14 +115,14 @@ namespace csgoslin
             for (int i = 0; i < s; ++i) superfield[i] = 0;
         }
         
-        public void set(int pos)
+        public void Add(int pos)
         {
             field[pos >> 6] |= (ulong)(1UL << (pos & 63));
             superfield[pos >> 12] |= (ulong)(1UL << ((pos >> 6) & 63));
         }
         
         
-        public bool isSet(int pos)
+        public bool find(int pos)
         {
             return ((field[pos >> 6] >> (pos & 63)) & 1UL) == 1UL;
         }

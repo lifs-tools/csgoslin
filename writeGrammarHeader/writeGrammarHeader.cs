@@ -83,6 +83,7 @@ class WriteGrammarHeader
             string output_enums_file = Path.Combine(prefixPath, "csgoslin", "parser", "KnownGrammars.cs");
             using (StreamWriter sw = new StreamWriter(output_enums_file))
             {
+                sw.Write("/* DO NOT CHANGE THE FILE, IT IS AUTOMATICALLY GENERATED */\n\n");
                 sw.Write("/*\n");
                 sw.Write("MIT License\n");
                 sw.Write("\n");
