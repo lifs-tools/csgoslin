@@ -28,7 +28,7 @@ using System.Text;
 using System.Collections.Generic;
 
 
-class Program
+class WriteLipidEnum
 {    
     
     public static List<string> split_string(string text, char separator = ',', char _quote = '"', bool with_empty = true)
