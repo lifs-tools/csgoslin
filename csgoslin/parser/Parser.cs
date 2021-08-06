@@ -25,6 +25,7 @@ SOFTWARE.
 
 
 using System;
+using System.IO;
 using System.Text;
 using System.Collections.Generic;
 
@@ -35,8 +36,8 @@ namespace csgoslin
         
     public class Parser<T>
     {
-        public static readonly uint SHIFT = 32;
-        public static readonly ulong MASK = (1UL << (int)SHIFT) - 1;
+        public static readonly int SHIFT = 32;
+        public static readonly ulong MASK = (1UL << SHIFT) - 1;
         public static readonly char RULE_ASSIGNMENT = ':';
         public static readonly char RULE_SEPARATOR = '|';
         public static readonly char RULE_TERMINAL = ';';
@@ -63,26 +64,22 @@ namespace csgoslin
         
         
         
-        public Parser(BaseParserEventHandler<T> *_parserEventHandler, GrammarString grammar_string, char _quote = null)
+        public Parser(BaseParserEventHandler<T> _parserEventHandler, GrammarString grammar_string, char _quote = (char)0)
         {
             
-            quote = _quote && StringFunctions.DEFAULT_QUOTE;
+            quote = (_quote != 0) ? _quote : StringFunctions.DEFAULT_QUOTE;
             parser_event_handler = _parserEventHandler;
             
-            read_grammar(grammar_string);
+            read_grammar(grammar_string.ToString());
         }
 
 
-        public Parser(BaseParserEventHandler<T> *_parserEventHandler, string grammar_filename, char _quote = null)
+        public Parser(BaseParserEventHandler<T> _parserEventHandler, string grammar_filename, char _quote = (char)0)
         {
             
-            quote = _quote && StringFunctions.DEFAULT_QUOTE;
+            quote = (_quote != 0) ? _quote : StringFunctions.DEFAULT_QUOTE;
             parser_event_handler = _parserEventHandler;
             
-            ifstream f(grammar_filename);
-            if (!f.good()){
-                throw RuntimeException("Error: file '" + grammar_filename + "' does not exist or can not be opened.");
-            }
             
             if (File.Exists(grammar_filename))
             {
@@ -94,6 +91,14 @@ namespace csgoslin
                 throw new RuntimeException("Error: file '" + grammar_filename + "' does not exist.");
             }
         }
+        
+        ulong get_next_free_rule_index()
+        {
+            if (next_free_rule_index <= MASK){
+                return next_free_rule_index++;
+            }
+            throw new RuntimeException("Error: grammar is too big.");
+        }
 
             
         public void read_grammar(string grammar)
@@ -102,47 +107,47 @@ namespace csgoslin
             word_in_grammar = false;
             grammar_name = "";
             used_eof = false;
-            Dictorionary<string, ulong> ruleToNT = new Dictionary<string, ulong>();
+            Dictionary<string, ulong> ruleToNT = new Dictionary<string, ulong>();
             
             
             // interpret the rules and create the structure for parsing
             List<string> rules = extract_text_based_rules(grammar, quote);
-            List<string> tokens = split_string(rules[0], ' ', quote);
+            List<string> tokens = StringFunctions.split_string(rules[0], ' ', quote);
             grammar_name = tokens[1];
             
             rules.RemoveAt(0);
             ruleToNT.Add(EOF_RULE_NAME, EOF_RULE);
-            TtoNT.Add(EOF_SIGN, HashSet<ulong>());
+            TtoNT.Add(EOF_SIGN, new HashSet<ulong>());
             TtoNT[EOF_SIGN].Add(EOF_RULE);
             
             foreach (string rule_line in rules)
             {
                 List<string> tokens_level_1 = new List<string>();
-                List<string> line_tokens = split_string(rule_line, RULE_ASSIGNMENT, quote);
+                List<string> line_tokens = StringFunctions.split_string(rule_line, RULE_ASSIGNMENT, quote);
                 foreach (string t in line_tokens) tokens_level_1.Add(t.Trim(SPACE_TRIM));
                     
                 if (tokens_level_1.Count != 2)
                 {
-                    throw RuntimeException("Error: corrupted token in grammar rule: '" + rule_line + "'");
+                    throw new RuntimeException("Error: corrupted token in grammar rule: '" + rule_line + "'");
                 }
                 
-                List<string> rule_tokens = split_string(tokens_level_1[0], ' ', quote);
+                List<string> rule_tokens = StringFunctions.split_string(tokens_level_1[0], ' ', quote);
                 if (rule_tokens.Count > 1)
                 {
-                    throw RuntimeException("Error: several rule names on left hand side in grammar rule: '" + rule_line + "'");
+                    throw new RuntimeException("Error: several rule names on left hand side in grammar rule: '" + rule_line + "'");
                 }
 
                 string rule = tokens_level_1[0];
                 
                 if (rule == EOF_RULE_NAME)
                 {
-                    throw RuntimeException("Error: rule name is not allowed to be called EOF");
+                    throw new RuntimeException("Error: rule name is not allowed to be called EOF");
                 }
                 
-                List<string> products = split_string(tokens_level_1[1], RULE_SEPARATOR, quote);
-                for (ulong i = 0; i < products.Count; ++i)
+                List<string> products = StringFunctions.split_string(tokens_level_1[1], RULE_SEPARATOR, quote);
+                for (int i = 0; i < products.Count; ++i)
                 {
-                    products.at(i) = products[i].Trim(SPACE_TRIM);
+                    products[i] = products[i].Trim(SPACE_TRIM);
                 }
                 
                 if (!ruleToNT.ContainsKey(rule))
@@ -161,7 +166,7 @@ namespace csgoslin
                 {
                     List<string> non_terminals = new List<string>();
                     List<ulong> non_terminal_rules = new List<ulong>();
-                    List<string> product_rules = split_string(product, ' ', quote);
+                    List<string> product_rules = StringFunctions.split_string(product, ' ', quote);
                     foreach (string NT in product_rules)
                     {
                         string stripedNT = NT.Trim(SPACE_TRIM);
@@ -203,7 +208,7 @@ namespace csgoslin
                             
                         }
                         else {
-                            tRule = TtoNT[c].ToList()[0];
+                            tRule = (new List<ulong>(TtoNT[c]))[0];
                         }
                         
                         if (!NTtoNT.ContainsKey(tRule)) NTtoNT.Add(tRule, new HashSet<ulong>());
@@ -229,7 +234,7 @@ namespace csgoslin
                     if (non_terminal_rules.Count == 2)
                     {
                         ulong rule_index_2 = non_terminal_rules[1];
-                        ulong rule_index_1 = non_terminal_rules.[0];
+                        ulong rule_index_1 = non_terminal_rules[0];
                         ulong key = compute_rule_key(rule_index_1, rule_index_2);
                         if (!NTtoNT.ContainsKey(key)) NTtoNT.Add(key, new HashSet<ulong>());
                         NTtoNT[key].Add(new_rule_index);
@@ -238,23 +243,20 @@ namespace csgoslin
                     // only one product rule
                     else if (non_terminal_rules.Count == 1)
                     {
-                        ulong rule_index_1 = non_terminal_rules.at(0);
+                        ulong rule_index_1 = non_terminal_rules[0];
                         if (rule_index_1 == new_rule_index)
                         {
-                            throw RuntimeException("Error: corrupted token in grammar: rule '" + rule + "' is not allowed to refer soleley to itself.");
+                            throw new RuntimeException("Error: corrupted token in grammar: rule '" + rule + "' is not allowed to refer soleley to itself.");
                         }
                         
                         if (!NTtoNT.ContainsKey(rule_index_1)) NTtoNT.Add(rule_index_1, new HashSet<ulong>());
                         NTtoNT[rule_index_1].Add(new_rule_index);
                     }
                 }
-                
-                delete products;
             }
-            delete rules;
             
             // adding all rule names into the event handler
-            foreach (KeyValuePair<string, ulong> rule_name int ruleToNT) parser_event_handler.rule_names.Add(rule_name.first);
+            foreach (KeyValuePair<string, ulong> rule_name in ruleToNT) parser_event_handler.rule_names.Add(rule_name.Key);
                 
             parser_event_handler.sanity_check();
             
@@ -274,9 +276,9 @@ namespace csgoslin
             HashSet<ulong> visited = new HashSet<ulong>();
             foreach (KeyValuePair<ulong, HashSet<ulong>> kv in NTtoNT)
             {
-                HashSet<ulong> values = HashSet<ulong>(kv.Value);
+                HashSet<ulong> values = new HashSet<ulong>();
                 values.Add(kv.Key);
-                for (ulong rule in values)
+                foreach (ulong rule in values)
                 {
                     if (visited.Contains(rule)) continue;
                     visited.Add(rule);
@@ -286,20 +288,21 @@ namespace csgoslin
                     {
                         List< List<ulong> > chains = collect_backwards(rule, rule_top);
                         
-                        foreach (List<ulong> chain in chains)
+                        foreach (List<ulong> cchain in chains)
                         {
+                            List<ulong> chain = cchain;
                             while (chain.Count > 1)
                             {
                                 ulong top = chain[0];
                                 chain.RemoveAt(0);
-                                ulong key = kv.first + unchecked(top << 16);
+                                ulong key = kv.Key + unchecked(top << 16);
                                 if (!substitution.ContainsKey(key))
                                 {
                                     substitution.Add(key, chain);
                                 
                                     if (chain.Count > 1){
                                         List<ulong> new_chain = new List<ulong>();
-                                        foreach (ulong e : chain) new_chain.Add(e);
+                                        foreach (ulong e in chain) new_chain.Add(e);
                                         chain = new_chain;
                                     }
                                 }
@@ -313,14 +316,14 @@ namespace csgoslin
             }
 
             // expanding terminal dictionary for single rule chains
-            HashSet<ulong> keys = new HashSet<ulong>();
+            HashSet<char> keys = new HashSet<char>();
             foreach (KeyValuePair<char, HashSet<ulong>> key in TtoNT) keys.Add(key.Key);
-            foreach (ulong c in keys)
+            foreach (char c in keys)
             {
-                HashSet<ulong> rules = new HashSet<ulong>();
-                foreach (ulong rule in TtoNT[c]) rules.Add(rule);
+                HashSet<ulong> k_rules = new HashSet<ulong>();
+                foreach (ulong rule in TtoNT[c]) k_rules.Add(rule);
                                     
-                foreach (ulong rule in rules)
+                foreach (ulong rule in k_rules)
                 {
                     List<ulong> backward_rules = collect_one_backwards(rule);
                     foreach (ulong p in backward_rules) TtoNT[c].Add(p);
@@ -334,10 +337,10 @@ namespace csgoslin
             foreach (KeyValuePair<ulong, HashSet<ulong> > k in NTtoNT) keysNT.Add(k.Key);
             foreach (ulong r in keysNT)
             {
-                HashSet<ulong> rules = new HashSet<ulong>();
-                foreach (ulong rr in NTtoNT[r]) rules.Add(rr);
+                HashSet<ulong> k_rules = new HashSet<ulong>();
+                foreach (ulong rr in NTtoNT[r]) k_rules.Add(rr);
                                                                         
-                foreach (ulong rule in rules)
+                foreach (ulong rule in k_rules)
                 {
                     List<ulong> backward_rules = collect_one_backwards(rule);
                     foreach (ulong p in backward_rules) NTtoNT[r].Add(p);
@@ -347,14 +350,14 @@ namespace csgoslin
             
             // creating lookup table for right index pairs to a given left index
             for (ulong i = 0; i < next_free_rule_index; ++i){
-                right_pair.Add(new Bitfield(next_free_rule_index));
+                right_pair.Add(new Bitfield((int)next_free_rule_index));
             }
             
             
-            for (KeyValuePair<ulong, HashSet<ulong> > kvp in NTtoNT)
+            foreach (KeyValuePair<ulong, HashSet<ulong> > kvp in NTtoNT)
             {
                 if (kvp.Key <= MASK) continue;
-                right_pair[unchecked(kvp.Key >> SHIFT)].Add(kvp.Key & MASK);
+                right_pair[(int)(unchecked(kvp.Key >> SHIFT))].Add((int)(kvp.Key & MASK));
             }
         }
 
@@ -372,7 +375,7 @@ namespace csgoslin
             the other contexts have to be ignored.
             */
             StringBuilder sb = new StringBuilder();
-            Content current_context = Context.NoContext;
+            Context current_context = Context.NoContext;
             int current_position = 0;
             int last_escaped_backslash = -1;
             
@@ -399,17 +402,17 @@ namespace csgoslin
                         case Context.NoContext:
                             switch (match){
                                 case MatchWords.LongCommentStart:
-                                    sb.Append(grammar.substr(current_position, i - current_position));
-                                    current_context = InLongComment;
+                                    sb.Append(grammar.Substring(current_position, i - current_position));
+                                    current_context = Context.InLongComment;
                                     break;
                                     
                                 case MatchWords.LineCommentStart:
-                                    sb.Append(grammar.substr(current_position, i - current_position));
-                                    current_context = InLineComment;
+                                    sb.Append(grammar.Substring(current_position, i - current_position));
+                                    current_context = Context.InLineComment;
                                     break;
                                     
                                 case MatchWords.Quote:
-                                    current_context = InQuote;
+                                    current_context = Context.InQuote;
                                     break;
                                     
                                 default:
@@ -420,7 +423,7 @@ namespace csgoslin
                         case Context.InQuote:
                             if (match == MatchWords.Quote)
                             {
-                                current_context = NoContext;
+                                current_context = Context.NoContext;
                             }
                             break;
                             
@@ -428,7 +431,7 @@ namespace csgoslin
                         case Context.InLineComment:
                             if (match == MatchWords.LineCommentEnd)
                             {
-                                current_context = NoContext;
+                                current_context = Context.NoContext;
                                 current_position = i + 1;
                             }
                             break;
@@ -436,7 +439,7 @@ namespace csgoslin
                         case Context.InLongComment:
                             if (match == MatchWords.LongCommentEnd)
                             {
-                                current_context = NoContext;
+                                current_context = Context.NoContext;
                                 current_position = i + 2;
                             }
                             break;
@@ -447,9 +450,9 @@ namespace csgoslin
                 }
             }
             
-            if (current_context == NoContext)
+            if (current_context == Context.NoContext)
             {
-                sb.Append(grammar.substr(current_position, grammar_length - current_position));
+                sb.Append(grammar.Substring(current_position, grammar_length - current_position));
             }
             else
             {
@@ -468,13 +471,13 @@ namespace csgoslin
                 throw new RuntimeException("Error: corrupted grammar, last rule has no termininating sign, was: '" + grammar[grammar.Length - 1] + "'");
             }
             
-            rules = split_string(grammar, RULE_TERMINAL, _quote);
+            rules = StringFunctions.split_string(grammar, RULE_TERMINAL, _quote);
             
             if (rules.Count < 1)
             {
                 throw new RuntimeException("Error: corrupted grammar, grammar is empty");
             }
-            List<string> grammar_name_rule = split_string(rules[0], ' ', _quote);
+            List<string> grammar_name_rule = StringFunctions.split_string(rules[0], ' ', _quote);
             
             if (grammar_name_rule.Count > 0 && grammar_name_rule[0] != "grammar")
             {
@@ -493,7 +496,7 @@ namespace csgoslin
 
         public ulong compute_rule_key(ulong rule_index_1, ulong rule_index_2)
         {
-            return unchecked(rule_index_1 << SHIFT) | rule_index_2;
+            return (unchecked(rule_index_1 << SHIFT)) | rule_index_2;
         }
 
 
@@ -511,7 +514,7 @@ namespace csgoslin
             // remove the escape chars
             StringBuilder sb = new StringBuilder();
             bool last_escape_char = false;
-            for (ulong i = 0; i < text.Length; ++i){
+            for (int i = 0; i < text.Length; ++i){
                 char c = text[i];
                 bool escape_char = false;
                 
@@ -539,8 +542,8 @@ namespace csgoslin
         // splitting the whole terminal in a tree structure where characters of terminal are the leafs and the inner nodes are added non terminal rules
         public ulong add_terminal(string text)
         {
-            List<ulong> terminal_rules;
-            for (ulong i = 1; i < text.Length - 1; ++i)
+            List<ulong> terminal_rules = new List<ulong>();
+            for (int i = 1; i < text.Length - 1; ++i)
             {
                 char c = text[i];
                 ulong tRule = 0;
@@ -551,7 +554,7 @@ namespace csgoslin
                 }
                 else
                 {
-                    tRule = TtoNT[c].ToList()[0];
+                    tRule = (new List<ulong>(TtoNT[c]))[0];
                 }
                 terminal_rules.Add(tRule);
             }
@@ -579,7 +582,7 @@ namespace csgoslin
             List<ulong> collection = new List<ulong>();
             List<ulong> collection_top = new List<ulong>();
             collection.Add(rule_index);
-            ulong i = 0;
+            int i = 0;
             while (i < collection.Count)
             {
                 ulong current_index = collection[i];
@@ -591,7 +594,7 @@ namespace csgoslin
                 {
                     collection_top.Add(current_index);
                 }
-                i += 1;
+                ++i;
             }
             
             return collection_top;
@@ -602,7 +605,7 @@ namespace csgoslin
         public List<ulong> collect_one_backwards(ulong rule_index){
             List<ulong> collection = new List<ulong>();
             collection.Add(rule_index);
-            ulong i = 0;
+            int i = 0;
             while (i < collection.Count)
             {
                 ulong current_index = collection[i];
@@ -610,7 +613,7 @@ namespace csgoslin
                 {
                     foreach (ulong previous_index in NTtoNT[current_index]) collection.Add(previous_index);
                 }
-                i += 1;
+                ++i;
             }
             
             return collection;
@@ -618,7 +621,7 @@ namespace csgoslin
 
 
 
-        public List< List<ulong> > collect_backwards(ulong child_rule_index, unsigned parent_rule_index)
+        public List< List<ulong> > collect_backwards(ulong child_rule_index, ulong parent_rule_index)
         {
             HashSet<ulong> visited = new HashSet<ulong>();
             List<ulong> path = new List<ulong>();
@@ -628,7 +631,7 @@ namespace csgoslin
         }
 
 
-        public List< List<ulong> > collect_backwards(ulong child_rule_index, unsigned parent_rule_index, HashSet<ulong> visited, List<ulong> path, List< List<ulong> > collection){
+        public List< List<ulong> > collect_backwards(ulong child_rule_index, ulong parent_rule_index, HashSet<ulong> visited, List<ulong> path, List< List<ulong> > collection){
             // provides all single linkage paths from a child rule to a parent rule,
             // and yes, there can be several paths
             
@@ -702,7 +705,7 @@ namespace csgoslin
             else
             {
                 top_rule = dp_node.rule_index_2;
-                bottom_rule = originalTtoNT[dp_node.rule_index_1];
+                bottom_rule = originalTtoNT[(char)dp_node.rule_index_1];
             }
             
             ulong subst_key = bottom_rule + unchecked(top_rule << 16);
@@ -711,7 +714,7 @@ namespace csgoslin
             {
                 foreach (ulong rule_index in substitution[subst_key])
                 {
-                    node.left = new TreeNode(rule_index, contains(NTtoRule, rule_index));
+                    node.left = new TreeNode(rule_index, NTtoRule.ContainsKey(rule_index));
                     node = node.left;
                 }
             }
@@ -720,8 +723,8 @@ namespace csgoslin
             
             if (dp_node.left != null) // None => leaf
             {
-                node.left = new TreeNode(dp_node.rule_index_1, contains(NTtoRule, dp_node.rule_index_1));
-                node.right = new TreeNode(dp_node.rule_index_2, contains(NTtoRule, dp_node.rule_index_2));
+                node.left = new TreeNode(dp_node.rule_index_1, NTtoRule.ContainsKey(dp_node.rule_index_1));
+                node.right = new TreeNode(dp_node.rule_index_2, NTtoRule.ContainsKey(dp_node.rule_index_2));
                 fill_tree(node.left, dp_node.left);
                 fill_tree(node.right, dp_node.right);
             }
@@ -729,7 +732,7 @@ namespace csgoslin
             {
                 // I know, it is not 100% clean to store the character in an integer
                 // especially when it is not the dedicated attribute for, but the heck with it!
-                node.terminal = dp_node.rule_index_1;
+                node.terminal = (char)dp_node.rule_index_1;
             }
         }
 
@@ -740,7 +743,7 @@ namespace csgoslin
         {
             string old_lipid = text_to_parse;
             if (used_eof) text_to_parse += EOF_SIGN;
-            parser_event_handler.content = null;
+            parser_event_handler.content = default(T);
             
             parse_regular(text_to_parse);
             if (throw_error && !word_in_grammar)
@@ -760,17 +763,17 @@ namespace csgoslin
             
             int n = text_to_parse.Length;
             // dp stands for dynamic programming, nothing else
-            Dictorionary<ulong, DPNode>[][] DP = new Dictorionary<ulong, DPNode>[][n];
+            Dictionary<ulong, DPNode>[][] DP = new Dictionary<ulong, DPNode>[n][];
             
             // Ks is a lookup, which fields in the DP are filled
-            Bitfield[][] Ks = new Bitfield[][n];
+            Bitfield[] Ks = new Bitfield[n];
             
             
             // init the tables
             for (int i = 0; i < n; ++i){
-                DP[i] = new Dictorionary<ulong, DPNode>[][n - i];
+                DP[i] = new Dictionary<ulong, DPNode>[n - i];
                 for (int j = 0; j < n - i; ++j){
-                    DP[i][j] = new Dictorionary<ulong, DPNode>();
+                    DP[i][j] = new Dictionary<ulong, DPNode>();
                 }
                 Ks[i] = new Bitfield(n);
             }
@@ -802,10 +805,12 @@ namespace csgoslin
                     
                     for (int j = 0; j < n - i; ++j)
                     {
-                        Dictorionary<ulong, DPNode> DPji = DP[j][i];
+                        
+                        Dictionary<ulong, DPNode>[] DPj = DP[j];
+                        Dictionary<ulong, DPNode> DPji = DPj[i];
                         int jp1 = j + 1;
                         
-                        foreach (int k : Ks[j].getBitPositions)
+                        foreach (int k in Ks[j].getBitPositions())
                         {
                             int jpok = jp1 + k;
                             int im1mk = im1 - k;
@@ -813,11 +818,11 @@ namespace csgoslin
                             {
                                 foreach (KeyValuePair<ulong, DPNode> index_pair_1 in DP[j][k])
                                 {
-                                    Bitfield b = right_pair[index_pair_1.Key];
+                                    Bitfield b = right_pair[(int)index_pair_1.Key];
                                     foreach (KeyValuePair<ulong, DPNode> index_pair_2 in DP[jpok][im1mk])
                                     {
                                         
-                                        if (b.find(index_pair_2.Key))
+                                        if (b.find((int)index_pair_2.Key))
                                         {
                                             ulong key = compute_rule_key(index_pair_1.Key, index_pair_2.Key);
                                             
@@ -842,7 +847,7 @@ namespace csgoslin
                     if (DP[0][i].ContainsKey(START_RULE))
                     {
                         word_in_grammar = true;
-                        TreeNode parse_tree(START_RULE, NTtoRule.ContainsKey(START_RULE));
+                        TreeNode parse_tree = new TreeNode(START_RULE, NTtoRule.ContainsKey(START_RULE));
                         fill_tree(parse_tree, DP[0][i][START_RULE]);
                         raise_events(parse_tree);
                         break;

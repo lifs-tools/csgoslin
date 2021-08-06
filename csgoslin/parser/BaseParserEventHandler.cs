@@ -35,6 +35,7 @@ namespace csgoslin
         public HashSet<string> rule_names = new HashSet<string>();
         public Parser<T> parser = null;
         public string debug = "";
+        public T content = default(T);
     
         public BaseParserEventHandler()
         {
@@ -44,7 +45,7 @@ namespace csgoslin
         
         
         // checking if all registered events are reasonable and orrur as rules in the grammar
-        public void sanityCheck()
+        public void sanity_check()
         {
             foreach (string event_name in registered_events.Keys)
             {
@@ -61,7 +62,7 @@ namespace csgoslin
         }
         
         
-        public void handleEvent(string event_name, TreeNode node)
+        public void handle_event(string event_name, TreeNode node)
         {
             if (debug == "full")
             {

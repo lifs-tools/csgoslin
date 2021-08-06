@@ -57,7 +57,7 @@ namespace csgoslin
 
 
 
-        public List<string> split_string(string text, char separator = ',', char? _quote = null, bool with_empty = false)
+        public static List<string> split_string(string text, char separator = ',', char? _quote = null, bool with_empty = false)
         {
             _quote = _quote ?? DEFAULT_QUOTE;
             bool in_quote = false;
