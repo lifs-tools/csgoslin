@@ -34,10 +34,71 @@ namespace csgoslin
     
     public class SumFormulaParserEventHandler : BaseParserEventHandler<ElementTable>
     {
-        public SumFormulaParserEventHandler(){
+        Element element;
+        int count;
+        
+        public SumFormulaParserEventHandler() : base()
+        {
+            content = StringFunctions.create_empty_table();
+            element = Element.H;
+            count = 0;
             
+            registered_events.Add("molecule_pre_event", reset_parser);
+            registered_events.Add("element_group_post_event", element_group_post_event);
+            registered_events.Add("element_pre_event", element_pre_event);
+            registered_events.Add("single_element_pre_event", single_element_group_pre_event);
+            registered_events.Add("count_pre_event", count_pre_event);
         }
         
-    }
+    
+        void reset_parser(TreeNode node)
+        {
+            content = StringFunctions.create_empty_table();
+            element = Element.H;
+            count = 0;
+        }
 
+
+        void element_group_post_event(TreeNode node)
+        {
+            content[element] += count;
+        }
+
+
+        void element_pre_event(TreeNode node)
+        {
+            string parsed_element = node.get_text();
+            
+            if (Elements.element_positions.ContainsKey(parsed_element))
+            {
+                element = Elements.element_positions[parsed_element];
+            }
+                    
+            else {
+                throw new LipidException("Error: element '" + parsed_element + "' is unknown");
+            }
+        }
+
+
+        void single_element_group_pre_event(TreeNode node)
+        {
+            string parsed_element = node.get_text();
+            if (Elements.element_positions.ContainsKey(parsed_element))
+            {
+                element = Elements.element_positions[parsed_element];
+                content[element] += 1;
+            }
+                
+            else {
+                throw new LipidException("Error: element '" + parsed_element + "' is unknown");
+            }
+        }
+
+
+        void count_pre_event(TreeNode node)
+        {
+            count = Convert.ToInt32(node.get_text());
+        }
+    
+    }
 }

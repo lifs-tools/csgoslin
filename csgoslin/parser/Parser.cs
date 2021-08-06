@@ -795,7 +795,6 @@ namespace csgoslin
                 }
                 Ks[i].Add(0);
             }
-
             
             if (requirement_fulfilled)
             {
@@ -829,7 +828,10 @@ namespace csgoslin
                                             DPNode content = new DPNode(index_pair_1.Key, index_pair_2.Key, index_pair_1.Value, index_pair_2.Value);
                                             foreach (ulong rule_index in NTtoNT[key])
                                             {
-                                                DPji.Add(rule_index, content);
+                                                if (!DPji.ContainsKey(rule_index))
+                                                {
+                                                    DPji.Add(rule_index, content);
+                                                }
                                             }
                                         }
                                     }
