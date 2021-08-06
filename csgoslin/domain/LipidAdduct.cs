@@ -30,10 +30,10 @@ using System.Collections.Generic;
 
 namespace csgoslin
 {
+    using ElementTable = System.Collections.Generic.Dictionary<Element, int>;
     
     public class LipidAdduct
     {
-        /*
         public LipidSpecies lipid;
         public Adduct adduct;
         
@@ -53,8 +53,8 @@ namespace csgoslin
             
             switch (level)
             {
-                case CLASS:
-                case CATEGORY:
+                case LipidLevel.CLASS:
+                case LipidLevel.CATEGORY:
                     break;
                     
                 default:
@@ -93,17 +93,17 @@ namespace csgoslin
             int charge = 0;
             double mass = 0;
                 
-            if (adduct != NULL)
+            if (adduct != null)
             {
                 charge = adduct.get_charge();
             }
             
             foreach( KeyValuePair<Element, int> kvp in elements)
             {
-                mass += element_masses[kvp.Key] * kvp.Value;
+                mass += Elements.element_masses[kvp.Key] * kvp.Value;
             }
             
-            if (charge != 0) mass = (mass - charge * ELECTRON_REST_MASS) / abs(charge);
+            if (charge != 0) mass = (mass - charge * Elements.ELECTRON_REST_MASS) / Math.Abs(charge);
             
             return mass;
         }
@@ -111,22 +111,22 @@ namespace csgoslin
 
         public ElementTable get_elements()
         {
-            ElementTable* elements = create_empty_table();
+            ElementTable elements = StringFunctions.create_empty_table();
             
-            if (lipid != NULL)
+            if (lipid != null)
             {
                 ElementTable lipid_elements = lipid.get_elements();
                 foreach( KeyValuePair<Element, int> kvp in lipid_elements)
                 {
-                    elements[kvp.Key] + kvp.Value;
+                    elements[kvp.Key] += kvp.Value;
                 }
             }
                     
-            if (adduct != NULL){
+            if (adduct != null){
                 ElementTable adduct_elements = adduct.get_elements();
                 foreach( KeyValuePair<Element, int> kvp in adduct_elements)
                 {
-                    elements[kvp.Key] + kvp.Value;
+                    elements[kvp.Key] += kvp.Value;
                 }
             }
             return elements;
@@ -135,8 +135,7 @@ namespace csgoslin
 
         public string get_sum_formula()
         {
-            return compute_sum_formula(get_elements());
+            return StringFunctions.compute_sum_formula(get_elements());
         }
-        */
     }
 }

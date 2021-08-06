@@ -37,7 +37,7 @@ namespace csgoslin
     {
         
         public static char DEFAULT_QUOTE = '\'';
-        public string compute_sum_formula(ElementTable elements)
+        public static string compute_sum_formula(ElementTable elements)
         {
             StringBuilder ss = new StringBuilder();
             
