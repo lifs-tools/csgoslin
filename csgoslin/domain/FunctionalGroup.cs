@@ -214,7 +214,7 @@ namespace csgoslin
             lowest_visible_level = _level;
         }
 
-        public override HeadgroupDecorator copy()
+        public override FunctionalGroup copy()
         {
             ElementTable e = StringFunctions.create_empty_table();
             foreach (KeyValuePair<Element, int> kv in elements)

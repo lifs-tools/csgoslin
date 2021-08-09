@@ -63,7 +63,7 @@ namespace csgoslin
         }
 
 
-        public override FattyAcid copy()
+        public override FunctionalGroup copy()
         {
             DoubleBonds db = double_bonds.copy();
             Dictionary<string, List<FunctionalGroup> > fg = new Dictionary<string, List<FunctionalGroup> >();
@@ -297,7 +297,7 @@ namespace csgoslin
         }
         
         
-        public override AcylAlkylGroup copy()
+        public override FunctionalGroup copy()
         {
             return new AcylAlkylGroup((FattyAcid)functional_groups[alkyl ? "alkyl" : "acyl"][0].copy(), position, count, alkyl, N_bond);
         }
@@ -346,7 +346,7 @@ namespace csgoslin
         }
         
         
-        public override CarbonChain copy()
+        public override FunctionalGroup copy()
         {
             return new CarbonChain((FattyAcid)functional_groups["cc"][0].copy(), position, count);
         }
