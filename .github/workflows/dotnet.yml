@@ -19,7 +19,11 @@ jobs:
         dotnet-version: 5.0.x 
     - name: Restore dependencies
       run: dotnet restore
-    - name: Build
-      run: dotnet build
+    - name: Build writeGrammarHeader
+      run: dotnet build writeGrammarHeader/writeGrammarHeader.csproj
+    - name: Build writeLipidEnums
+      run: dotnet build writeLipidEnums/writeLipidEnums.csproj
+    - name: Build csgoslin
+      run: dotnet build csgoslin/csgoslin.csproj
       #    - name: Test
-      #      run: dotnet test --no-build --verbosity normal
+      #      run: dotnet csgoslin/csgoslin.csproj test --no-build --verbosity normal

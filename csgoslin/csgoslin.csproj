@@ -1,8 +1,8 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <ItemGroup>
-    <ProjectReference Include="..\writeGrammarHeader\writeGrammarHeader.csproj" />
-    <ProjectReference Include="..\writeLipidEnums\writeLipidEnums.csproj" />
+    <ProjectReference Include="..\writeGrammarHeader\writeGrammarHeader.csproj" ReferenceOutputAssembly="false" />
+    <ProjectReference Include="..\writeLipidEnums\writeLipidEnums.csproj" ReferenceOutputAssembly="false" />
   </ItemGroup>
 
   <PropertyGroup>
