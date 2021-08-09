@@ -19,10 +19,6 @@ jobs:
         dotnet-version: 5.0.x 
     - name: Restore dependencies
       run: dotnet restore
-    - name: Build writeGrammarHeader
-      run: dotnet build writeGrammarHeader/writeGrammarHeader.csproj
-    - name: Build writeLipidEnums
-      run: dotnet build writeLipidEnums/writeLipidEnums.csproj
     - name: Build csgoslin
       run: dotnet build csgoslin/csgoslin.csproj
       #    - name: Test
