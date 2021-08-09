@@ -1,5 +1,10 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
+  <ItemGroup>
+    <ProjectReference Include="..\writeGrammarHeader\writeGrammarHeader.csproj" />
+    <ProjectReference Include="..\writeLipidEnums\writeLipidEnums.csproj" />
+  </ItemGroup>
+
   <PropertyGroup>
     <OutputType>library</OutputType>
     <TargetFramework>net47</TargetFramework>
@@ -23,23 +28,16 @@
     <VersionPrefix>2.0.1</VersionPrefix>
   </PropertyGroup>
 
-  <!-- <ItemGroup>
-    <ProjectReference Include="$(MSBuildProjectDirectory)\..\writeGrammarHeader\writeGrammarHeader.csproj" />
-    <ProjectReference Include="$(MSBuildProjectDirectory)\..\writeLipidEnums\writeLipidEnums.csproj" />
-  </ItemGroup> -->
-
-  <Target Name="GenerateGoslinGrammarHeader" 
-      BeforeTargets="PrepareForBuild">
+  <Target Name="GenerateGoslinGrammarHeader" BeforeTargets="PrepareForBuild">
     <Message Text="Generating grammar header" />
-    <Exec Command="mono $(MSBuildProjectDirectory)\..\writeGrammarHeader\$(OutDir)\writeGrammarHeader.exe" WorkingDirectory="..\" ConsoleToMsBuild="true" Condition=" '$(OS)' != 'Windows_NT' "/>
-    <Exec Command="$(MSBuildProjectDirectory)\..\writeGrammarHeader\$(OutDir)\writeGrammarHeader.exe" WorkingDirectory="..\" ConsoleToMsBuild="true" Condition=" '$(OS)' == 'Windows_NT' "/>
+    <Exec Command="mono $(MSBuildProjectDirectory)/../writeGrammarHeader/$(OutDir)writeGrammarHeader.exe" WorkingDirectory="../" ConsoleToMsBuild="true" Condition=" '$(OS)' != 'Windows_NT' " />
+    <Exec Command="$(MSBuildProjectDirectory)\..\writeGrammarHeader\$(OutDir)writeGrammarHeader.exe" WorkingDirectory="..\" ConsoleToMsBuild="true" Condition=" '$(OS)' == 'Windows_NT' " />
   </Target>
 
-  <Target Name="GenerateGoslinLipidEnums" 
-      BeforeTargets="PrepareForBuild">
+  <Target Name="GenerateGoslinLipidEnums" BeforeTargets="PrepareForBuild">
     <Message Text="Generating lipid enums" />
-    <Exec Command="mono $(MSBuildProjectDirectory)\..\writeLipidEnums\$(OutDir)\writeLipidEnums.exe" WorkingDirectory="..\" ConsoleToMsBuild="true" Condition=" '$(OS)' != 'Windows_NT' "/>
-    <Exec Command="$(MSBuildProjectDirectory)\..\writeLipidEnums\$(OutDir)\writeLipidEnums.exe" WorkingDirectory="..\" ConsoleToMsBuild="true" Condition=" '$(OS)' == 'Windows_NT' "/>
+    <Exec Command="mono $(MSBuildProjectDirectory)/../writeLipidEnums/$(OutDir)writeLipidEnums.exe" WorkingDirectory="../" ConsoleToMsBuild="true" Condition=" '$(OS)' != 'Windows_NT' " />
+    <Exec Command="$(MSBuildProjectDirectory)\..\writeLipidEnums\$(OutDir)writeLipidEnums.exe" WorkingDirectory="..\" ConsoleToMsBuild="true" Condition=" '$(OS)' == 'Windows_NT' " />
   </Target>
 
 </Project>
