@@ -2,6 +2,9 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>net5.0</TargetFramework>
+    <TargetFramework>net47</TargetFramework>
+    <PlatformTarget>x64</PlatformTarget>
+    <DebugType>portable</DebugType>
   </PropertyGroup>
+
 </Project>

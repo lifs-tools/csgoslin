@@ -1,0 +1,4 @@
+obj
+bin
+csgoslin/domain/ClassesEnum.cs
+csgoslin/parser/KnownGrammars.cs
