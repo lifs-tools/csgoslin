@@ -31,16 +31,41 @@ namespace csgoslin
 {
     using ElementTable = System.Collections.Generic.Dictionary<Element, int>;
     using Dict = System.Collections.Generic.Dictionary<string, Object>;
+    using Lst = System.Collections.Generic.List<Object>;
+ 
+    
+    
+    public class ExendedList<T> : List<T>
+    {
+        public T back()
+        {
+            if (Count > 0) return this[Count - 1];
+            throw new Exception("List is empty");
+        }
+        
+        public T PopBack()
+        {
+            if (Count > 0) 
+            {
+                T t = back();
+                RemoveAt(Count - 1);
+                return t;
+            }
+            throw new Exception("List is empty");
+        }
+    }
+    
+    
     
     public class ShorthandParserEventHandler : BaseParserEventHandler<LipidAdduct>
     {
         public LipidLevel level;
         public LipidAdduct lipid;
         public string headgroup;
-        public List<FattyAcid> fa_list;
-        public List<FunctionalGroup> current_fa;
+        public ExendedList<FattyAcid> fa_list;
+        public ExendedList<FunctionalGroup> current_fa;
         public Adduct adduct;
-        public List<HeadgroupDecorator> headgroup_decorators;
+        public ExendedList<HeadgroupDecorator> headgroup_decorators;
         public Dict tmp = new Dict();
         public static readonly HashSet<string> special_types = new HashSet<string>{"acyl", "alkyl", "decorator_acyl", "decorator_alkyl", "cc"};
         
@@ -174,9 +199,9 @@ namespace csgoslin
             lipid = null;
             adduct = null;
             headgroup = "";
-            fa_list = new List<FattyAcid>();
-            current_fa = new List<FunctionalGroup>();
-            headgroup_decorators = new List<HeadgroupDecorator>();
+            fa_list = new ExendedList<FattyAcid>();
+            current_fa = new ExendedList<FunctionalGroup>();
+            headgroup_decorators = new ExendedList<HeadgroupDecorator>();
             tmp = new Dict();
         }
 
@@ -294,7 +319,7 @@ namespace csgoslin
                 throw new LipidParsingException("Element '" + element + "' unknown");
             }
             
-            ((List<Object>)((Dict)tmp[FA_I()])["cycle_elements"]).Add(Elements.element_positions[element]);
+            ((Lst)((Dict)tmp[FA_I()])["cycle_elements"]).Add(Elements.element_positions[element]);
         }
 
 
@@ -325,11 +350,11 @@ namespace csgoslin
             }
             else
             {
-                if (!current_fa[current_fa.Count - 1].functional_groups.ContainsKey(carbohydrate))
+                if (!current_fa.back().functional_groups.ContainsKey(carbohydrate))
                 {
-                    current_fa[current_fa.Count - 1].functional_groups.Add(carbohydrate, new List<FunctionalGroup>());
+                    current_fa.back().functional_groups.Add(carbohydrate, new List<FunctionalGroup>());
                 }
-                current_fa[current_fa.Count - 1].functional_groups[carbohydrate].Add(functional_group);
+                current_fa.back().functional_groups[carbohydrate].Add(functional_group);
             }
         }
 
@@ -394,380 +419,424 @@ namespace csgoslin
             }
         }
 
-/*
 
-        public void set_hydroxyl(TreeNode node){
-            tmp.set_int("sl_hydroxyl", 1);
+        public void set_hydroxyl(TreeNode node)
+        {
+            tmp.Add("sl_hydroxyl", 1);
         }
 
 
 
-        public void set_lcb(TreeNode node){
+        public void set_lcb(TreeNode node)
+        {
                 fa_list.back().lcb = true;
                 fa_list.back().name = "LCB";
         }
 
 
 
-        public void add_pl_species_data(TreeNode node){
-            set_lipid_level(SPECIES);
-            HeadgroupDecorator *hgd = new HeadgroupDecorator("");
-            hgd.elements.at(ELEMENT_O) += 1;
-            hgd.elements.at(ELEMENT_H) -= 1;
-            headgroup_decorators.push_back(hgd);
+        public void add_pl_species_data(TreeNode node)
+        {
+            set_lipid_level(LipidLevel.SPECIES);
+            HeadgroupDecorator hgd = new HeadgroupDecorator("");
+            hgd.elements[Element.O] += 1;
+            hgd.elements[Element.H] -= 1;
+            headgroup_decorators.Add(hgd);
         }
 
 
 
-        public void new_fatty_acyl_chain(TreeNode node){
-            current_fa.push_back(new FattyAcid("FA"));
-            tmp.set_dictionary(FA_I(), new GenericDictionary());
+        public void new_fatty_acyl_chain(TreeNode node)
+        {
+            current_fa.Add(new FattyAcid("FA"));
+            tmp.Add(FA_I(), new Dict());
         }
 
 
 
-        public void add_fatty_acyl_chain(TreeNode node){
-            string fg_i = "fa" + Convert.ToString(current_fa.size() - 2);
+        public void add_fatty_acyl_chain(TreeNode node)
+        {
+            string fg_i = "fa" + Convert.ToString(current_fa.Count - 2);
             string special_type = "";
-            if (current_fa.size() >= 2 && tmp.ContainsKey(fg_i) && tmp.get_dictionary(fg_i).ContainsKey("fg_name")){
-                string fg_name = tmp.get_dictionary(fg_i).get_string("fg_name");
-                if (contains(special_types, fg_name)){
+            if (current_fa.Count >= 2 && tmp.ContainsKey(fg_i) && ((Dict)tmp[fg_i]).ContainsKey("fg_name"))
+            {
+                string fg_name = (string)((Dict)tmp[fg_i])["fg_name"];
+                if (special_types.Contains(fg_name))
+                {
                     special_type = fg_name;
                 }
             }
             
             string fa_i = FA_I();
-            if (current_fa.back().double_bonds.get_num() != tmp.get_dictionary(fa_i).get_int("db_count")){
+            if (current_fa.back().double_bonds.get_num() != (int)((Dict)tmp[fa_i])["db_count"])
+            {
                 throw new LipidException("Double bond count does not match with number of double bond positions");
             }
-            else if (current_fa.back().double_bonds.get_num() > 0 && current_fa.back().double_bonds.double_bond_positions.size() == 0){
-                set_lipid_level(STRUCTURAL_SUBSPECIES);
+            else if (current_fa.back().double_bonds.get_num() > 0 && current_fa.back().double_bonds.double_bond_positions.Count == 0)
+            {
+                set_lipid_level(LipidLevel.STRUCTURAL_SUBSPECIES);
             }
-            tmp.remove(fa_i);
+            tmp.Remove(fa_i);
             
-            FattyAcid* fa = (FattyAcid*)current_fa.back();
-            current_fa.pop_back();
-            if (special_type.length() > 0){
+            FattyAcid fa = (FattyAcid)current_fa.PopBack();
+            if (special_type.Length > 0)
+            {
                 fa.name = special_type;
-                if (uncontains_p(current_fa.back().functional_groups, special_type)) current_fa.back().functional_groups.insert({special_type, vector<FunctionalGroup*>()});
-                current_fa.back().functional_groups.at(special_type).push_back(fa);
+                if (!current_fa.back().functional_groups.ContainsKey(special_type))
+                {
+                    current_fa.back().functional_groups.Add(special_type, new List<FunctionalGroup>());
+                }
+                current_fa.back().functional_groups[special_type].Add(fa);
             }
-            else {
-                fa_list.push_back(fa);
+            else
+            {
+                fa_list.Add(fa);
             }
         }
 
 
 
-        public void set_double_bond_position(TreeNode node){
-            tmp.get_dictionary(FA_I()).set_int("db_position", atoi(node.get_text().c_str()));
+        public void set_double_bond_position(TreeNode node)
+        {
+            ((Dict)tmp[FA_I()]).Add("db_position", Convert.ToInt32(node.get_text()));
         }
 
 
 
-        public void set_double_bond_information(TreeNode node){
+        public void set_double_bond_information(TreeNode node)
+        {
             string fa_i = FA_I();
-            tmp.get_dictionary(fa_i).set_int("db_position", 0);
-            tmp.get_dictionary(fa_i).set_string("db_cistrans", "");
+            ((Dict)tmp[fa_i]).Add("db_position", 0);
+            ((Dict)tmp[fa_i]).Add("db_cistrans", "");
         }
 
 
 
-        public void add_double_bond_information(TreeNode node){
+        public void add_double_bond_information(TreeNode node)
+        {
             string fa_i = FA_I();
-            int pos = tmp.get_dictionary(fa_i).get_int("db_position");
-            string cistrans = tmp.get_dictionary(fa_i).get_string("db_cistrans");
+            Dict d = (Dict)tmp[fa_i];
+            int pos = (int)d["db_position"];
+            string cistrans = (string)d["db_cistrans"];
             
-            if (cistrans == ""){
-                set_lipid_level(STRUCTURAL_SUBSPECIES);
+            if (cistrans.Equals(""))
+            {
+                set_lipid_level(LipidLevel.STRUCTURAL_SUBSPECIES);
             }
             
-            tmp.get_dictionary(fa_i).remove("db_position");
-            tmp.get_dictionary(fa_i).remove("db_cistrans");
-            current_fa.back().double_bonds.double_bond_positions.insert({pos, cistrans});
+            d.Remove("db_position");
+            d.Remove("db_cistrans");
+            current_fa.back().double_bonds.double_bond_positions.Add(pos, cistrans);
         }
 
 
 
-        public void set_cistrans(TreeNode node){
-            tmp.get_dictionary(FA_I()).set_string("db_cistrans", node.get_text());
+        public void set_cistrans(TreeNode node)
+        {
+            ((Dict)tmp[FA_I()]).Add("db_cistrans", node.get_text());
         }
 
 
 
-        public void set_functional_group(TreeNode node){
+        public void set_functional_group(TreeNode node)
+        {
             string fa_i = FA_I();
-            GenericDictionary* gd = tmp.get_dictionary(fa_i);
-            gd.set_int("fg_pos", -1);
-            gd.set_string("fg_name", "0");
-            gd.set_int("fg_cnt", 1);
-            gd.set_string("fg_stereo", "");
-            gd.set_string("fg_ring_stereo", "");
+            Dict gd = (Dict)tmp[fa_i];
+            gd.Add("fg_pos", -1);
+            gd.Add("fg_name", "0");
+            gd.Add("fg_cnt", 1);
+            gd.Add("fg_stereo", "");
+            gd.Add("fg_ring_stereo", "");
         }
 
 
 
-        public void set_cycle(TreeNode node){
-            tmp.get_dictionary(FA_I()).set_string("fg_name", "cy");
-            current_fa.push_back(new Cycle(0));
+        public void set_cycle(TreeNode node)
+        {
+            ((Dict)tmp[FA_I()]).Add("fg_name", "cy");
+            current_fa.Add(new Cycle(0));
             
             string fa_i = FA_I();
-            tmp.set_dictionary(fa_i, new GenericDictionary());
-            tmp.get_dictionary(fa_i).set_list("cycle_elements", new GenericList());
+            tmp.Add(fa_i, new Dict());
+            ((Dict)tmp[fa_i]).Add("cycle_elements", new Lst());
         }
 
 
 
-        public void add_cycle(TreeNode node){
+        public void add_cycle(TreeNode node)
+        {
             string fa_i = FA_I();
-            GenericList *cycle_elements = tmp.get_dictionary(fa_i).get_list("cycle_elements");
-            Cycle *cycle = (Cycle*)current_fa.back();
-            current_fa.pop_back();
-            for (int i = 0; i < (int)cycle_elements.list.size(); ++i){
-                cycle.bridge_chain.push_back((Element)cycle_elements.get_int(i));
+            Lst cycle_elements = (Lst)((Dict)tmp[fa_i])["cycle_elements"];
+            Cycle cycle = (Cycle)current_fa.PopBack();
+            for (int i = 0; i < cycle_elements.Count; ++i)
+            {
+                cycle.bridge_chain.Add((Element)cycle_elements[i]);
             }
-            tmp.get_dictionary(fa_i).remove("cycle_elements");
+            ((Dict)tmp[fa_i]).Remove("cycle_elements");
                 
-            if (cycle.start > -1 && cycle.end > -1 && cycle.end - cycle.start + 1 + (int)cycle.bridge_chain.size() < cycle.cycle){
+            if (cycle.start > -1 && cycle.end > -1 && cycle.end - cycle.start + 1 + cycle.bridge_chain.Count < cycle.cycle)
+            {
                 throw new ConstraintViolationException("Cycle length '" + Convert.ToString(cycle.cycle) + "' does not match with cycle description.");
             }
-            if (uncontains_p(current_fa.back().functional_groups, "cy")){
-                current_fa.back().functional_groups.insert({"cy", vector<FunctionalGroup*>()});
+            if (!current_fa.back().functional_groups.ContainsKey("cy"))
+            {
+                current_fa.back().functional_groups.Add("cy", new List<FunctionalGroup>());
             }
-            current_fa.back().functional_groups.at("cy").push_back(cycle);
+            current_fa.back().functional_groups["cy"].Add(cycle);
         }
 
 
 
-        public void set_fatty_linkage_number(TreeNode node){
-            tmp.get_dictionary(FA_I()).set_int("linkage_pos", atoi(node.get_text().c_str()));
+        public void set_fatty_linkage_number(TreeNode node)
+        {
+            ((Dict)tmp[FA_I()]).Add("linkage_pos", Convert.ToInt32(node.get_text()));
         }
 
 
 
-        public void set_hg_acyl(TreeNode node){
+        public void set_hg_acyl(TreeNode node)
+        {
             string fa_i = FA_I();
-            tmp.set_dictionary(fa_i, new GenericDictionary());
-            tmp.get_dictionary(fa_i).set_string("fg_name", "decorator_acyl");
-            current_fa.push_back(new HeadgroupDecorator("decorator_acyl", -1, 1, 0, true));
-            tmp.set_dictionary(FA_I(), new GenericDictionary());
+            tmp.Add(fa_i, new Dict());
+            ((Dict)tmp[fa_i]).Add("fg_name", "decorator_acyl");
+            current_fa.Add(new HeadgroupDecorator("decorator_acyl", -1, 1, null, true));
+            tmp.Add(FA_I(), new Dict());
         }
 
 
 
-        public void add_hg_acyl(TreeNode node){
-            tmp.remove(FA_I());
-            headgroup_decorators.push_back((HeadgroupDecorator*)current_fa.back());
-            current_fa.pop_back();
-            tmp.remove(FA_I());
+        public void add_hg_acyl(TreeNode node)
+        {
+            tmp.Remove(FA_I());
+            headgroup_decorators.Add((HeadgroupDecorator)current_fa.PopBack());
+            tmp.Remove(FA_I());
         }
 
 
 
-        public void set_hg_alkyl(TreeNode node){
-            tmp.set_dictionary(FA_I(), new GenericDictionary());
-            tmp.get_dictionary(FA_I()).set_string("fg_name", "decorator_alkyl");
-            current_fa.push_back(new HeadgroupDecorator("decorator_alkyl", -1, 1, 0, true));
-            tmp.set_dictionary(FA_I(), new GenericDictionary());
+        public void set_hg_alkyl(TreeNode node)
+        {
+            tmp.Add(FA_I(), new Dict());
+            ((Dict)tmp[FA_I()]).Add("fg_name", "decorator_alkyl");
+            current_fa.Add(new HeadgroupDecorator("decorator_alkyl", -1, 1, null, true));
+            tmp.Add(FA_I(), new Dict());
         }
 
 
 
         public void add_hg_alkyl(TreeNode node){
-            tmp.remove(FA_I());
-            headgroup_decorators.push_back((HeadgroupDecorator*)current_fa.back());
-            current_fa.pop_back();
-            tmp.remove(FA_I());
+            tmp.Remove(FA_I());
+            headgroup_decorators.Add((HeadgroupDecorator)current_fa.PopBack());
+            tmp.Remove(FA_I());
         }
 
 
 
-        public void set_linkage_type(TreeNode node){
-            tmp.get_dictionary(FA_I()).set_int("linkage_type", node.get_text() == "N");
+        public void set_linkage_type(TreeNode node)
+        {
+            ((Dict)tmp[FA_I()]).Add("linkage_type", node.get_text().Equals("N") ? 1 : 0);
         }
 
 
 
-        public void set_hydrocarbon_chain(TreeNode node){
-            tmp.get_dictionary(FA_I()).set_string("fg_name", "cc");
-            current_fa.push_back(new CarbonChain((FattyAcid*)0));
-            tmp.set_dictionary(FA_I(), new GenericDictionary());
-            tmp.get_dictionary(FA_I()).set_int("linkage_pos", -1);
+        public void set_hydrocarbon_chain(TreeNode node)
+        {
+            ((Dict)tmp[FA_I()]).Add("fg_name", "cc");
+            current_fa.Add(new CarbonChain((FattyAcid)null));
+            tmp.Add(FA_I(), new Dict());
+            ((Dict)tmp[FA_I()]).Add("linkage_pos", -1);
         }
 
 
 
-        public void add_hydrocarbon_chain(TreeNode node){
-            int linkage_pos = tmp.get_dictionary(FA_I()).get_int("linkage_pos");
-            tmp.remove(FA_I());
-            CarbonChain *cc = (CarbonChain*)current_fa.back();
-            current_fa.pop_back();
+        public void add_hydrocarbon_chain(TreeNode node)
+        {
+            int linkage_pos = (int)((Dict)tmp[FA_I()])["linkage_pos"];
+            tmp.Remove(FA_I());
+            CarbonChain cc = (CarbonChain)current_fa.PopBack();
             cc.position = linkage_pos;
-            if (linkage_pos == -1) set_lipid_level(STRUCTURAL_SUBSPECIES);
+            if (linkage_pos == -1) set_lipid_level(LipidLevel.STRUCTURAL_SUBSPECIES);
             
-            if (uncontains_p(current_fa.back().functional_groups, "cc")) current_fa.back().functional_groups.insert({"cc", vector<FunctionalGroup*>()});
-            current_fa.back().functional_groups.at("cc").push_back(cc);
+            if (!current_fa.back().functional_groups.ContainsKey("cc")) current_fa.back().functional_groups.Add("cc", new List<FunctionalGroup>());
+            current_fa.back().functional_groups["cc"].Add(cc);
         }
 
 
 
-        public void set_acyl_linkage(TreeNode node){
-            tmp.get_dictionary(FA_I()).set_string("fg_name", "acyl");
-            current_fa.push_back(new AcylAlkylGroup((FattyAcid*)0));
-            tmp.set_dictionary(FA_I(), new GenericDictionary());
-            tmp.get_dictionary(FA_I()).set_int("linkage_pos", -1);
+        public void set_acyl_linkage(TreeNode node)
+        {
+            ((Dict)tmp[FA_I()]).Add("fg_name", "acyl");
+            current_fa.Add(new AcylAlkylGroup((FattyAcid)null));
+            tmp.Add(FA_I(), new Dict());
+            ((Dict)tmp[FA_I()]).Add("linkage_pos", -1);
         }
 
 
 
-        public void add_acyl_linkage(TreeNode node){
-            bool linkage_type = tmp.get_dictionary(FA_I()).get_int("linkage_type");
-            int linkage_pos = tmp.get_dictionary(FA_I()).get_int("linkage_pos");
+        public void add_acyl_linkage(TreeNode node)
+        {
+            bool linkage_type = (int)((Dict)tmp[FA_I()])["linkage_type"] == 1;
+            int linkage_pos = (int)((Dict)tmp[FA_I()])["linkage_pos"];
             
-            tmp.remove(FA_I());
-            AcylAlkylGroup *acyl = (AcylAlkylGroup*)current_fa.back();
-            current_fa.pop_back();
+            tmp.Remove(FA_I());
+            AcylAlkylGroup acyl = (AcylAlkylGroup)current_fa.PopBack();
                 
             acyl.position = linkage_pos;
             acyl.set_N_bond_type(linkage_type);
-            if (linkage_pos == -1) set_lipid_level(STRUCTURAL_SUBSPECIES);
+            if (linkage_pos == -1) set_lipid_level(LipidLevel.STRUCTURAL_SUBSPECIES);
                 
-            if (uncontains_p(current_fa.back().functional_groups, "acyl")) current_fa.back().functional_groups.insert({"acyl", vector<FunctionalGroup*>()});
-            current_fa.back().functional_groups.at("acyl").push_back(acyl);
+            if (!current_fa.back().functional_groups.ContainsKey("acyl")) current_fa.back().functional_groups.Add("acyl", new List<FunctionalGroup>());
+            current_fa.back().functional_groups["acyl"].Add(acyl);
         }
 
 
 
-        public void set_alkyl_linkage(TreeNode node){
-            tmp.get_dictionary(FA_I()).set_string("fg_name", "alkyl");
-            current_fa.push_back(new AcylAlkylGroup(0, -1, 1, true));
-            tmp.set_dictionary(FA_I(), new GenericDictionary());
-            tmp.get_dictionary(FA_I()).set_int("linkage_pos", -1);
+        public void set_alkyl_linkage(TreeNode node)
+        {
+            ((Dict)tmp[FA_I()]).Add("fg_name", "alkyl");
+            current_fa.Add(new AcylAlkylGroup(null, -1, 1, true));
+            tmp.Add(FA_I(), new Dict());
+            ((Dict)tmp[FA_I()]).Add("linkage_pos", -1);
         }
 
 
 
-        public void add_alkyl_linkage(TreeNode node){
-            int linkage_pos = tmp.get_dictionary(FA_I()).get_int("linkage_pos");
-            tmp.remove(FA_I());
-            AcylAlkylGroup *alkyl = (AcylAlkylGroup*)current_fa.back();
-            current_fa.pop_back();
+        public void add_alkyl_linkage(TreeNode node)
+        {
+            int linkage_pos = (int)((Dict)tmp[FA_I()])["linkage_pos"];
+            tmp.Remove(FA_I());
+            AcylAlkylGroup alkyl = (AcylAlkylGroup)current_fa.PopBack();
             
             alkyl.position = linkage_pos;
-            if (linkage_pos == -1) set_lipid_level(STRUCTURAL_SUBSPECIES);
+            if (linkage_pos == -1) set_lipid_level(LipidLevel.STRUCTURAL_SUBSPECIES);
             
-            if (uncontains_p(current_fa.back().functional_groups, "alkyl")) current_fa.back().functional_groups.insert({"alkyl", vector<FunctionalGroup*>()});
-            current_fa.back().functional_groups.at("alkyl").push_back(alkyl);
+            if (!current_fa.back().functional_groups.ContainsKey("alkyl")) current_fa.back().functional_groups.Add("alkyl", new List<FunctionalGroup>());
+            current_fa.back().functional_groups["alkyl"].Add(alkyl);
         }
 
 
 
-        public void set_cycle_start(TreeNode node){
-            ((Cycle*)current_fa.back()).start = atoi(node.get_text().c_str());
+        public void set_cycle_start(TreeNode node)
+        {
+            ((Cycle)current_fa.back()).start = Convert.ToInt32(node.get_text());
         }
 
 
 
-        public void set_cycle_end(TreeNode node){
-            ((Cycle*)current_fa.back()).end = atoi(node.get_text().c_str());
+        public void set_cycle_end(TreeNode node)
+        {
+            ((Cycle)current_fa.back()).end = Convert.ToInt32(node.get_text());
         }
 
 
 
         public void set_cycle_number(TreeNode node){
-            ((Cycle*)current_fa.back()).cycle = atoi(node.get_text().c_str());
+            ((Cycle)current_fa.back()).cycle = Convert.ToInt32(node.get_text());
         }
 
 
 
-        public void set_cycle_db_count(TreeNode node){
-            ((Cycle*)current_fa.back()).double_bonds.num_double_bonds = atoi(node.get_text().c_str());
+        public void set_cycle_db_count(TreeNode node)
+        {
+            ((Cycle)current_fa.back()).double_bonds.num_double_bonds = Convert.ToInt32(node.get_text());
         }
 
 
 
         public void set_cycle_db_positions(TreeNode node){
-            tmp.get_dictionary(FA_I()).set_int("cycle_db", ((Cycle*)current_fa.back()).double_bonds.get_num());
+            ((Dict)tmp[FA_I()]).Add("cycle_db", ((Cycle)current_fa.back()).double_bonds.get_num());
             //delete ((Cycle*)current_fa.back()).double_bonds;
             //((Cycle*)current_fa.back()).double_bonds = new DoubleBonds();
         }
 
 
 
-        public void check_cycle_db_positions(TreeNode node){
-            if (((Cycle*)current_fa.back()).double_bonds.get_num() != tmp.get_dictionary(FA_I()).get_int("cycle_db")){
+        public void check_cycle_db_positions(TreeNode node)
+        {
+            if (((Cycle)current_fa.back()).double_bonds.get_num() != (int)((Dict)tmp[FA_I()])["cycle_db"])
+            {
                 throw new LipidException("Double bond number in cycle does not correspond to number of double bond positions.");
             }
         }
 
 
 
-        public void set_cycle_db_position(TreeNode node){
-            int pos = atoi(node.get_text().c_str());
-            ((Cycle*)current_fa.back()).double_bonds.double_bond_positions.insert({pos, ""});
-            tmp.get_dictionary(FA_I()).set_int("last_db_pos", pos);
+        public void set_cycle_db_position(TreeNode node)
+        {
+            int pos = Convert.ToInt32(node.get_text());
+            ((Cycle)current_fa.back()).double_bonds.double_bond_positions.Add(pos, "");
+            ((Dict)tmp[FA_I()]).Add("last_db_pos", pos);
         }
 
 
 
-        public void set_cycle_db_position_cistrans(TreeNode node){
-            int pos = tmp.get_dictionary(FA_I()).get_int("last_db_pos");
-            ((Cycle*)current_fa.back()).double_bonds.double_bond_positions.at(pos) = node.get_text();
+        public void set_cycle_db_position_cistrans(TreeNode node)
+        {
+            int pos = (int)((Dict)tmp[FA_I()])["last_db_pos"];
+            ((Cycle)current_fa.back()).double_bonds.double_bond_positions[pos] = node.get_text();
         }
 
 
 
-        public void set_functional_group_position(TreeNode node){
-            tmp.get_dictionary(FA_I()).set_int("fg_pos", atoi(node.get_text().c_str()));
+        public void set_functional_group_position(TreeNode node)
+        {
+            ((Dict)tmp[FA_I()]).Add("fg_pos", Convert.ToInt32(node.get_text()));
         }
 
 
 
-        public void set_functional_group_name(TreeNode node){
-            tmp.get_dictionary(FA_I()).set_string("fg_name", node.get_text());
+        public void set_functional_group_name(TreeNode node)
+        {
+            ((Dict)tmp[FA_I()]).Add("fg_name", node.get_text());
         }
 
 
 
-        public void set_functional_group_count(TreeNode node){
-            tmp.get_dictionary(FA_I()).set_int("fg_cnt", atoi(node.get_text().c_str()));
+        public void set_functional_group_count(TreeNode node)
+        {
+            ((Dict)tmp[FA_I()]).Add("fg_cnt", Convert.ToInt32(node.get_text()));
         }
 
 
 
-        public void set_functional_group_stereo(TreeNode node){
-            tmp.get_dictionary(FA_I()).set_string("fg_stereo", node.get_text());
+        public void set_functional_group_stereo(TreeNode node)
+        {
+            ((Dict)tmp[FA_I()]).Add("fg_stereo", node.get_text());
         }
 
 
 
-        public void set_molecular_func_group(TreeNode node){
-            tmp.get_dictionary(FA_I()).set_string("fg_name", node.get_text());
+        public void set_molecular_func_group(TreeNode node)
+        {
+            ((Dict)tmp[FA_I()]).Add("fg_name", node.get_text());
         }
 
 
 
-        public void add_functional_group(TreeNode node){
+        public void add_functional_group(TreeNode node)
+        {
             string fa_i = FA_I();
-            GenericDictionary *gd = tmp.get_dictionary(FA_I());
-            string fg_name = gd.get_string("fg_name");
+            Dict gd = (Dict)tmp[FA_I()];
+            string fg_name = (string)gd["fg_name"];
             
-            if (contains(special_types, fg_name) || fg_name == "cy") return;
+            if (special_types.Contains(fg_name) || fg_name.Equals("cy")) return;
                 
-            int fg_pos = gd.get_int("fg_pos");
-            int fg_cnt = gd.get_int("fg_cnt");
-            string fg_stereo = gd.get_string("fg_stereo");
-            string fg_ring_stereo = gd.get_string("fg_ring_stereo");
+            int fg_pos = (int)gd["fg_pos"];
+            int fg_cnt = (int)gd["fg_cnt"];
+            string fg_stereo = (string)gd["fg_stereo"];
+            string fg_ring_stereo = (string)gd["fg_ring_stereo"];
             
-            if (fg_pos == -1){
-                set_lipid_level(STRUCTURAL_SUBSPECIES);
+            if (fg_pos == -1)
+            {
+                set_lipid_level(LipidLevel.STRUCTURAL_SUBSPECIES);
             }
             
-            FunctionalGroup *functional_group = 0;
+            FunctionalGroup functional_group = null;
             try {
-                functional_group = KnownFunctionalGroups::get_functional_group(fg_name);
+                functional_group = KnownFunctionalGroups.get_functional_group(fg_name);
             }
-            catch (const std::exception& e) {
+            catch (Exception e)
+            {
                 throw new LipidParsingException("'" + fg_name + "' unknown");
             }
             
@@ -776,13 +845,13 @@ namespace csgoslin
             functional_group.stereochemistry = fg_stereo;
             functional_group.ring_stereo = fg_ring_stereo;
             
-            gd.remove("fg_pos");
-            gd.remove("fg_name");
-            gd.remove("fg_cnt");
-            gd.remove("fg_stereo");
+            gd.Remove("fg_pos");
+            gd.Remove("fg_name");
+            gd.Remove("fg_cnt");
+            gd.Remove("fg_stereo");
             
-            if (uncontains_p(current_fa.back().functional_groups, fg_name)) current_fa.back().functional_groups.insert({fg_name, vector<FunctionalGroup*>()});
-            current_fa.back().functional_groups.at(fg_name).push_back(functional_group);
+            if (!current_fa.back().functional_groups.ContainsKey(fg_name)) current_fa.back().functional_groups.Add(fg_name, new List<FunctionalGroup>());
+            current_fa.back().functional_groups[fg_name].Add(functional_group);
         }
 
 
@@ -807,13 +876,13 @@ namespace csgoslin
 
 
         public void set_carbon(TreeNode node){
-            ((FattyAcid*)current_fa.back()).num_carbon = atoi(node.get_text().c_str());
+            ((FattyAcid*)current_fa.back()).num_carbon = Convert.ToInt32(node.get_text().c_str());
         }
 
 
 
         public void set_double_bond_count(TreeNode node){
-            int db_cnt = atoi(node.get_text().c_str());
+            int db_cnt = Convert.ToInt32(node.get_text().c_str());
             tmp.get_dictionary(FA_I()).set_int("db_count", db_cnt);
             ((FattyAcid*)current_fa.back()).double_bonds.num_double_bonds = db_cnt;
         }
@@ -833,7 +902,7 @@ namespace csgoslin
 
 
         public void add_charge(TreeNode node){
-            adduct.charge = atoi(node.get_text().c_str());
+            adduct.charge = Convert.ToInt32(node.get_text().c_str());
         }
 
 
