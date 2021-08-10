@@ -1,5 +1,5 @@
 main: csgoslin/parser/KnownGrammars.cs csgoslin/domain/ClassesEnum.cs
-	#dotnet build csgoslin
+	dotnet build csgoslin
 	
 csgoslin/parser/KnownGrammars.cs:
 	dotnet build writeGrammarHeader

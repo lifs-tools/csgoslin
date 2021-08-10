@@ -93,7 +93,6 @@ namespace csgoslin
             special_cases = _special_cases;
             elements = _elements;
             synonyms = _synonyms;
-            Console.WriteLine(class_name);
         }
     }
 
