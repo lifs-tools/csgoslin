@@ -46,7 +46,7 @@ namespace csgoslin
             bridge_chain = (_bridge_chain == null) ? new List< Element >() : _bridge_chain;
         }
 
-        public override Cycle copy()
+        public override FunctionalGroup copy()
         {
             DoubleBonds db = double_bonds.copy();
             Dictionary<string, List<FunctionalGroup> > fg = new Dictionary<string, List<FunctionalGroup> >();

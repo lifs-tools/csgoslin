@@ -107,8 +107,6 @@ namespace csgoslin
             Dictionary<string, int> enum_names = new Dictionary<string, int>{{"GL", 1}, {"GP", 1}, {"SP", 1}, {"ST", 1}, {"FA", 1}, {"PK", 1}, {"SL", 1}, {"UNDEFINED", 1}};
             
             Dictionary<string, List<string> > data = new Dictionary<string, List<string> >();
-            List< List<string> > functional_data = new List< List<string> >();
-            HashSet<string> functional_data_set = new HashSet<string>();
             HashSet<string> keys = new HashSet<string>();
             List<string> list_keys = new List<string>();
             
@@ -243,6 +241,9 @@ namespace csgoslin
                         sw.Write("}");
                     }
                     
+                    
+                    
+                    // create class with all lipid classes from file
                     string output_classes_file = Path.Combine(prefixPath, "csgoslin", "domain", "LipidClasses.cs");
                     using (StreamWriter sw = new StreamWriter(output_classes_file))
                     {
@@ -323,7 +324,6 @@ namespace csgoslin
                             }
                             sw.Write("} ) }" + (++cnt < data.Count ? ",\n" : "\n") + "\n");
                         }
-                        //{LipidClass.AA, new LipidClassMeta(LipidCategory.GP, "foo", 2, 2, new HashSet<string>(), new ElementTable(), new List<string>())}
                         
                         
                         sw.Write("        };\n");
@@ -341,6 +341,150 @@ namespace csgoslin
             {
                 throw new Exception("File '" + lipid_list_file + "' does not exist.");
             }
+            
+            
+            
+            string functional_groups_list_file = Path.Combine(prefixPath, "data", "goslin", "functional-groups.csv");
+            if (File.Exists(functional_groups_list_file))
+            {
+                int lineCounter = 1;
+                List< List<string> > functional_data = new List< List<string> >();
+                HashSet<string> functional_data_set = new HashSet<string>();
+                try
+                {
+                    using (StreamReader sr = new StreamReader(functional_groups_list_file))
+                    {
+                        String line = sr.ReadLine(); // omit titles
+                        while((line = sr.ReadLine()) != null)
+                        {
+                            lineCounter++;
+                            List<string> tokens = split_string(line);
+                            string fd_name = tokens[1];
+                            if (functional_data_set.Contains(fd_name))
+                            {
+                                throw new Exception("Error: functional group '" + fd_name + "' occurs multiple times in file!");
+                            }
+                            functional_data.Add(tokens);
+                            functional_data_set.Add(fd_name);
+                            
+                        }
+                    }
+                    
+                    // create class with all lipid classes from file
+                    string output_known_functional_groups_file = Path.Combine(prefixPath, "csgoslin", "domain", "KnownFunctionalGroups.cs");
+                    using (StreamWriter sw = new StreamWriter(output_known_functional_groups_file))
+                    {
+                        sw.Write("/* DO NOT CHANGE THE FILE, IT IS AUTOMATICALLY GENERATED */\n\n");
+                        sw.Write("/*\n");
+                        sw.Write("MIT License\n");
+                        sw.Write("\n");
+                        sw.Write("Copyright (c) the authors (listed in global LICENSE file)\n");
+                        sw.Write("\n");
+                        sw.Write("Permission is hereby granted, free of charge, to any person obtaining a copy\n");
+                        sw.Write("of this software and associated documentation files (the \"Software\"), to deal\n");
+                        sw.Write("in the Software without restriction, including without limitation the rights\n");
+                        sw.Write("to use, copy, modify, merge, publish, distribute, sublicense, and/or sell\n");
+                        sw.Write("copies of the Software, and to permit persons to whom the Software is\n");
+                        sw.Write("furnished to do so, subject to the following conditions:\n");
+                        sw.Write("\n");
+                        sw.Write("The above copyright notice and this permission notice shall be included in all\n");
+                        sw.Write("copies or substantial portions of the Software.\n");
+                        sw.Write("\n");
+                        sw.Write("THE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR\n");
+                        sw.Write("IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,\n");
+                        sw.Write("FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE\n");
+                        sw.Write("AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER\n");
+                        sw.Write("LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,\n");
+                        sw.Write("OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE\n");
+                        sw.Write("SOFTWARE.\n");
+                        sw.Write("*/\n");
+                        sw.Write("\n");
+                        sw.Write("\n");
+                        sw.Write("using System;\n");
+                        sw.Write("using System.Collections.Generic;\n");
+                        sw.Write("\n");
+                        sw.Write("namespace csgoslin\n");
+                        sw.Write("{\n");
+                        sw.Write("    using ElementTable = System.Collections.Generic.Dictionary<Element, int>;\n");
+                        sw.Write("    using ClassMap = System.Collections.Generic.Dictionary<LipidClass, LipidClassMeta>;\n");
+                        sw.Write("\n");
+                        sw.Write("    public class KnownFunctionalGroups\n");
+                        sw.Write("    {\n");
+                        
+                        sw.Write("        public static Dictionary<string, FunctionalGroup> known_functional_groups = new Dictionary<string, FunctionalGroup>{\n");
+                        
+                        
+                        bool add_comma = false;
+                        foreach (List<string> row in functional_data)
+                        {
+                            row.Add(row[1]);
+                            for (int i = 6; i < row.Count; ++i)
+                            {
+                                if (row[i] == "") continue;
+                                
+                                if (add_comma) sw.Write(",");
+                                sw.Write("\n\n            // " + row[5] + "\n");
+                                if (row[0].Equals("FG"))
+                                {
+                                    sw.Write("            {\"" + row[i] + "\", new FunctionalGroup(\"" + row[1] + "\", -1, 1, new DoubleBonds(" + row[3] + "), " + (row[4].Equals("1") ? "true" : "false") + ", \"\", new ElementTable{");
+                                    
+                                    // add element table
+                                    ElementTable table = row[2].Length > 0 ? SumFormulaParser.get_instance().parse(row[2]) : StringFunctions.create_empty_table();
+                                    int ii = 0;
+                                    foreach (KeyValuePair<Element, int> table_kv in table)
+                                    {
+                                        if (ii++ > 0) sw.Write(", ");
+                                        sw.Write("{" + table_symbol[table_kv.Key] + ", " + table_kv.Value + "}");
+                                    }
+                                    sw.Write("})}");
+                                }
+                                else
+                                {
+                                    sw.Write("            {\"" + row[i] + "\", new HeadgroupDecorator(\"" + row[1] + "\", -1, 1, new ElementTable{");
+                                    
+                                    // add element table
+                                    ElementTable table = row[2].Length > 0 ? SumFormulaParser.get_instance().parse(row[2]) : StringFunctions.create_empty_table();
+                                    int ii = 0;
+                                    foreach (KeyValuePair<Element, int> table_kv in table)
+                                    {
+                                        if (ii++ > 0) sw.Write(", ");
+                                        sw.Write("{" + table_symbol[table_kv.Key] + ", " + table_kv.Value + "}");
+                                    }
+                                    sw.Write("})}");
+                                }
+                                add_comma = true;
+                            }
+                        }
+                        
+                        
+                        //{"dME", new FunctionalGroup("dME", -1, 1, new DoubleBonds(0), 0, "", new ElementTable{{ELEMENT_C, 1}, {ELEMENT_C13, 0}, {ELEMENT_H, 0}, {ELEMENT_H2, 0}, {ELEMENT_N, 0}, {ELEMENT_N15, 0}, {ELEMENT_O, 0}, {ELEMENT_O17, 0}, {ELEMENT_O18, 0}, {ELEMENT_P, 0}, {ELEMENT_P32, 0}, {ELEMENT_S, 0}, {ELEMENT_S34, 0}, {ELEMENT_S33, 0}, {ELEMENT_F, 0}, {ELEMENT_Cl, 0}, {ELEMENT_Br, 0}, {ELEMENT_I, 0}, {ELEMENT_As, 0}})}
+                        
+                        
+                        sw.Write("        };\n\n");
+                        sw.Write("        public static FunctionalGroup get_functional_group(string fg_name)\n");
+                        sw.Write("        {\n");
+                        sw.Write("            if (known_functional_groups.ContainsKey(fg_name))\n");
+                        sw.Write("            {\n");
+                        sw.Write("                return known_functional_groups[fg_name];\n");
+                        sw.Write("            }\n");
+                        sw.Write("            throw new RuntimeException(\"Name '\" + fg_name + \"' not registered in functional group list\");\n");
+                        sw.Write("        }\n");
+                        sw.Write("    };\n");
+                        sw.Write("}");
+                    }
+                    
+                }
+                
+                catch (Exception e)
+                {
+                    throw new Exception("The file '" + functional_groups_list_file + "' in line '" + lineCounter + "' could not be read:\n" + e);
+                }
+            }
+            else
+            {
+                throw new Exception("File '" + functional_groups_list_file + "' does not exist.");
+            }
+            
         }
     }
 }

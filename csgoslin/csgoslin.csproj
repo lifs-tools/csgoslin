@@ -1,7 +1,44 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
+<!--
+  <ItemGroup>
+    <ProjectReference Include="..\writeGrammarHeader\writeGrammarHeader.csproj" ReferenceOutputAssembly="false" />
+    <ProjectReference Include="..\writeLipidEnums\writeLipidEnums.csproj" ReferenceOutputAssembly="false" />
+  </ItemGroup>
+-->
   <PropertyGroup>
-    <TargetFramework>net5.0</TargetFramework>
+    <OutputType>library</OutputType>
+    <TargetFramework>net47</TargetFramework>
+    <PlatformTarget>x64</PlatformTarget>
+    <DebugType>portable</DebugType>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
   </PropertyGroup>
 
+  <PropertyGroup>
+    <Product>$(AssemblyName) ($(TargetFramework))</Product>
+    <DefaultLanguage>en-US</DefaultLanguage>
+    <Authors>Dominik Kopczynski, Nils Hoffmann</Authors>
+    <Copyright>© $([System.DateTime]::Now.Year) Dominik Kopczynski, Nils Hoffmann</Copyright>
+    <PackageIconUrl>https://raw.githubusercontent.com/lifs-tools/goslin/master/goslin.svg</PackageIconUrl>
+    <PackageLicenseUrl>https://raw.githubusercontent.com/lifs-tools/csgoslin/main/LICENSE</PackageLicenseUrl>
+    <PackageProjectUrl>https://github.com/lifs-tools/csgoslin</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/lifs-tools/csgoslin</RepositoryUrl>
+    <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
+    <RepositoryType>git</RepositoryType>
+    <!-- Root control Version Prefix -->
+    <VersionPrefix>2.0.1</VersionPrefix>
+  </PropertyGroup>
+<!--
+  <Target Name="GenerateGoslinGrammarHeader" BeforeTargets="PrepareForBuild">
+    <Message Text="Generating grammar header" />
+    <Exec Command="mono $(MSBuildProjectDirectory)/../writeGrammarHeader/$(OutDir)writeGrammarHeader.exe" WorkingDirectory="../" ConsoleToMsBuild="true" Condition=" '$(OS)' != 'Windows_NT' " />
+    <Exec Command="$(MSBuildProjectDirectory)\..\writeGrammarHeader\$(OutDir)writeGrammarHeader.exe" WorkingDirectory="..\" ConsoleToMsBuild="true" Condition=" '$(OS)' == 'Windows_NT' " />
+  </Target>
+
+  <Target Name="GenerateGoslinLipidEnums" BeforeTargets="PrepareForBuild">
+    <Message Text="Generating lipid enums" />
+    <Exec Command="mono $(MSBuildProjectDirectory)/../writeLipidEnums/$(OutDir)writeLipidEnums.exe" WorkingDirectory="../" ConsoleToMsBuild="true" Condition=" '$(OS)' != 'Windows_NT' " />
+    <Exec Command="$(MSBuildProjectDirectory)\..\writeLipidEnums\$(OutDir)writeLipidEnums.exe" WorkingDirectory="..\" ConsoleToMsBuild="true" Condition=" '$(OS)' == 'Windows_NT' " />
+  </Target>
+-->
 </Project>
