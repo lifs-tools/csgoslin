@@ -72,8 +72,7 @@ namespace csgoslin
         public ShorthandParserEventHandler() : base()
         {
             reset_parser(null);
-            /*
-            registered_events.Add("lipid_pre_event", reset_lipid);
+            registered_events.Add("lipid_pre_event", reset_parser);
             registered_events.Add("lipid_post_event", build_lipid);
 
             // set categories
@@ -181,8 +180,6 @@ namespace csgoslin
             registered_events.Add("hg_pip_d_pre_event", suffix_decorator_molecular);
             registered_events.Add("hg_pip_t_pre_event", suffix_decorator_molecular);
             registered_events.Add("hg_PE_PS_type_pre_event", suffix_decorator_species);
-            
-            */
         }
         
         
@@ -339,7 +336,7 @@ namespace csgoslin
             {
                 functional_group = KnownFunctionalGroups.get_functional_group(carbohydrate);
             }
-            catch (LipidException e)
+            catch
             {
                 throw new LipidParsingException("Carbohydrate '" + carbohydrate + "' unknown");
             }
@@ -835,7 +832,7 @@ namespace csgoslin
             try {
                 functional_group = KnownFunctionalGroups.get_functional_group(fg_name);
             }
-            catch (Exception e)
+            catch
             {
                 throw new LipidParsingException("'" + fg_name + "' unknown");
             }
@@ -856,62 +853,69 @@ namespace csgoslin
 
 
 
-        public void set_ether_type(TreeNode node){
+        public void set_ether_type(TreeNode node)
+        {
             string ether_type = node.get_text();
-            if (ether_type == "O-") ((FattyAcid*)current_fa.back()).lipid_FA_bond_type = ETHER_PLASMANYL;
-            else if (ether_type == "P-") ((FattyAcid*)current_fa.back()).lipid_FA_bond_type = ETHER_PLASMENYL;
+            if (ether_type.Equals("O-")) ((FattyAcid)current_fa.back()).lipid_FA_bond_type = LipidFaBondType.ETHER_PLASMANYL;
+            else if (ether_type.Equals("P-")) ((FattyAcid)current_fa.back()).lipid_FA_bond_type = LipidFaBondType.ETHER_PLASMENYL;
         }
 
 
 
-        public void set_ether_num(TreeNode node){
+        public void set_ether_num(TreeNode node)
+        {
             int num_ethers = 0;
             string ether = node.get_text();
-            if (ether == "d") num_ethers = 2;
-            else if (ether == "t") num_ethers = 3;
-            else if (ether == "e") num_ethers = 4;
-            tmp.set_int("num_ethers", num_ethers);
+            if (ether.Equals("d")) num_ethers = 2;
+            else if (ether.Equals("t")) num_ethers = 3;
+            else if (ether.Equals("e")) num_ethers = 4;
+            tmp.Add("num_ethers", num_ethers);
         }
 
 
 
-        public void set_carbon(TreeNode node){
-            ((FattyAcid*)current_fa.back()).num_carbon = Convert.ToInt32(node.get_text().c_str());
+        public void set_carbon(TreeNode node)
+        {
+            ((FattyAcid)current_fa.back()).num_carbon = Convert.ToInt32(node.get_text());
         }
 
 
 
-        public void set_double_bond_count(TreeNode node){
-            int db_cnt = Convert.ToInt32(node.get_text().c_str());
-            tmp.get_dictionary(FA_I()).set_int("db_count", db_cnt);
-            ((FattyAcid*)current_fa.back()).double_bonds.num_double_bonds = db_cnt;
+        public void set_double_bond_count(TreeNode node)
+        {
+            int db_cnt = Convert.ToInt32(node.get_text());
+            ((Dict)tmp[FA_I()]).Add("db_count", db_cnt);
+            ((FattyAcid)current_fa.back()).double_bonds.num_double_bonds = db_cnt;
         }
 
 
 
-        public void new_adduct(TreeNode node){
+        public void new_adduct(TreeNode node)
+        {
             adduct = new Adduct("", "", 0, 0);
         }
 
 
 
-        public void add_adduct(TreeNode node){
+        public void add_adduct(TreeNode node)
+        {
             adduct.adduct_string = node.get_text();
         }
 
 
 
-        public void add_charge(TreeNode node){
-            adduct.charge = Convert.ToInt32(node.get_text().c_str());
+        public void add_charge(TreeNode node)
+        {
+            adduct.charge = Convert.ToInt32(node.get_text());
         }
 
 
 
-        public void add_charge_sign(TreeNode node){
+        public void add_charge_sign(TreeNode node)
+        {
             string sign = node.get_text();
-            if (sign == "+") adduct.set_charge_sign(1);
+            if (sign.Equals("+")) adduct.set_charge_sign(1);
             else adduct.set_charge_sign(-1);
         }
-        */
     }
 }

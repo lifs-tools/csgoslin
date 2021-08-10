@@ -44,7 +44,7 @@ namespace csgoslin
         }
             
             
-        public string get_lipid_string(LipidLevel level)
+        public string get_lipid_string(LipidLevel level = LipidLevel.NO_LEVEL)
         {
             StringBuilder sb = new StringBuilder();
             if (lipid != null) sb.Append(lipid.get_lipid_string(level));
