@@ -1,8 +1,8 @@
 main:
 	dotnet build writeGrammarHeader
 	./writeGrammarHeader/bin/Debug/net5.0/writeGrammarHeader
-	dotnet build writeLpiidEnum
-	./writeLpiidEnum/bin/Debug/net5.0/writeSourceFiles
+	dotnet build writeLipidEnums
+	./writeLipidEnums/bin/Debug/net5.0/writeSourceFiles
 	dotnet build csgoslin
 
 clean:
