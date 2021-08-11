@@ -46,6 +46,15 @@ namespace csgoslin
             
         }
     }
+    
+    
+    public class LipidMapsParser : Parser<LipidAdduct>
+    {
+        public LipidMapsParser() : base(new LipidMapsParserEventHandler(), new GrammarString(KnownGrammars.lipid_maps_grammar), StringFunctions.DEFAULT_QUOTE)
+        {
+            
+        }
+    }
 
     
     public class LipidParser
@@ -57,12 +66,11 @@ namespace csgoslin
         {
             parser_list.Add(new ShorthandParser());
             parser_list.Add(new GoslinParser());
-            /*
-            parser_list.Add(new FattyAcidParser());
+            //parser_list.Add(new FattyAcidParser());
             parser_list.Add(new LipidMapsParser());
-            parser_list.Add(new SwissLipidsParser());
-            parser_list.Add(new HmdbParser());
-            */
+            //parser_list.Add(new SwissLipidsParser());
+            //parser_list.Add(new HmdbParser());
+            
             lastSuccessfulParser = null;
         }
         
