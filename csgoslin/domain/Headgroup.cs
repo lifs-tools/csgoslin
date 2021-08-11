@@ -68,7 +68,7 @@ namespace csgoslin
         }
                 
 
-        public LipidCategory get_category(string _headgroup)
+        public static LipidCategory get_category(string _headgroup)
         {
             if (StringCategory.Count == 0){
                 foreach (KeyValuePair<LipidClass, LipidClassMeta> kvp in LipidClasses.lipid_classes)
@@ -86,7 +86,7 @@ namespace csgoslin
 
 
 
-        public LipidClass get_class(string _headgroup)
+        public static LipidClass get_class(string _headgroup)
         {
             if (StringClass.Count == 0)
             {
@@ -104,7 +104,7 @@ namespace csgoslin
         }
 
 
-        public string get_class_string(LipidClass _lipid_class)
+        public static string get_class_string(LipidClass _lipid_class)
         {
             if (ClassString.Count == 0)
             {
@@ -124,7 +124,7 @@ namespace csgoslin
         }
 
 
-        public string get_category_string(LipidCategory _lipid_category)
+        public static string get_category_string(LipidCategory _lipid_category)
         {
             return CategoryString[_lipid_category];
         }        

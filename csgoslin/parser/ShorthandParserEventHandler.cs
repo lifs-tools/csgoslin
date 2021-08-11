@@ -35,38 +35,6 @@ namespace csgoslin
  
     
     
-    public class ExendedList<T> : List<T>
-    {
-        public T back()
-        {
-            if (Count > 0) return this[Count - 1];
-            throw new Exception("List is empty");
-        }
-        
-        public T PopBack()
-        {
-            if (Count > 0) 
-            {
-                T t = back();
-                RemoveAt(Count - 1);
-                return t;
-            }
-            throw new Exception("List is empty");
-        }
-    }
-    
-    
-    public class Dict : Dictionary<string, Object>
-    {
-        public void Add(string s, Object o)
-        {
-            if (ContainsKey(s)) this[s] = o;
-            else base.Add(s, o);
-        }
-    }
-    
-    
-    
     public class ShorthandParserEventHandler : BaseParserEventHandler<LipidAdduct>
     {
         public LipidLevel level;
@@ -191,7 +159,7 @@ namespace csgoslin
             registered_events.Add("hg_pip_t_pre_event", suffix_decorator_molecular);
             registered_events.Add("hg_PE_PS_type_pre_event", suffix_decorator_species);
             
-            debug = "full";
+            debug = "";
         }
         
         

@@ -31,7 +31,38 @@ using System.Collections.Generic;
 namespace csgoslin
 {
     using ElementTable = System.Collections.Generic.Dictionary<Element, int>;
+     
     
+    
+    public class ExendedList<T> : List<T>
+    {
+        public T back()
+        {
+            if (Count > 0) return this[Count - 1];
+            throw new Exception("List is empty");
+        }
+        
+        public T PopBack()
+        {
+            if (Count > 0) 
+            {
+                T t = back();
+                RemoveAt(Count - 1);
+                return t;
+            }
+            throw new Exception("List is empty");
+        }
+    }
+    
+    
+    public class Dict : Dictionary<string, Object>
+    {
+        public void Add(string s, Object o)
+        {
+            if (ContainsKey(s)) this[s] = o;
+            else base.Add(s, o);
+        }
+    }
     
     public class StringFunctions
     {
