@@ -53,7 +53,6 @@ namespace csgoslin
         public GoslinParserEventHandler() : base()
         {
             reset_parser(null);
-            /*
             registered_events.Add("lipid_pre_event", reset_parser);
             registered_events.Add("lipid_post_event", build_lipid);
             
@@ -114,7 +113,6 @@ namespace csgoslin
             registered_events.Add("lpl_o_pre_event", set_molecular_subspecies_level);
             registered_events.Add("hg_lpl_oc_pre_event", set_unspecified_ether);
             registered_events.Add("hg_pl_oc_pre_event", set_unspecified_ether);
-            */
             debug = "";
         }
 
