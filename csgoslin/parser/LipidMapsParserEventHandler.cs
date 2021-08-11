@@ -58,7 +58,6 @@ namespace csgoslin
         {
             reset_parser(null);
             registered_events.Add("lipid_pre_event", reset_parser);
-            /*
             registered_events.Add("lipid_post_event", build_lipid);
             
             registered_events.Add("mediator_pre_event", mediator_event);
@@ -115,7 +114,6 @@ namespace csgoslin
             registered_events.Add("mod_pos_pre_event", set_mod_pos);
             registered_events.Add("mod_num_pre_event", set_mod_num);
             registered_events.Add("single_mod_post_event", add_functional_group);
-        */
             debug = "";
         }
 

@@ -55,6 +55,24 @@ namespace csgoslin
             
         }
     }
+    
+    
+    public class SwissLipidsParser : Parser<LipidAdduct>
+    {
+        public SwissLipidsParser() : base(new SwissLipidsParserEventHandler(), new GrammarString(KnownGrammars.swiss_lipids_grammar), StringFunctions.DEFAULT_QUOTE)
+        {
+            
+        }
+    }
+    
+    
+    public class HmdbParser : Parser<LipidAdduct>
+    {
+        public HmdbParser() : base(new HmdbParserEventHandler(), new GrammarString(KnownGrammars.hmdb_grammar), StringFunctions.DEFAULT_QUOTE)
+        {
+            
+        }
+    }
 
     
     public class LipidParser
@@ -68,8 +86,8 @@ namespace csgoslin
             parser_list.Add(new GoslinParser());
             //parser_list.Add(new FattyAcidParser());
             parser_list.Add(new LipidMapsParser());
-            //parser_list.Add(new SwissLipidsParser());
-            //parser_list.Add(new HmdbParser());
+            parser_list.Add(new SwissLipidsParser());
+            parser_list.Add(new HmdbParser());
             
             lastSuccessfulParser = null;
         }
