@@ -20,6 +20,6 @@ jobs:
     - name: Restore dependencies
       run: dotnet restore
     - name: Build csgoslin
-      run: dotnet build --configuration Release
-      #    - name: Test
-      #      run: dotnet csgoslin/csgoslin.csproj test --no-build --verbosity normal
+      run: dotnet build --configuration Release --no-restore
+    - name: Test
+      run: dotnet test --no-build --verbosity normal

@@ -5,6 +5,8 @@ VisualStudioVersion = 16.0.30114.105
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "csgoslin", "csgoslin\csgoslin.csproj", "{53FDFEC2-4EA3-4438-A335-17B434E9F856}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "csgoslin.Tests", "csgoslin.Tests\csgoslin.Tests.csproj", "{112AE630-0036-499E-8EC4-754372A18D52}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -54,5 +56,17 @@ Global
 		{53FDFEC2-4EA3-4438-A335-17B434E9F856}.Release|x64.Build.0 = Release|Any CPU
 		{53FDFEC2-4EA3-4438-A335-17B434E9F856}.Release|x86.ActiveCfg = Release|Any CPU
 		{53FDFEC2-4EA3-4438-A335-17B434E9F856}.Release|x86.Build.0 = Release|Any CPU
+		{112AE630-0036-499E-8EC4-754372A18D52}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{112AE630-0036-499E-8EC4-754372A18D52}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{112AE630-0036-499E-8EC4-754372A18D52}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{112AE630-0036-499E-8EC4-754372A18D52}.Debug|x64.Build.0 = Debug|Any CPU
+		{112AE630-0036-499E-8EC4-754372A18D52}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{112AE630-0036-499E-8EC4-754372A18D52}.Debug|x86.Build.0 = Debug|Any CPU
+		{112AE630-0036-499E-8EC4-754372A18D52}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{112AE630-0036-499E-8EC4-754372A18D52}.Release|Any CPU.Build.0 = Release|Any CPU
+		{112AE630-0036-499E-8EC4-754372A18D52}.Release|x64.ActiveCfg = Release|Any CPU
+		{112AE630-0036-499E-8EC4-754372A18D52}.Release|x64.Build.0 = Release|Any CPU
+		{112AE630-0036-499E-8EC4-754372A18D52}.Release|x86.ActiveCfg = Release|Any CPU
+		{112AE630-0036-499E-8EC4-754372A18D52}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
