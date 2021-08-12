@@ -39,6 +39,15 @@ namespace csgoslin
     }
     
     
+    public class FattyAcidParser : Parser<LipidAdduct>
+    {
+        public FattyAcidParser() : base(new FattyAcidParserHandler(), new GrammarString(KnownGrammars.fatty_acid_grammar), StringFunctions.DEFAULT_QUOTE)
+        {
+            
+        }
+    }
+    
+    
     public class GoslinParser : Parser<LipidAdduct>
     {
         public GoslinParser() : base(new GoslinParserEventHandler(), new GrammarString(KnownGrammars.goslin_grammar), StringFunctions.DEFAULT_QUOTE)
@@ -84,7 +93,7 @@ namespace csgoslin
         {
             parser_list.Add(new ShorthandParser());
             parser_list.Add(new GoslinParser());
-            //parser_list.Add(new FattyAcidParser());
+            parser_list.Add(new FattyAcidParser());
             parser_list.Add(new LipidMapsParser());
             parser_list.Add(new SwissLipidsParser());
             parser_list.Add(new HmdbParser());
