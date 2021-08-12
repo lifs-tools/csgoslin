@@ -9,23 +9,39 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.10.0" />
-    <PackageReference Include="xunit" Version="2.4.1" />
-    <PackageReference Include="xunit.assert" Version="2.4.1" />
+    <!-- setup for Windows -->
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.10.0" Condition=" '$(OS)' == 'Windows_NT' " />
     <PackageReference Include="xunit.runner.visualstudio" Version="2.4.3" Condition=" '$(OS)' == 'Windows_NT' " />
-    <PackageReference Include="xunit.runner.msbuild" Version="2.4.1">
+    <!-- setup for Linux --> 
+    <PackageReference
+        Include="Microsoft.NETFramework.ReferenceAssemblies"
+        Version="1.0.0"
+        Condition=" '$(TargetFrameworkIdentifier)' == '.NETFramework' AND '$(OS)' != 'Windows_NT' ">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>	  
+    <PackageReference Include="xunit.runner.console" Version="2.4.1" Condition=" '$(OS)' != 'Windows_NT' ">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
+    <!-- platform independent -->
+    <PackageReference Include="xunit" Version="2.4.1" />
+    <PackageReference Include="xunit.assert" Version="2.4.1" />
     <PackageReference Include="coverlet.collector" Version="3.0.2">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
-    <DotNetCliToolReference Include="dotnet-xunit" Version="2.3.1" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\csgoslin\csgoslin.csproj" />
   </ItemGroup>
+
+  <!-- add test target, run with dotnet build -t:Test -->	  
+  <Target Name="Test" DependsOnTargets="Build">
+    <Exec
+      Command="$(XunitConsole) $(TargetFileName)"
+      WorkingDirectory="$(TargetDir)" />
+  </Target>	  
 
 </Project>
