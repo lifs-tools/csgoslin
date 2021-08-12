@@ -177,6 +177,12 @@ namespace csgoslin
         }
         
         
+        public string FA_I()
+        {
+            return "fa" + Convert.ToString(fatty_acyl_stack.Count);
+        }
+        
+        
 
         public void build_lipid(TreeNode node)
         {
@@ -284,7 +290,7 @@ namespace csgoslin
                 for (auto &kv : tmp.get_dictionary(FA_I).get_dictionary("fg_pos_summary").dictionary){
                     string str_pos = kv.first;
                     string cistrans = to_upper(tmp.get_dictionary(FA_I).get_dictionary("fg_pos_summary").get_string(str_pos));
-                    int pos = atoi(str_pos.c_str());
+                    int pos = Convert.ToInt32(str_pos);
                     if (pos > 0 && (cistrans == "E" || cistrans == "Z")){
                         curr_fa.double_bonds.double_bond_positions.insert({pos, cistrans});
                     }
@@ -578,20 +584,22 @@ namespace csgoslin
         }
 
 
-        /*
+        
         public void set_fatty_acyl_type(TreeNode node)
         {
             string t = node.get_text();
             
-            if (endswith(t, "ol")) headgroup = "FOH";
-            else if (contains(noic_set, t)) headgroup = "FA";
-            else if (contains(nal_set, t)) headgroup = "FAL";
-            else if (contains(acetate_set, t)) headgroup = "WE";
-            else if (t == "ne"){
+            if (t.EndsWith("ol")) headgroup = "FOH";
+            else if (noic_set.Contains(t)) headgroup = "FA";
+            else if (nal_set.Contains(t)) headgroup = "FAL";
+            else if (acetate_set.Contains(t)) headgroup = "WE";
+            else if (t.Equals("ne"))
+            {
                 headgroup = "HC";
-                fatty_acyl_stack.back().lipid_FA_bond_type = AMINE;
+                fatty_acyl_stack.back().lipid_FA_bond_type = LipidFaBondType.AMINE;
             }
-            else {
+            else
+            {
                 headgroup = t;
             }
         }
@@ -599,72 +607,81 @@ namespace csgoslin
 
         public void set_double_bond_information(TreeNode node)
         {
-            tmp.get_dictionary(FA_I).set_int("db_position", 0);
-            tmp.get_dictionary(FA_I).set_string("db_cistrans", "");
+            ((Dict)tmp[FA_I()]).Add("db_position", 0);
+            ((Dict)tmp[FA_I()]).Add("db_cistrans", "");
         }
 
 
         public void add_double_bond_information(TreeNode node)
         {    
-            int pos = tmp.get_dictionary(FA_I).get_int("db_position");
-            string str_pos = std::to_string(pos);
-            string cistrans = tmp.get_dictionary(FA_I).get_string("db_cistrans");
-            if (cistrans == "" && tmp.get_dictionary(FA_I).contains_key("fg_pos_summary") && tmp.get_dictionary(FA_I).get_dictionary("fg_pos_summary").contains_key(str_pos)){
-                cistrans = tmp.get_dictionary(FA_I).get_dictionary("fg_pos_summary").get_string(str_pos);
+            int pos = (int)((Dict)tmp[FA_I()])["db_position"];
+            string str_pos = Convert.ToString(pos);
+            string cistrans = (string)((Dict)tmp[FA_I()])["db_cistrans"];
+            if (cistrans.Length == 0 && ((Dict)tmp[FA_I()]).ContainsKey("fg_pos_summary") && ((Dict)((Dict)tmp[FA_I()])["fg_pos_summary"]).ContainsKey(str_pos))
+            {
+                cistrans = (string)((Dict)((Dict)tmp[FA_I()])["fg_pos_summary"])[str_pos];
             }
             if (pos == 0) return;
             
-            cistrans = to_upper(cistrans);
+            cistrans = cistrans.ToUpper();
             
-            tmp.get_dictionary(FA_I).remove("db_position");
-            tmp.get_dictionary(FA_I).remove("db_cistrans");
+            ((Dict)tmp[FA_I()]).Remove("db_position");
+            ((Dict)tmp[FA_I()]).Remove("db_cistrans");
             
             
-            if (cistrans != "E" && cistrans != "Z") cistrans = "";
-            if (uncontains(fatty_acyl_stack.back().double_bonds.double_bond_positions, pos) || fatty_acyl_stack.back().double_bonds.double_bond_positions.at(pos).length() == 0){
-                if (uncontains(fatty_acyl_stack.back().double_bonds.double_bond_positions, pos)){
-                    fatty_acyl_stack.back().double_bonds.double_bond_positions.insert({pos, cistrans});
+            if (!cistrans.Equals("E") && !cistrans.Equals("Z")) cistrans = "";
+            if (!fatty_acyl_stack.back().double_bonds.double_bond_positions.ContainsKey(pos) || fatty_acyl_stack.back().double_bonds.double_bond_positions[pos].Length == 0)
+            {
+                if (!fatty_acyl_stack.back().double_bonds.double_bond_positions.ContainsKey(pos))
+                {
+                    fatty_acyl_stack.back().double_bonds.double_bond_positions.Add(pos, cistrans);
                 }
                 else {
-                    fatty_acyl_stack.back().double_bonds.double_bond_positions.at(pos) = cistrans;
+                    fatty_acyl_stack.back().double_bonds.double_bond_positions[pos] = cistrans;
                 }
-                fatty_acyl_stack.back().double_bonds.num_double_bonds = fatty_acyl_stack.back().double_bonds.double_bond_positions.size();
+                fatty_acyl_stack.back().double_bonds.num_double_bonds = fatty_acyl_stack.back().double_bonds.double_bond_positions.Count;
             }
         }
 
 
         public void set_double_bond_position(TreeNode node)
         {
-            int pos = atoi(node.get_text().c_str());
+            int pos = Convert.ToInt32(node.get_text());
             int num_db = 0;
-            if (tmp.contains_key("reduction")){
-                GenericList *gl = tmp.get_list("reduction");
-                int l = gl.list.size();
-                for (int i = 0; i < l; ++i){
-                    num_db += gl.get_int(i) < pos;
+            if (tmp.ContainsKey("reduction"))
+            {
+                Lst gl = (Lst)tmp["reduction"];
+                int l = gl.Count;
+                for (int i = 0; i < l; ++i)
+                {
+                    num_db += ((int)gl[i] < pos) ? 1 : 0;
                 }
             }
             
-            tmp.get_dictionary(FA_I).set_int("db_position", pos - num_db);
+            ((Dict)tmp[FA_I()]).Add("db_position", pos - num_db);
         }
 
 
         public void set_cistrans(TreeNode node)
         {
-            tmp.get_dictionary(FA_I).set_string("db_cistrans", node.get_text());
+            ((Dict)tmp[FA_I()]).Add("db_cistrans", node.get_text());
         }
 
 
         public void check_db(TreeNode node)
         {
-            FattyAcid* curr_fa = fatty_acyl_stack.back();
-            if (tmp.get_dictionary(FA_I).contains_key("fg_pos_summary")){
-                for (auto &kv : tmp.get_dictionary(FA_I).get_dictionary("fg_pos_summary").dictionary){
-                    int k = atoi(kv.first.c_str());
-                    string v = tmp.get_dictionary(FA_I).get_dictionary("fg_pos_summary").get_string(kv.first);
-                    if (k > 0 && uncontains(curr_fa.double_bonds.double_bond_positions, k) && (v == "E" || v == "Z" || v == "")){
-                        curr_fa.double_bonds.double_bond_positions.insert({k, v});
-                        curr_fa.double_bonds.num_double_bonds = curr_fa.double_bonds.double_bond_positions.size();
+            string fa_i = FA_I();
+            FattyAcid curr_fa = fatty_acyl_stack.back();
+            if (((Dict)tmp[fa_i]).ContainsKey("fg_pos_summary"))
+            {
+                foreach (KeyValuePair<string, Object> kv in (Dict)((Dict)tmp[fa_i])["fg_pos_summary"])
+                {
+                    int k = Convert.ToInt32(kv.Key);
+                    string v = (string)((Dict)((Dict)tmp[fa_i])["fg_pos_summary"])[kv.Key];
+                    if (k > 0 && !curr_fa.double_bonds.double_bond_positions.ContainsKey(k) && (v.Equals("E") || v.Equals("Z") || v.Length == 0))
+                    {
+                        curr_fa.double_bonds.double_bond_positions.Add(k, v);
+                        curr_fa.double_bonds.num_double_bonds = curr_fa.double_bonds.double_bond_positions.Count;
                     }
                 }
             }
@@ -673,136 +690,144 @@ namespace csgoslin
 
         public void reset_length(TreeNode node)
         {
-            tmp.set_int("length", 0);
+            tmp.Add("length", 0);
         }
 
 
         public void set_functional_length(TreeNode node)
         {
-            if (tmp.get_int("length") != (int)tmp.get_list("fg_pos").list.size()){
-                throw LipidException("Length of functional group '" + std::to_string(tmp.get_int("length")) + "' does not match with number of its positions '" + std::to_string(tmp.get_list("fg_pos").list.size()) + "'");
+            if ((int)tmp["length"] != ((Lst)tmp["fg_pos"]).Count)
+            {
+                throw new LipidException("Length of functional group '" + Convert.ToString((int)tmp["length"]) + "' does not match with number of its positions '" + Convert.ToString(((Lst)tmp["fg_pos"]).Count) + "'");
             }
         }
 
 
         public void set_fatty_length(TreeNode node)
         {
-            fatty_acyl_stack.back().num_carbon += tmp.get_int("length");
+            fatty_acyl_stack.back().num_carbon += (int)tmp["length"];
         }
 
 
         public void special_number(TreeNode node)
         {
-            tmp.set_int("length", tmp.get_int("length") + special_numbers.at(node.get_text()));
+            tmp.Add("length", (int)tmp["length"] + special_numbers[node.get_text()]);
         }
 
 
         public void last_number(TreeNode node)
         {
-            tmp.set_int("length", tmp.get_int("length") + last_numbers.at(node.get_text()));
+            tmp.Add("length", (int)tmp["length"] + last_numbers[node.get_text()]);
         }
 
 
         public void second_number(TreeNode node)
         {
-            tmp.set_int("length", tmp.get_int("length") + second_numbers.at(node.get_text()));
+            tmp.Add("length", (int)tmp["length"] + second_numbers[node.get_text()]);
         }
 
 
         public void set_functional_group(TreeNode node)
         {
-            tmp.set_list("fg_pos", new GenericList());
-            tmp.set_string("fg_type", "");
+            tmp.Add("fg_pos", new Lst());
+            tmp.Add("fg_type", "");
         }
 
 
         public void add_functional_group(TreeNode node)
         {
-            if (tmp.contains_key("added_func_group")){
-                tmp.remove("added_func_group");
+            if (tmp.ContainsKey("added_func_group"))
+            {
+                tmp.Remove("added_func_group");
                 return;
             }
             
-            else if (tmp.contains_key("add_methylene")){ 
-                tmp.remove("add_methylene");
+            else if (tmp.ContainsKey("add_methylene"))
+            {
+                tmp.Remove("add_methylene");
                 add_cyclo(node);
                 return;
             }
             
-            string t = tmp.get_string("fg_type");
+            string t = (string)tmp["fg_type"];
             
-            FunctionalGroup *fg = 0;
-            if (t != "acetoxy"){
-                if (uncontains(func_groups, t)){
-                    throw LipidException("Unknown functional group: '" + t + "'");
+            FunctionalGroup fg = null;
+            if (!t.Equals("acetoxy"))
+            {
+                if (!func_groups.ContainsKey(t))
+                {
+                    throw new LipidException("Unknown functional group: '" + t + "'");
                 }
-                t = func_groups.at(t);
-                if (t.length() == 0) return;
-                fg = KnownFunctionalGroups::get_functional_group(t);
+                t = func_groups[t];
+                if (t.Length == 0) return;
+                fg = KnownFunctionalGroups.get_functional_group(t);
             }
-            else {
+            else
+            {
                 fg = new AcylAlkylGroup(new FattyAcid("O", 2));
             }
             
-            FattyAcid* fa = fatty_acyl_stack.back();
-            if (uncontains_p(fa.functional_groups, t)) fa.functional_groups.insert({t, new List<FunctionalGroup>());
-            int l = tmp.get_list("fg_pos").list.size();
-            for (int i = 0; i < l; ++i){
-                int pos = tmp.get_list("fg_pos").get_list(i).get_int(0);
+            FattyAcid fa = fatty_acyl_stack.back();
+            if (!fa.functional_groups.ContainsKey(t)) fa.functional_groups.Add(t, new List<FunctionalGroup>());
+            int l = ((Lst)tmp["fg_pos"]).Count;
+            foreach (Lst lst in (Lst)tmp["fg_pos"])
+            {
+                int pos = (int)lst[0];
                 
                 int num_pos = 0;
-                if (tmp.contains_key("reduction")){
-                    GenericList *gl = tmp.get_list("reduction");
-                    int l = gl.list.size();
-                    for (int i = 0; i < l; ++i){
-                        num_pos += gl.get_int(i) < pos;
+                if (tmp.ContainsKey("reduction"))
+                {
+                    foreach (int i in (Lst)tmp["reduction"])
+                    {
+                        num_pos += i < pos ? 1 : 0;
                     }
                 }
-                FunctionalGroup* fg_insert = fg.copy();
+                FunctionalGroup fg_insert = fg.copy();
                 fg_insert.position = pos - num_pos;
-                fa.functional_groups.at(t).push_back(fg_insert);
+                fa.functional_groups[t].Add(fg_insert);
             }
-            delete fg;
         }
 
 
         public void set_functional_pos(TreeNode node)
         {
-            GenericList* gl = tmp.get_list("fg_pos");
-            int s = gl.list.size();
-            gl.get_list(s - 1).set_int(0, atoi(node.get_text().c_str()));
+            Lst gl = (Lst)tmp["fg_pos"];
+            ((Lst)gl[gl.Count - 1])[0] = Convert.ToInt32(node.get_text());
         }
 
 
         public void set_functional_position(TreeNode node)
         {
-            GenericList* gl = new GenericList();
-            gl.add_int(0);
-            gl.add_string("");
-            tmp.get_list("fg_pos").add_list(gl);
+            Lst gl = new Lst();
+            gl.Add(0);
+            gl.Add("");
+            ((Lst)tmp["fg_pos"]).Add(gl);
         }
 
 
         public void set_functional_type(TreeNode node)
         {
-            tmp.set_string("fg_type", node.get_text());
+            tmp.Add("fg_type", node.get_text());
         }
 
 
         public void rearrange_cycle(TreeNode node)
         {
-            if (tmp.contains_key("post_adding")){
-                fatty_acyl_stack.back().num_carbon += tmp.get_list("post_adding").list.size();
-                tmp.remove("post_adding");
+            if (tmp.ContainsKey("post_adding"))
+            {
+                fatty_acyl_stack.back().num_carbon += ((Lst)tmp["post_adding"]).Count;
+                tmp.Remove("post_adding");
             }
                 
-            FattyAcid* curr_fa = fatty_acyl_stack.back();
-            int start = tmp.get_list("fg_pos").get_list(0).get_int(0);
-            if (contains_p(curr_fa.functional_groups, "cy")){
-                for (auto &cy : curr_fa.functional_groups.at("cy")){
+            FattyAcid curr_fa = fatty_acyl_stack.back();
+            int start = (int)((Lst)((Lst)tmp["fg_pos"])[0])[0];
+            if (curr_fa.functional_groups.ContainsKey("cy"))
+            {
+                foreach (FunctionalGroup cy in curr_fa.functional_groups["cy"])
+                {
                     int shift_val = start - cy.position;
                     if (shift_val == 0) continue;
-                    ((Cycle*)cy).rearrange_functional_groups(curr_fa, shift_val);
+                    ((Cycle)cy).rearrange_functional_groups(curr_fa, shift_val);
                 }
             }
         }
@@ -810,34 +835,36 @@ namespace csgoslin
 
         public void add_epoxy(TreeNode node)
         {
-            GenericList *gl = tmp.get_list("fg_pos");
-            while(gl.list.size() > 1){
-                gl.del(gl.list.back());
-                gl.list.pop_back();
+            Lst gl = (Lst)tmp["fg_pos"];
+            while(gl.Count > 1)
+            {
+                gl.RemoveAt(gl.Count - 1);
             }
-            tmp.set_string("fg_type", "Epoxy");
+            tmp.Add("fg_type", "Epoxy");
         }
-
 
         public void set_cycle(TreeNode node)
         {
-            tmp.set_int("cyclo", 1);
+            tmp.Add("cyclo", 1);
         }
 
 
         public void set_methylene(TreeNode node)
         {
-            tmp.set_string("fg_type", "methylene");
-            GenericList *gl = tmp.get_list("fg_pos");
-            if (gl.list.size() > 1){
-                if (gl.get_list(0).get_int(0) < gl.get_list(1).get_int(0)) {
-                    gl.get_list(1).set_int(0, gl.get_list(1).get_int(0) + 1);
+            tmp.Add("fg_type", "methylene");
+            Lst gl = (Lst)tmp["fg_pos"];
+            if (gl.Count > 1)
+            {
+                if ((int)((Lst)gl[0])[0] < (int)((Lst)gl[1])[0])
+                {
+                    ((Lst)gl[1])[0] = (int)((Lst)gl[1])[0] + 1;
                 }
-                else if (gl.get_list(0).get_int(0) > gl.get_list(1).get_int(0)){
-                    gl.get_list(0).set_int(0, gl.get_list(0).get_int(0) + 1);
+                else if ((int)((Lst)gl[0])[0] > (int)((Lst)gl[1])[0])
+                {
+                    ((Lst)gl[0])[0] = (int)((Lst)gl[0])[0] + 1;
                 }
                 fatty_acyl_stack.back().num_carbon += 1;
-                tmp.set_int("add_methylene", 1);
+                tmp.Add("add_methylene", 1);
             }
         }
 
@@ -846,43 +873,49 @@ namespace csgoslin
         {
             headgroup = "FA";
             
-            int pos = (tmp.get_list("fg_pos").list.size() == 2) ? tmp.get_list("fg_pos").get_list(1).get_int(0) : fatty_acyl_stack.back().num_carbon;
+            int pos = (((Lst)tmp["fg_pos"]).Count == 2) ? (int)((Lst)((Lst)tmp["fg_pos"])[1])[0] : fatty_acyl_stack.back().num_carbon;
             fatty_acyl_stack.back().num_carbon -= 1;
-            FunctionalGroup* func_group = KnownFunctionalGroups::get_functional_group("COOH");
+            FunctionalGroup func_group = KnownFunctionalGroups.get_functional_group("COOH");
             func_group.position = pos - 1;
-            if (uncontains_p(fatty_acyl_stack.back().functional_groups, "COOH")) fatty_acyl_stack.back().functional_groups.insert({"COOH", new List<FunctionalGroup>());
-            fatty_acyl_stack.back().functional_groups.at("COOH").push_back(func_group);
+            if (!fatty_acyl_stack.back().functional_groups.ContainsKey("COOH")) fatty_acyl_stack.back().functional_groups.Add("COOH", new List<FunctionalGroup>());
+            fatty_acyl_stack.back().functional_groups["COOH"].Add(func_group);
         }
 
 
         public void set_dial(TreeNode node)
         {
-            FattyAcid* curr_fa = fatty_acyl_stack.back();
+            FattyAcid curr_fa = fatty_acyl_stack.back();
             int pos = curr_fa.num_carbon;
-            FunctionalGroup *fg = KnownFunctionalGroups::get_functional_group("oxo");
+            FunctionalGroup fg = KnownFunctionalGroups.get_functional_group("oxo");
             fg.position = pos;
-            if (uncontains_p(curr_fa.functional_groups, "oxo")) curr_fa.functional_groups.insert({"oxo", new List<FunctionalGroup>());
-            curr_fa.functional_groups.at("oxo").push_back(fg);
+            if (!curr_fa.functional_groups.ContainsKey("oxo")) curr_fa.functional_groups.Add("oxo", new List<FunctionalGroup>());
+            curr_fa.functional_groups["oxo"].Add(fg);
         }
 
 
         public void set_prosta(TreeNode node)
         {
             int minus_pos = 0;
-            if (tmp.contains_key("reduction")){
-                GenericList *gl = tmp.get_list("reduction");
-                for (int i = 0; i < (int)gl.list.size(); ++i){
-                    minus_pos = gl.get_int(i) < 8;
+            if (tmp.ContainsKey("reduction"))
+            {
+                foreach (int i in (Lst)tmp["reduction"])
+                {
+                    minus_pos = i < 8 ? 1 : 0;
                 }
             }
-            tmp.set_list("fg_pos", new GenericList());
-            tmp.get_list("fg_pos").add_list(new GenericList());
-            tmp.get_list("fg_pos").add_list(new GenericList());
-            tmp.get_list("fg_pos").get_list(0).add_int(8 - minus_pos);
-            tmp.get_list("fg_pos").get_list(0).add_string("");
-            tmp.get_list("fg_pos").get_list(1).add_int(12 - minus_pos);
-            tmp.get_list("fg_pos").get_list(1).add_string("");
-            tmp.set_string("fg_type", "cy");
+            
+            tmp.Add("fg_pos", new Lst());
+            Lst l1 = new Lst();
+            l1.Add(8 - minus_pos);
+            l1.Add("");
+            
+            Lst l2 = new Lst();
+            l2.Add(12 - minus_pos);
+            l2.Add("");
+            
+            ((Lst)tmp["fg_pos"]).Add(l1);
+            ((Lst)tmp["fg_pos"]).Add(l2);
+            tmp.Add("fg_type", "cy");
         }
 
 
@@ -891,110 +924,127 @@ namespace csgoslin
 
         public void reduction(TreeNode node)
         {
-            fatty_acyl_stack.back().num_carbon -= tmp.get_list("fg_pos").list.size();
-            tmp.set_list("reduction", new GenericList());
-            for (int i = 0; i < (int)tmp.get_list("fg_pos").list.size(); ++i){
-                tmp.get_list("reduction").add_int(tmp.get_list("fg_pos").get_list(i).get_int(0));
+            fatty_acyl_stack.back().num_carbon -= ((Lst)tmp["fg_pos"]).Count;
+            tmp.Add("reduction", new Lst());
+            foreach (Lst lst in (Lst)tmp["fg_pos"])
+            {
+                ((Lst)tmp["reduction"]).Add((int)lst[0]);
             }
         }
 
 
         public void homo(TreeNode node)
         {
-            tmp.set_list("post_adding", new GenericList());
-            for (int i = 0; i < (int)tmp.get_list("fg_pos").list.size(); ++i){
-                tmp.get_list("post_adding").add_int(tmp.get_list("fg_pos").get_list(i).get_int(0));
+            tmp.Add("post_adding", new Lst());
+            foreach (Lst lst in (Lst)tmp["fg_pos"])
+            {
+                ((Lst)tmp["post_adding"]).Add((int)lst[0]);
             }
         }
 
 
         public void set_recursion(TreeNode node)
         {
-            tmp.set_list("fg_pos", new GenericList());
-            tmp.set_string("fg_type", "");
-            fatty_acyl_stack.push_back(new FattyAcid("FA"));
-            tmp.set_dictionary(FA_I, new GenericDictionary());
-            tmp.get_dictionary(FA_I).set_int("recursion_pos", 0);
+            tmp.Add("fg_pos", new Lst());
+            tmp.Add("fg_type", "");
+            fatty_acyl_stack.Add(new FattyAcid("FA"));
+            tmp.Add(FA_I(), new Dict());
+            ((Dict)tmp[FA_I()]).Add("recursion_pos", 0);
         }
 
 
         public void add_recursion(TreeNode node)
         {
-                int pos = tmp.get_dictionary(FA_I).get_int("recursion_pos");
+                int pos = (int)((Dict)tmp[FA_I()])["recursion_pos"];
                 
-                FattyAcid *fa = fatty_acyl_stack.back();
-                fatty_acyl_stack.pop_back();
+                FattyAcid fa = fatty_acyl_stack.PopBack();
+                
                 fa.position = pos;
-                FattyAcid *curr_fa = fatty_acyl_stack.back();
+                FattyAcid curr_fa = fatty_acyl_stack.back();
                 
                 string fname = "";
-                if (tmp.contains_key("cyclo_yl")){
+                if (tmp.ContainsKey("cyclo_yl"))
+                {
                     fname = "cyclo";
-                    tmp.remove("cyclo_yl");
+                    tmp.Remove("cyclo_yl");
                 }
-                else {
+                else
+                {
                     fname = headgroup;
                 }
-                if (uncontains_p(curr_fa.functional_groups, fname)) curr_fa.functional_groups.insert({fname, new List<FunctionalGroup>());
-                curr_fa.functional_groups.at(fname).push_back(fa);
-                tmp.set_int("added_func_group", 1);
+                if (!curr_fa.functional_groups.ContainsKey(fname)) curr_fa.functional_groups.Add(fname, new List<FunctionalGroup>());
+                curr_fa.functional_groups[fname].Add(fa);
+                tmp.Add("added_func_group", 1);
         }
 
 
         public void set_recursion_pos(TreeNode node)
         {
-            tmp.get_dictionary(FA_I).set_int("recursion_pos", atoi(node.get_text().c_str()));
+            ((Dict)tmp[FA_I()]).Add("recursion_pos", Convert.ToInt32(node.get_text()));
         }
 
 
         public void set_yl_ending(TreeNode node)
         {
-            int l = atoi(node.get_text().c_str()) - 1;
+            int l = Convert.ToInt32(node.get_text()) - 1;
             if (l == 0) return;
 
-            FattyAcid *curr_fa = fatty_acyl_stack.back();
+            FattyAcid curr_fa = fatty_acyl_stack.back();
             string fname = "";
-            FunctionalGroup *fg = 0;
-            if (l == 1){
+            FunctionalGroup fg = null;
+            if (l == 1)
+            {
                 fname = "Me";
-                fg = KnownFunctionalGroups::get_functional_group(fname);
+                fg = KnownFunctionalGroups.get_functional_group(fname);
             }
-            else if (l == 2){
+            else if (l == 2)
+            {
                 fname = "Et";
-                fg = KnownFunctionalGroups::get_functional_group(fname);
+                fg = KnownFunctionalGroups.get_functional_group(fname);
             }
-            else {
-                FattyAcid *fa = new FattyAcid("FA", l);
+            else
+            {
+                FattyAcid fa = new FattyAcid("FA", l);
                 // shift functional groups
-                for (auto &kv : *(curr_fa.functional_groups)){
-                    vector<int> remove_item;
+                foreach (KeyValuePair<string, List<FunctionalGroup> > kv in curr_fa.functional_groups)
+                {
+                    List<int> remove_item = new List<int>();
                     int i = 0;
-                    for (auto &func_group : kv.second){
-                        if (func_group.position <= l){
-                            remove_item.push_back(i);
-                            if (uncontains_p(fa.functional_groups, kv.first)) fa.functional_groups.insert({kv.first, new List<FunctionalGroup>());
+                    foreach (FunctionalGroup func_group in kv.Value)
+                    {
+                        if (func_group.position <= l)
+                        {
+                            remove_item.Add(i);
+                            if (!fa.functional_groups.ContainsKey(kv.Key)) fa.functional_groups.Add(kv.Key, new List<FunctionalGroup>());
                             func_group.position = l + 1 - func_group.position;
-                            fa.functional_groups.at(kv.first).push_back(func_group);
+                            fa.functional_groups[kv.Key].Add(func_group);
                         }
                     }
-                    for (int i = remove_item.size() - 1; i >= 0; --i) curr_fa.functional_groups.at(kv.first).erase(curr_fa.functional_groups.at(kv.first).begin() + remove_item.at(i));
+                    for (int ii = remove_item.Count - 1; ii >= 0; --ii)
+                    {
+                        curr_fa.functional_groups[kv.Key].RemoveAt(remove_item[ii]);
+                    }
                 }
-                map<string, vector<FunctionalGroup*> > *tmp = curr_fa.functional_groups;
-                curr_fa.functional_groups = new map<string, vector<FunctionalGroup*> >();
-                for (auto &kv : *tmp){
-                    if (!kv.second.empty()) curr_fa.functional_groups.insert({kv.first, kv.second});
+                Dictionary<string, List<FunctionalGroup> > func_dict = curr_fa.functional_groups;
+                curr_fa.functional_groups = new Dictionary<string, List<FunctionalGroup> >();
+                foreach (KeyValuePair<string, List<FunctionalGroup> > kv in func_dict)
+                {
+                    if (kv.Value.Count > 0) curr_fa.functional_groups.Add(kv.Key, kv.Value);
                 }
-                delete tmp;
                 
                 // shift double bonds
-                if (!curr_fa.double_bonds.double_bond_positions.empty()){
-                    delete fa.double_bonds;
+                if (curr_fa.double_bonds.double_bond_positions.Count > 0)
+                {
                     fa.double_bonds = new DoubleBonds();
-                    for (auto &kv : curr_fa.double_bonds.double_bond_positions){
-                        if (kv.first <= l) fa.double_bonds.double_bond_positions.insert({l + 1 - kv.first, kv.second});
+                    foreach (KeyValuePair<int, string> kv in curr_fa.double_bonds.double_bond_positions)
+                    {
+                        if (kv.Key <= l) fa.double_bonds.double_bond_positions.Add(l + 1 - kv.Key, kv.Value);
                     }
-                    fa.double_bonds.num_double_bonds = fa.double_bonds.double_bond_positions.size();
-                    for (auto &kv : fa.double_bonds.double_bond_positions) curr_fa.double_bonds.double_bond_positions.erase(kv.first);
+                    fa.double_bonds.num_double_bonds = fa.double_bonds.double_bond_positions.Count;
+                    foreach (KeyValuePair<int, string> kv in fa.double_bonds.double_bond_positions)
+                    {
+                        curr_fa.double_bonds.double_bond_positions.Remove(kv.Key);
+                    }
                 }
                 fname = "cc";
                 fg = new CarbonChain(fa);
@@ -1002,8 +1052,8 @@ namespace csgoslin
             curr_fa.num_carbon -= l;
             fg.position = l;
             curr_fa.shift_positions(-l);
-            if (uncontains_p(curr_fa.functional_groups, fname)) curr_fa.functional_groups.insert({fname, new List<FunctionalGroup>());
-            curr_fa.functional_groups.at(fname).push_back(fg);
+            if (!curr_fa.functional_groups.ContainsKey(fname)) curr_fa.functional_groups.Add(fname, new List<FunctionalGroup>());
+            curr_fa.functional_groups[fname].Add(fg);
         }
 
 
@@ -1016,64 +1066,67 @@ namespace csgoslin
 
         public void add_hydroxyl(TreeNode node)
         {
-            int h = atoi(node.get_text().c_str());
-            tmp.get_list("hydroxyl_pos").add_int(h);
+            int h = Convert.ToInt32(node.get_text());
+            ((Lst)tmp["hydroxyl_pos"]).Add(h);
         }
 
 
         public void setup_hydroxyl(TreeNode node)
         {
-            tmp.set_list("hydroxyl_pos", new GenericList());
+            tmp.Add("hydroxyl_pos", new Lst());
         }
 
 
         public void add_hydroxyls(TreeNode node)
         {       
             
-            if (tmp.get_list("hydroxyl_pos").list.size() > 1){
-                FunctionalGroup *fg_oh = KnownFunctionalGroups::get_functional_group("OH");
-                vector<int> sorted_pos;
-                for (int i = 0; i < (int)tmp.get_list("hydroxyl_pos").list.size(); ++i) sorted_pos.push_back(tmp.get_list("hydroxyl_pos").get_int(i));
-                std::sort(sorted_pos.rbegin(), sorted_pos.rend());
-                for (int i = 0; i < (int)sorted_pos.size() - 1; ++i){
-                    int pos = sorted_pos.at(i);
-                    FunctionalGroup *fg_insert = fg_oh.copy();
-                    fg_insert.position = pos;
-                    if (uncontains_p(fatty_acyl_stack.back().functional_groups, "OH")) fatty_acyl_stack.back().functional_groups.insert({"OH", new List<FunctionalGroup>());
-                    fatty_acyl_stack.back().functional_groups.at("OH").push_back(fg_insert);
+            if (((Lst)tmp["hydroxyl_pos"]).Count > 1)
+            {
+                FunctionalGroup fg_oh = KnownFunctionalGroups.get_functional_group("OH");
+                List<int> sorted_pos = new List<int>();
+                foreach (int i in (Lst)tmp["hydroxyl_pos"])
+                {
+                    sorted_pos.Add(i);
                 }
-                delete fg_oh;
+                sorted_pos.Sort();
+                for (int i = 0; i < sorted_pos.Count - 1; ++i)
+                {
+                    int pos = sorted_pos[i];
+                    FunctionalGroup fg_insert = fg_oh.copy();
+                    fg_insert.position = pos;
+                    if (!fatty_acyl_stack.back().functional_groups.ContainsKey("OH")) fatty_acyl_stack.back().functional_groups.Add("OH", new List<FunctionalGroup>());
+                    fatty_acyl_stack.back().functional_groups["OH"].Add(fg_insert);
+                }
             }
         }
 
 
         public void add_wax_ester(TreeNode node)
         {
-            FattyAcid *fa = fatty_acyl_stack.back();
-            fatty_acyl_stack.pop_back();
+            FattyAcid fa = fatty_acyl_stack.PopBack();
             
             fa.name += "1";
-            fa.lipid_FA_bond_type = AMINE;
+            fa.lipid_FA_bond_type = LipidFaBondType.AMINE;
             fatty_acyl_stack.back().name += "2";
-            fatty_acyl_stack.insert(fatty_acyl_stack.begin(), fa);
+            fatty_acyl_stack.Insert(0, fa);
         }
 
 
         public void set_ate(TreeNode node)
         {
-            fatty_acyl_stack.back().num_carbon += ate.at(node.get_text());
+            fatty_acyl_stack.back().num_carbon += ate[node.get_text()];
             headgroup = "WE";
         }
 
 
         public void set_iso(TreeNode node)
         {
-                FattyAcid *curr_fa = fatty_acyl_stack.back();
+                FattyAcid curr_fa = fatty_acyl_stack.back();
                 curr_fa.num_carbon -= 1;
-                FunctionalGroup *fg = KnownFunctionalGroups::get_functional_group("Me");
+                FunctionalGroup fg = KnownFunctionalGroups.get_functional_group("Me");
                 fg.position = 2;
-                if (uncontains_p(curr_fa.functional_groups, "Me")) curr_fa.functional_groups.insert({"Me", new List<FunctionalGroup>());
-                curr_fa.functional_groups.at("Me").push_back(fg);
+                if (!curr_fa.functional_groups.ContainsKey("Me")) curr_fa.functional_groups.Add("Me", new List<FunctionalGroup>());
+                curr_fa.functional_groups["Me"].Add(fg);
         }
 
 
@@ -1091,8 +1144,8 @@ namespace csgoslin
 
         public void set_car(TreeNode node)
         {
-            tmp.set_list("fg_pos", new GenericList());
-            tmp.set_string("fg_type", "");
+            tmp.Add("fg_pos", new Lst());
+            tmp.Add("fg_type", "");
         }
 
 
@@ -1110,13 +1163,12 @@ namespace csgoslin
 
         public void add_amine(TreeNode node)
         {
-            FattyAcid *fa = fatty_acyl_stack.back();
-            fatty_acyl_stack.pop_back();
+            FattyAcid fa = fatty_acyl_stack.PopBack();
             
             fa.name += "1";
             fatty_acyl_stack.back().name += "2";
-            fa.lipid_FA_bond_type = AMINE;
-            fatty_acyl_stack.insert(fatty_acyl_stack.begin(), fa);
+            fa.lipid_FA_bond_type = LipidFaBondType.AMINE;
+            fatty_acyl_stack.Insert(0, fa);
         }
 
 
@@ -1128,36 +1180,37 @@ namespace csgoslin
 
         public void add_summary(TreeNode node)
         {    
-            tmp.get_dictionary(FA_I).set_dictionary("fg_pos_summary", new GenericDictionary());
-            for (int i = 0; i < (int)tmp.get_list("fg_pos").list.size(); ++i){
-                string k = std::to_string(tmp.get_list("fg_pos").get_list(i).get_int(0));
-                string v = to_upper(tmp.get_list("fg_pos").get_list(i).get_string(1));
-                tmp.get_dictionary(FA_I).get_dictionary("fg_pos_summary").set_string(k, v);
+            string fa_i = FA_I();
+            ((Dict)tmp[fa_i]).Add("fg_pos_summary", new Dict());
+            foreach (Lst lst in (Lst)tmp["fg_pos"])
+            {
+                string k = Convert.ToString((int)lst[0]);
+                string v = ((string)lst[1]).ToUpper();
+                ((Dict)((Dict)tmp[fa_i])["fg_pos_summary"]).Add(k, v);
             }
         }
 
 
         public void add_func_stereo(TreeNode node)
         {
-            int l = tmp.get_list("fg_pos").list.size();
-            tmp.get_list("fg_pos").get_list(l - 1).set_string(1, node.get_text());
+            int l = ((Lst)tmp["fg_pos"]).Count;
+            ((Lst)((Lst)tmp["fg_pos"])[l - 1])[1] = node.get_text();
         }
 
 
         public void set_db_length(TreeNode node)
         {
-            tmp.set_int("old_length", tmp.get_int("length"));
-            tmp.set_int("length", 0);
+            tmp.Add("old_length", (int)tmp["length"]);
+            tmp.Add("length", 0);
         }
 
 
         public void check_db_length(TreeNode node)
         {
-            int old_length = tmp.get_int("old_length");
-            int db_length = tmp.get_int("length");
+            int old_length = (int)tmp["old_length"];
+            int db_length = (int)tmp["length"];
             
             if (old_length < db_length) fatty_acyl_stack.back().num_carbon += db_length;
         }
-        */
     }
 }
