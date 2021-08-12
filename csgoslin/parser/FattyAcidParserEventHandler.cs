@@ -60,102 +60,100 @@ namespace csgoslin
         {
             reset_parser(null);
             registered_events.Add("lipid_pre_event", reset_parser);
-            /*
-            registeretd_events.Add("lipid_post_event", build_lipid);
-            registeretd_events.Add("fatty_acid_post_event", set_fatty_acid);
+            registered_events.Add("lipid_post_event", build_lipid);
+            registered_events.Add("fatty_acid_post_event", set_fatty_acid);
             
-            registeretd_events.Add("acid_single_type_pre_event", set_fatty_acyl_type);
-            registeretd_events.Add("ol_ending_pre_event", set_fatty_acyl_type);
-            registeretd_events.Add("double_bond_position_pre_event", set_double_bond_information);
-            registeretd_events.Add("double_bond_position_post_event", add_double_bond_information);
-            registeretd_events.Add("db_number_post_event", set_double_bond_position);
-            registeretd_events.Add("cistrans_post_event", set_cistrans);
-            registeretd_events.Add("acid_type_double_post_event", check_db);
-            registeretd_events.Add("db_length_pre_event", set_db_length);
-            registeretd_events.Add("db_length_post_event", check_db_length);
+            registered_events.Add("acid_single_type_pre_event", set_fatty_acyl_type);
+            registered_events.Add("ol_ending_pre_event", set_fatty_acyl_type);
+            registered_events.Add("double_bond_position_pre_event", set_double_bond_information);
+            registered_events.Add("double_bond_position_post_event", add_double_bond_information);
+            registered_events.Add("db_number_post_event", set_double_bond_position);
+            registered_events.Add("cistrans_post_event", set_cistrans);
+            registered_events.Add("acid_type_double_post_event", check_db);
+            registered_events.Add("db_length_pre_event", set_db_length);
+            registered_events.Add("db_length_post_event", check_db_length);
             
             // lengths
-            registeretd_events.Add("functional_length_pre_event", reset_length);
-            registeretd_events.Add("fatty_length_pre_event", reset_length);
-            registeretd_events.Add("functional_length_post_event", set_functional_length);
-            registeretd_events.Add("fatty_length_post_event", set_fatty_length);
+            registered_events.Add("functional_length_pre_event", reset_length);
+            registered_events.Add("fatty_length_pre_event", reset_length);
+            registered_events.Add("functional_length_post_event", set_functional_length);
+            registered_events.Add("fatty_length_post_event", set_fatty_length);
             
             // numbers
-            registeretd_events.Add("notation_specials_pre_event", special_number);
-            registeretd_events.Add("notation_last_digit_pre_event", last_number);
-            registeretd_events.Add("notation_second_digit_pre_event", second_number);
+            registered_events.Add("notation_specials_pre_event", special_number);
+            registered_events.Add("notation_last_digit_pre_event", last_number);
+            registered_events.Add("notation_second_digit_pre_event", second_number);
             
             // functional groups
-            registeretd_events.Add("functional_group_pre_event", set_functional_group);
-            registeretd_events.Add("functional_group_post_event", add_functional_group);
-            registeretd_events.Add("functional_pos_pre_event", set_functional_pos);
-            registeretd_events.Add("functional_position_pre_event", set_functional_position);
-            registeretd_events.Add("functional_group_type_pre_event", set_functional_type);
+            registered_events.Add("functional_group_pre_event", set_functional_group);
+            registered_events.Add("functional_group_post_event", add_functional_group);
+            registered_events.Add("functional_pos_pre_event", set_functional_pos);
+            registered_events.Add("functional_position_pre_event", set_functional_position);
+            registered_events.Add("functional_group_type_pre_event", set_functional_type);
             
             // cyclo / epoxy
-            registeretd_events.Add("cyclo_position_pre_event", set_functional_group);
-            registeretd_events.Add("cyclo_position_post_event", rearrange_cycle);
-            registeretd_events.Add("epoxy_pre_event", set_functional_group);
-            registeretd_events.Add("epoxy_post_event", add_epoxy);
-            registeretd_events.Add("cycle_pre_event", set_cycle);
-            registeretd_events.Add("methylene_post_event", set_methylene);
+            registered_events.Add("cyclo_position_pre_event", set_functional_group);
+            registered_events.Add("cyclo_position_post_event", rearrange_cycle);
+            registered_events.Add("epoxy_pre_event", set_functional_group);
+            registered_events.Add("epoxy_post_event", add_epoxy);
+            registered_events.Add("cycle_pre_event", set_cycle);
+            registered_events.Add("methylene_post_event", set_methylene);
 
             // dioic
-            registeretd_events.Add("dioic_pre_event", set_functional_group);
-            registeretd_events.Add("dioic_post_event", set_dioic);
-            registeretd_events.Add("dioic_acid_pre_event", set_fatty_acyl_type);
-            registeretd_events.Add("dial_post_event", set_dial);
+            registered_events.Add("dioic_pre_event", set_functional_group);
+            registered_events.Add("dioic_post_event", set_dioic);
+            registered_events.Add("dioic_acid_pre_event", set_fatty_acyl_type);
+            registered_events.Add("dial_post_event", set_dial);
 
             
             // prosta
-            registeretd_events.Add("prosta_pre_event", set_prosta);
-            registeretd_events.Add("prosta_post_event", add_cyclo);
-            registeretd_events.Add("reduction_pre_event", set_functional_group);
-            registeretd_events.Add("reduction_post_event", reduction);
-            registeretd_events.Add("homo_post_event", homo);
+            registered_events.Add("prosta_pre_event", set_prosta);
+            registered_events.Add("prosta_post_event", add_cyclo);
+            registered_events.Add("reduction_pre_event", set_functional_group);
+            registered_events.Add("reduction_post_event", reduction);
+            registered_events.Add("homo_post_event", homo);
 
             
             // recursion
-            registeretd_events.Add("recursion_description_pre_event", set_recursion);
-            registeretd_events.Add("recursion_description_post_event", add_recursion);
-            registeretd_events.Add("recursion_pos_pre_event", set_recursion_pos);
-            registeretd_events.Add("yl_ending_pre_event", set_yl_ending);
-            registeretd_events.Add("acetic_acid_post_event", set_acetic_acid);
-            registeretd_events.Add("acetic_recursion_pre_event", set_recursion);
-            registeretd_events.Add("acetic_recursion_post_event", add_recursion);
-            registeretd_events.Add("hydroxyl_number_pre_event", add_hydroxyl);
-            registeretd_events.Add("ol_pre_event", setup_hydroxyl);
-            registeretd_events.Add("ol_post_event", add_hydroxyls);
-            registeretd_events.Add("ol_pos_post_event", set_yl_ending);
+            registered_events.Add("recursion_description_pre_event", set_recursion);
+            registered_events.Add("recursion_description_post_event", add_recursion);
+            registered_events.Add("recursion_pos_pre_event", set_recursion_pos);
+            registered_events.Add("yl_ending_pre_event", set_yl_ending);
+            registered_events.Add("acetic_acid_post_event", set_acetic_acid);
+            registered_events.Add("acetic_recursion_pre_event", set_recursion);
+            registered_events.Add("acetic_recursion_post_event", add_recursion);
+            registered_events.Add("hydroxyl_number_pre_event", add_hydroxyl);
+            registered_events.Add("ol_pre_event", setup_hydroxyl);
+            registered_events.Add("ol_post_event", add_hydroxyls);
+            registered_events.Add("ol_pos_post_event", set_yl_ending);
             
             
             // wax esters
-            registeretd_events.Add("wax_ester_pre_event", set_recursion);
-            registeretd_events.Add("wax_ester_post_event", add_wax_ester);
-            registeretd_events.Add("ate_post_event", set_ate);
-            registeretd_events.Add("isoprop_post_event", set_iso);
-            registeretd_events.Add("isobut_post_event", set_iso);
+            registered_events.Add("wax_ester_pre_event", set_recursion);
+            registered_events.Add("wax_ester_post_event", add_wax_ester);
+            registered_events.Add("ate_post_event", set_ate);
+            registered_events.Add("isoprop_post_event", set_iso);
+            registered_events.Add("isobut_post_event", set_iso);
             
             // CoA
-            registeretd_events.Add("CoA_post_event", set_coa);
-            registeretd_events.Add("methyl_pre_event", set_methyl);
+            registered_events.Add("CoA_post_event", set_coa);
+            registered_events.Add("methyl_pre_event", set_methyl);
             
             // CAR
-            registeretd_events.Add("CAR_pre_event", set_car);
-            registeretd_events.Add("CAR_post_event", add_car);
+            registered_events.Add("CAR_pre_event", set_car);
+            registered_events.Add("CAR_post_event", add_car);
             
             // amine
-            registeretd_events.Add("ethanolamine_post_event", add_ethanolamine);
-            registeretd_events.Add("amine_n_pre_event", set_recursion);
-            registeretd_events.Add("amine_n_post_event", add_amine);
-            registeretd_events.Add("amine_post_event", add_amine_name);
+            registered_events.Add("ethanolamine_post_event", add_ethanolamine);
+            registered_events.Add("amine_n_pre_event", set_recursion);
+            registered_events.Add("amine_n_post_event", add_amine);
+            registered_events.Add("amine_post_event", add_amine_name);
             
             // functional group position summary
-            registeretd_events.Add("fg_pos_summary_pre_event", set_functional_group);
-            registeretd_events.Add("fg_pos_summary_post_event", add_summary);
-            registeretd_events.Add("func_stereo_pre_event", add_func_stereo);
+            registered_events.Add("fg_pos_summary_pre_event", set_functional_group);
+            registered_events.Add("fg_pos_summary_post_event", add_summary);
+            registered_events.Add("func_stereo_pre_event", add_func_stereo);
             
-            */
             debug = "";
         }
 

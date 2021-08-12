@@ -57,7 +57,7 @@ namespace csgoslin
     
     public class Dict : Dictionary<string, Object>
     {
-        public void Add(string s, Object o)
+        public new void Add(string s, Object o)
         {
             if (ContainsKey(s)) this[s] = o;
             else base.Add(s, o);
