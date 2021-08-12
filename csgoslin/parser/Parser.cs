@@ -739,7 +739,7 @@ namespace csgoslin
 
 
         // re-implementation of Cocke-Younger-Kasami algorithm
-        public T parse(string text_to_parse, bool throw_error = true)
+        public virtual T parse(string text_to_parse, bool throw_error = true)
         {
             string old_lipid = text_to_parse;
             if (used_eof) text_to_parse += EOF_SIGN;

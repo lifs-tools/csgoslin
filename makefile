@@ -32,4 +32,6 @@ clean:
 	rm -rf csgoslin/bin
 	rm -rf csgoslin/obj
 	rm -rf csgoslin/domain/ClassesEnum.cs
+	rm -rf csgoslin/domain/LipidClasses.cs
+	rm -rf csgoslin/domain/KnownFunctionalGroups.cs
 	rm -rf csgoslin/parser/KnownGrammars.cs

@@ -3,10 +3,6 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.30114.105
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "writeGrammarHeader", "writeGrammarHeader\writeGrammarHeader.csproj", "{5EE20DAA-3B30-4AA8-BB7E-245972E62344}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "writeLipidEnums", "writeLipidEnums\writeLipidEnums.csproj", "{3E688DA9-DB29-4E64-9F66-6CA020AC9348}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "csgoslin", "csgoslin\csgoslin.csproj", "{53FDFEC2-4EA3-4438-A335-17B434E9F856}"
 EndProject
 Global

@@ -34,7 +34,7 @@ class WriteGrammarHeader
     {
         string prefixPath = Environment.CurrentDirectory;
         string grammar_file_name = Path.Combine(prefixPath, "data", "goslin", grammarFilename);
-
+        
         if (File.Exists(grammar_file_name))
         {
             int lineCounter = 0;
@@ -133,6 +133,6 @@ class WriteGrammarHeader
         {
             throw new Exception("The file csgoslin/parser/KnownGrammars.cs' could not be written:\n" + e);
         }
-          
+
     }
 }

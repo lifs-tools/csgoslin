@@ -45,6 +45,11 @@ namespace csgoslin
         {
             
         }
+        
+        public override LipidAdduct parse(string lipid_name, bool throw_error = true)
+        {
+            return base.parse(lipid_name.ToLower(), throw_error);
+        }
     }
     
     

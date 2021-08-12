@@ -1,0 +1,40 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <ItemGroup>
+    <ProjectReference Include="../writeGrammarHeader/writeGrammarHeader.csproj" ReferenceOutputAssembly="false" />
+  </ItemGroup>
+  
+  <ItemGroup>
+    <Compile Remove="$(ProjectDir)tests\**\*.*" />
+    <Compile Remove="$(ProjectDir)domain\**\*.*" />
+    <Compile Remove="$(ProjectDir)parser\**\*.*" />
+    <Compile Include="$(ProjectDir)parser/BaseParserEventHandler.cs" />
+    <Compile Include="$(ProjectDir)parser/KnownGrammars.cs" />
+    <Compile Include="$(ProjectDir)parser/Parser.cs" />
+    <Compile Include="$(ProjectDir)parser/ParserClasses.cs" />
+    <Compile Include="$(ProjectDir)parser/SumFormulaParser.cs" />
+    <Compile Include="$(ProjectDir)parser/SumFormulaParserEventHandler.cs" />
+    <Compile Include="$(ProjectDir)domain/Element.cs" />
+    <Compile Include="$(ProjectDir)domain/LipidExceptions.cs" />
+    <Compile Include="$(ProjectDir)domain/StringFunctions.cs" />
+  </ItemGroup>
+  
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net47</TargetFramework>
+    <PlatformTarget>x64</PlatformTarget>
+    <DebugType>portable</DebugType>
+  </PropertyGroup>
+
+  <Target Name="GenerateGoslinGrammarHeader" BeforeTargets="ExecuteGoslinGrammarHeader">
+    <Message Text="Generating grammar header" />
+    <Exec Command="dotnet build writeGrammarHeader" WorkingDirectory="../" ConsoleToMsBuild="true" Condition=" '$(OS)' != 'Windows_NT' " />
+    <Exec Command="dotnet build writeGrammarHeader" WorkingDirectory="..\" ConsoleToMsBuild="true" Condition=" '$(OS)' == 'Windows_NT' " />
+  </Target>
+
+  <Target Name="ExecuteGoslinGrammarHeader" BeforeTargets="PrepareForBuild">
+    <Message Text="Execute grammar header" />
+    <Exec Command="mono $(MSBuildProjectDirectory)/../writeGrammarHeader/bin/$(Configuration)/$(TargetFramework)/writeGrammarHeader.exe" WorkingDirectory="../" ConsoleToMsBuild="true" Condition=" '$(OS)' != 'Windows_NT' " />
+    <Exec Command="$(MSBuildProjectDirectory)\..\writeGrammarHeader\bin\$(Configuration)\$(TargetFramework)/writeGrammarHeader.exe" WorkingDirectory="..\" ConsoleToMsBuild="true" Condition=" '$(OS)' == 'Windows_NT' " />
+  </Target>
+</Project>
