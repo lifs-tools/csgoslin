@@ -38,13 +38,13 @@
   
   <Target Name="GenerateGoslinLipidEnums" BeforeTargets="ExecuteGoslinLipidEnums">
     <Message Text="Generating lipid enums" />
-    <Exec Command="dotnet build csgoslin/writeLipidEnums.csproj" WorkingDirectory="../" ConsoleToMsBuild="true" Condition=" '$(OS)' != 'Windows_NT' " />
-    <Exec Command="dotnet build csgoslin/writeLipidEnums.csproj" WorkingDirectory="..\" ConsoleToMsBuild="true" Condition=" '$(OS)' == 'Windows_NT' " />
+    <Exec Command="dotnet build csgoslin/writeLipidEnums.csproj --configuration $(Configuration)" WorkingDirectory="../" ConsoleToMsBuild="true" Condition=" '$(OS)' != 'Windows_NT' " />
+    <Exec Command="dotnet build csgoslin/writeLipidEnums.csproj --configuration $(Configuration)" WorkingDirectory="..\" ConsoleToMsBuild="true" Condition=" '$(OS)' == 'Windows_NT' " />
   </Target>
   
   <Target Name="ExecuteGoslinLipidEnums" BeforeTargets="PrepareForBuild">
     <Message Text="Executing lipid enums" />
-    <Exec Command="dotnet build csgoslin/writeLipidEnums.csproj" WorkingDirectory="../" ConsoleToMsBuild="true" Condition=" '$(OS)' != 'Windows_NT' " />
+	    <!--    <Exec Command="dotnet build csgoslin/writeLipidEnums.csproj" WorkingDirectory="../" ConsoleToMsBuild="true" Condition=" '$(OS)' != 'Windows_NT' " /> -->
     <Exec Command="mono $(MSBuildProjectDirectory)/bin/$(Configuration)/$(TargetFramework)/writeLipidEnums.exe" WorkingDirectory="../" ConsoleToMsBuild="true" Condition=" '$(OS)' != 'Windows_NT' " />
     <Exec Command="$(MSBuildProjectDirectory)\bin\$(Configuration)\$(TargetFramework)\writeLipidEnums.exe" WorkingDirectory="..\" ConsoleToMsBuild="true" Condition=" '$(OS)' == 'Windows_NT' " />
   </Target>

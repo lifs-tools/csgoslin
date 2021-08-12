@@ -28,8 +28,8 @@
 
   <Target Name="GenerateGoslinGrammarHeader" BeforeTargets="ExecuteGoslinGrammarHeader">
     <Message Text="Generating grammar header" />
-    <Exec Command="dotnet build writeGrammarHeader" WorkingDirectory="../" ConsoleToMsBuild="true" Condition=" '$(OS)' != 'Windows_NT' " />
-    <Exec Command="dotnet build writeGrammarHeader" WorkingDirectory="..\" ConsoleToMsBuild="true" Condition=" '$(OS)' == 'Windows_NT' " />
+    <Exec Command="dotnet build writeGrammarHeader --configuration $(Configuration)" WorkingDirectory="../" ConsoleToMsBuild="true" Condition=" '$(OS)' != 'Windows_NT' " />
+    <Exec Command="dotnet build writeGrammarHeader --configuration $(Configuration)" WorkingDirectory="..\" ConsoleToMsBuild="true" Condition=" '$(OS)' == 'Windows_NT' " />
   </Target>
 
   <Target Name="ExecuteGoslinGrammarHeader" BeforeTargets="PrepareForBuild">
