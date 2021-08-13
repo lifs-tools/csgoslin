@@ -5,7 +5,6 @@
   </ItemGroup>
   
   <ItemGroup>
-    <Compile Remove="$(ProjectDir)tests\**\*.*" />
     <Compile Remove="$(ProjectDir)domain\**\*.*" />
     <Compile Remove="$(ProjectDir)parser\**\*.*" />
     <Compile Include="$(ProjectDir)parser/BaseParserEventHandler.cs" />

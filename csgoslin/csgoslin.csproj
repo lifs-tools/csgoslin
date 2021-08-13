@@ -4,7 +4,6 @@
     <ProjectReference Include="..\csgoslin\writeLipidEnums.csproj" ReferenceOutputAssembly="false" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Remove="$(ProjectDir)tests\**\*.*" />
     
     <Compile Include="$(ProjectDir)domain\ClassesEnum.cs" />
     <Compile Include="$(ProjectDir)domain\LipidClasses.cs" />
@@ -26,7 +25,7 @@
     <DefaultLanguage>en-US</DefaultLanguage>
     <Authors>Dominik Kopczynski, Nils Hoffmann</Authors>
     <Copyright>© $([System.DateTime]::Now.Year) Dominik Kopczynski, Nils Hoffmann</Copyright>
-    <PackageIconUrl>https://raw.githubusercontent.com/lifs-tools/goslin/master/goslin.svg</PackageIconUrl>
+    <PackageIcon>https://raw.githubusercontent.com/lifs-tools/goslin/master/goslin.svg</PackageIcon>
     <PackageLicenseUrl>https://raw.githubusercontent.com/lifs-tools/csgoslin/main/LICENSE</PackageLicenseUrl>
     <PackageProjectUrl>https://github.com/lifs-tools/csgoslin</PackageProjectUrl>
     <RepositoryUrl>https://github.com/lifs-tools/csgoslin</RepositoryUrl>

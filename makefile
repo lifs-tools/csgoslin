@@ -3,7 +3,7 @@ main:
 
 	
 test:
-	dotnet build -t:Test
+	dotnet build csgoslin.Tests/csgoslin.Tests.csproj -t:Test
 
 	
 clean:
@@ -14,6 +14,8 @@ clean:
 	rm -rf writeLipidEnums/obj
 	rm -rf csgoslin/bin
 	rm -rf csgoslin/obj
+	rm -rf csgoslin.Tests/bin
+	rm -rf csgoslin.Tests/obj
 	rm -rf csgoslin/domain/ClassesEnum.cs
 	rm -rf csgoslin/domain/LipidClasses.cs
 	rm -rf csgoslin/domain/KnownFunctionalGroups.cs
