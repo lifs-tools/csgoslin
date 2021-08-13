@@ -3,7 +3,7 @@ main:
 
 	
 test:
-	dotnet build csgoslin/test.csproj
+	dotnet build -t:Test
 
 	
 clean:
