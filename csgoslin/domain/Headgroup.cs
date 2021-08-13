@@ -70,13 +70,17 @@ namespace csgoslin
 
         public static LipidCategory get_category(string _headgroup)
         {
-            if (StringCategory.Count == 0){
-                foreach (KeyValuePair<LipidClass, LipidClassMeta> kvp in LipidClasses.lipid_classes)
+            lock(StringCategory)
+            {
+                if (StringCategory.Count == 0)
                 {
-                    LipidCategory category = kvp.Value.lipid_category;
-                    foreach (string hg in kvp.Value.synonyms)
+                    foreach (KeyValuePair<LipidClass, LipidClassMeta> kvp in LipidClasses.lipid_classes)
                     {
-                        StringCategory.Add(hg, category);
+                        LipidCategory category = kvp.Value.lipid_category;
+                        foreach (string hg in kvp.Value.synonyms)
+                        {
+                            StringCategory.Add(hg, category);
+                        }
                     }
                 }
             }
@@ -88,14 +92,17 @@ namespace csgoslin
 
         public static LipidClass get_class(string _headgroup)
         {
-            if (StringClass.Count == 0)
+            lock(StringClass)
             {
-                foreach (KeyValuePair<LipidClass, LipidClassMeta> kvp in LipidClasses.lipid_classes)
+                if (StringClass.Count == 0)
                 {
-                    LipidClass l_class = kvp.Key;
-                    foreach (string hg in kvp.Value.synonyms)
+                    foreach (KeyValuePair<LipidClass, LipidClassMeta> kvp in LipidClasses.lipid_classes)
                     {
-                        StringClass.Add(hg, l_class);
+                        LipidClass l_class = kvp.Key;
+                        foreach (string hg in kvp.Value.synonyms)
+                        {
+                            StringClass.Add(hg, l_class);
+                        }
                     }
                 }
             }
@@ -106,11 +113,14 @@ namespace csgoslin
 
         public static string get_class_string(LipidClass _lipid_class)
         {
-            if (ClassString.Count == 0)
+            lock(ClassString)
             {
-                foreach (KeyValuePair<LipidClass, LipidClassMeta> kvp in LipidClasses.lipid_classes)
+                if (ClassString.Count == 0)
                 {
-                    ClassString.Add(kvp.Key, kvp.Value.synonyms[0]);
+                    foreach (KeyValuePair<LipidClass, LipidClassMeta> kvp in LipidClasses.lipid_classes)
+                    {
+                        ClassString.Add(kvp.Key, kvp.Value.synonyms[0]);
+                    }
                 }
             }
             

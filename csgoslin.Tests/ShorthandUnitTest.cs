@@ -121,7 +121,7 @@ namespace csgoslin.Tests
         
         
         [Fact]
-        public void Test1()
+        public void ShorthandUnitTest1()
         {
             ShorthandParser parser = new ShorthandParser();
             
