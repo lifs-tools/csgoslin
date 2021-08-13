@@ -1,5 +1,5 @@
 main:
-	dotnet build csgoslin/csgoslin.csproj
+	dotnet build -p:Configuration=Release
 
 	
 test:
