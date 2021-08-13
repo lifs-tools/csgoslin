@@ -461,7 +461,7 @@ namespace csgoslin
                         sw.Write("        {\n");
                         sw.Write("            if (known_functional_groups.ContainsKey(fg_name))\n");
                         sw.Write("            {\n");
-                        sw.Write("                return known_functional_groups[fg_name];\n");
+                        sw.Write("                return known_functional_groups[fg_name].copy();\n");
                         sw.Write("            }\n");
                         sw.Write("            throw new RuntimeException(\"Name '\" + fg_name + \"' not registered in functional group list\");\n");
                         sw.Write("        }\n");

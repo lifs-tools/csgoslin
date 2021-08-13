@@ -234,6 +234,7 @@ namespace csgoslin
             lipid = new LipidAdduct();
             lipid.adduct = adduct;
             
+            
             switch(level)
             {
                 case LipidLevel.ISOMERIC_SUBSPECIES:
@@ -829,6 +830,7 @@ namespace csgoslin
             
             if (!current_fa.back().functional_groups.ContainsKey(fg_name)) current_fa.back().functional_groups.Add(fg_name, new List<FunctionalGroup>());
             current_fa.back().functional_groups[fg_name].Add(functional_group);
+            
         }
 
 

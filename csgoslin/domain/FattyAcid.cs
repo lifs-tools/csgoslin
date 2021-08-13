@@ -157,6 +157,7 @@ namespace csgoslin
                     List<FunctionalGroup> fg_list = functional_groups[fg];
                     if (fg_list.Count == 0) continue;
                     
+                    
                     fg_list.Sort(delegate(FunctionalGroup x, FunctionalGroup y)
                     {
                         return x.position - y.position;
@@ -234,7 +235,7 @@ namespace csgoslin
 
         public override void compute_elements()
         {
-            foreach (KeyValuePair<Element, int> kv in elements) elements[kv.Key] = 0;
+            foreach (Element e in Elements.element_order) elements[e] = 0;
             
             int num_double_bonds = double_bonds.num_double_bonds;
             if (lipid_FA_bond_type == LipidFaBondType.ETHER_PLASMENYL) num_double_bonds += 1;
