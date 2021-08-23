@@ -71,6 +71,29 @@ namespace csgoslin
             return (lipid != null) ? lipid.headgroup.get_class_name() : "";
         }
 
+        
+        public bool is_lyso()
+        {
+            return LipidClasses.lipid_classes.ContainsKey(lipid.headgroup.lipid_class) ? LipidClasses.lipid_classes[lipid.headgroup.lipid_class].special_cases.Contains("Lyso") : false;
+        }
+
+        
+        public bool is_cardio_lipin()
+        {
+            return LipidClasses.lipid_classes.ContainsKey(lipid.headgroup.lipid_class) ? LipidClasses.lipid_classes[lipid.headgroup.lipid_class].special_cases.Contains("Cardio") : false;
+        }
+
+        
+        public bool contains_sugar()
+        {
+            return LipidClasses.lipid_classes.ContainsKey(lipid.headgroup.lipid_class) ? LipidClasses.lipid_classes[lipid.headgroup.lipid_class].special_cases.Contains("Sugar") : false;
+        }
+
+        
+        public bool contains_ester()
+        {
+            return LipidClasses.lipid_classes.ContainsKey(lipid.headgroup.lipid_class) ? LipidClasses.lipid_classes[lipid.headgroup.lipid_class].special_cases.Contains("Ester") : false;
+        }
 
 
         public LipidLevel get_lipid_level()
