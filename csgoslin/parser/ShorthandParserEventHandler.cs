@@ -69,8 +69,7 @@ namespace csgoslin
             registered_events.Add("gl_species_pre_event", set_species_level);
             registered_events.Add("gl_molecular_species_pre_event", set_molecular_level);
             registered_events.Add("pl_species_pre_event", set_species_level);
-            registered_events.Add("pl_molecular_species_double_pre_event", set_molecular_level);
-            registered_events.Add("pl_molecular_species_triple_pre_event", set_molecular_level);
+            registered_events.Add("pl_molecular_species_pre_event", set_molecular_level);
             registered_events.Add("sl_species_pre_event", set_species_level);
             registered_events.Add("pl_single_pre_event", set_molecular_level);
             registered_events.Add("unsorted_fa_separator_pre_event", set_molecular_level);
@@ -211,7 +210,7 @@ namespace csgoslin
                 }
             }
                 
-            else if (true_fa != poss_fa)
+            else if (true_fa != poss_fa && (level == LipidLevel.ISOMERIC_SUBSPECIES || level == LipidLevel.STRUCTURAL_SUBSPECIES))
             {
                 string hg_name = head_group.headgroup;
                 throw new ConstraintViolationException("Number of described fatty acyl chains (" + Convert.ToString(true_fa) + ") not allowed for lipid class '" + hg_name + "' (having " + Convert.ToString(poss_fa) + " fatty aycl chains).");
