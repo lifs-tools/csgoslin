@@ -79,15 +79,17 @@ namespace csgoslin
     {
         public LipidCategory lipid_category;
         public string class_name;
+        public string description;
         public int max_num_fa;
         public int possible_num_fa;
         public HashSet<string> special_cases;
         public ElementTable elements;
         public List<string> synonyms;
         
-        public LipidClassMeta(LipidCategory _lipid_category, string _class_name, int _max_num_fa, int _possible_num_fa, HashSet<string> _special_cases, ElementTable _elements, List<string> _synonyms){
+        public LipidClassMeta(LipidCategory _lipid_category, string _class_name, string _description, int _max_num_fa, int _possible_num_fa, HashSet<string> _special_cases, ElementTable _elements, List<string> _synonyms){
             lipid_category = _lipid_category;
             class_name = _class_name;
+            description = _description;
             max_num_fa = _max_num_fa;
             possible_num_fa = _possible_num_fa;
             special_cases = _special_cases;

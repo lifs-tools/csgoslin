@@ -291,7 +291,7 @@ namespace csgoslin
                         int cnt = 0;
                         foreach (KeyValuePair<string, List<string> > kv in data)
                         {
-                            sw.Write("            {LipidClass." + kv.Key + ", new LipidClassMeta(LipidCategory." + kv.Value[1] + ", \"" + kv.Value[2] + "\", ");
+                            sw.Write("            {LipidClass." + kv.Key + ", new LipidClassMeta(LipidCategory." + kv.Value[1] + ", \"" + kv.Value[0] + "\", \"" + kv.Value[2] + "\", ");
                             sw.Write(kv.Value[3] + ", " + kv.Value[4] + ", new HashSet<string>{");
                             
                             List<string> tokens = split_string(kv.Value[5], '|', '"');
