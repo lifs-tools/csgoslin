@@ -41,6 +41,13 @@ namespace csgoslin.Tests
             LipidAdduct lipidAdduct = parser.parse("PA 16:0-18:1");
             Console.WriteLine(lipidAdduct.get_lipid_string());
             Console.WriteLine(lipidAdduct.get_sum_formula());
+            
+            LipidParser l = new LipidParser();
+            lipidAdduct = l.parse("MLCL 18:1-18:1-18:1");
+            Console.WriteLine(lipidAdduct.get_lipid_string());
+            Console.WriteLine(lipidAdduct.get_sum_formula());
+            Console.WriteLine(lipidAdduct.is_cardio_lipin());
+            
         }
     }
 }

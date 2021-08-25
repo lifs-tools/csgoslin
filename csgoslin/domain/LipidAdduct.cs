@@ -95,6 +95,12 @@ namespace csgoslin
             return LipidClasses.lipid_classes.ContainsKey(lipid.headgroup.lipid_class) ? LipidClasses.lipid_classes[lipid.headgroup.lipid_class].special_cases.Contains("Ester") : false;
         }
 
+        
+        public bool is_sp_exception()
+        {
+            return LipidClasses.lipid_classes.ContainsKey(lipid.headgroup.lipid_class) ? LipidClasses.lipid_classes[lipid.headgroup.lipid_class].special_cases.Contains("SP_Exception") : false;
+        }
+
 
         public LipidLevel get_lipid_level()
         {

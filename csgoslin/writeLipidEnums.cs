@@ -294,7 +294,7 @@ namespace csgoslin
                             sw.Write("            {LipidClass." + kv.Key + ", new LipidClassMeta(LipidCategory." + kv.Value[1] + ", \"" + kv.Value[0] + "\", \"" + kv.Value[2] + "\", ");
                             sw.Write(kv.Value[3] + ", " + kv.Value[4] + ", new HashSet<string>{");
                             
-                            List<string> tokens = split_string(kv.Value[5], '|', '"');
+                            List<string> tokens = split_string(kv.Value[5], ';', '"');
                             for (int i = 0; i < tokens.Count; ++i)
                             {
                                 string tok = tokens[i].Trim(space_trim);
