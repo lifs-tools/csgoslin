@@ -62,6 +62,7 @@ namespace csgoslin
             registered_events.Add("lipid_pre_event", reset_parser);
             registered_events.Add("lipid_post_event", build_lipid);
             registered_events.Add("fatty_acid_post_event", set_fatty_acid);
+            registered_events.Add("fatty_acid_recursion_post_event", set_fatty_acid);
             
             registered_events.Add("acid_single_type_pre_event", set_fatty_acyl_type);
             registered_events.Add("ol_ending_pre_event", set_fatty_acyl_type);
@@ -136,12 +137,12 @@ namespace csgoslin
             registered_events.Add("isobut_post_event", set_iso);
             
             // CoA
-            registered_events.Add("CoA_post_event", set_coa);
+            registered_events.Add("coa_post_event", set_coa);
             registered_events.Add("methyl_pre_event", set_methyl);
             
             // CAR
-            registered_events.Add("CAR_pre_event", set_car);
-            registered_events.Add("CAR_post_event", add_car);
+            registered_events.Add("car_pre_event", set_car);
+            registered_events.Add("car_post_event", add_car);
             
             // amine
             registered_events.Add("ethanolamine_post_event", add_ethanolamine);
