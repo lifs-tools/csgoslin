@@ -1073,7 +1073,7 @@ namespace csgoslin
                 {
                     sorted_pos.Add(i);
                 }
-                sorted_pos.Sort();
+                sorted_pos.Sort((a, b) => b.CompareTo(a));
                 for (int i = 0; i < sorted_pos.Count - 1; ++i)
                 {
                     int pos = sorted_pos[i];

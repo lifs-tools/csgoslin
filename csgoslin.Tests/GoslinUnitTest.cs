@@ -37,10 +37,12 @@ namespace csgoslin.Tests
         [Fact]
         public void GoslinUnitTest1()
         {
+            /*
             LipidParser parser = new LipidParser();
             LipidAdduct lipidAdduct = parser.parse("2,2,9,9-tetramethyl-decan-1,10-diol");
             Console.WriteLine(lipidAdduct.get_lipid_string());
             Assert.True(false);
+            */
         }
     }
 }
