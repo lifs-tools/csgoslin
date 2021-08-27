@@ -23,15 +23,16 @@
     <TargetFramework>net472</TargetFramework>
     <PlatformTarget>x64</PlatformTarget>
     <DebugType>portable</DebugType>
+    <WriteGrammarExe>$(MSBuildProjectDirectory)\..\writeGrammarHeader\bin\$(Configuration)\$(TargetFramework)/writeGrammarHeader.exe</WriteGrammarExe>
   </PropertyGroup>
 
-  <Target Name="GenerateGoslinGrammarHeader" BeforeTargets="ExecuteGoslinGrammarHeader">
+  <Target Name="GenerateGoslinGrammarHeader" BeforeTargets="ExecuteGoslinGrammarHeader" Condition="!Exists($(WriteGrammarExe))">
     <Message Text="Generating grammar header" />
     <Exec Command="dotnet build writeGrammarHeader --configuration $(Configuration)" WorkingDirectory="../" ConsoleToMsBuild="true" Condition=" '$(OS)' != 'Windows_NT' " />
     <Exec Command="dotnet build writeGrammarHeader --configuration $(Configuration)" WorkingDirectory="..\" ConsoleToMsBuild="true" Condition=" '$(OS)' == 'Windows_NT' " />
   </Target>
 
-  <Target Name="ExecuteGoslinGrammarHeader" BeforeTargets="PrepareForBuild">
+  <Target Name="ExecuteGoslinGrammarHeader" BeforeTargets="PrepareForBuild" Condition="!Exists($(WriteGrammarExe))">
     <Message Text="Execute grammar header" />
     <Exec Command="mono $(MSBuildProjectDirectory)/../writeGrammarHeader/bin/$(Configuration)/$(TargetFramework)/writeGrammarHeader.exe" WorkingDirectory="../" ConsoleToMsBuild="true" Condition=" '$(OS)' != 'Windows_NT' " />
     <Exec Command="$(MSBuildProjectDirectory)\..\writeGrammarHeader\bin\$(Configuration)\$(TargetFramework)/writeGrammarHeader.exe" WorkingDirectory="..\" ConsoleToMsBuild="true" Condition=" '$(OS)' == 'Windows_NT' " />

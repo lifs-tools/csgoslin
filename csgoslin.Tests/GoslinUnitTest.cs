@@ -37,17 +37,10 @@ namespace csgoslin.Tests
         [Fact]
         public void GoslinUnitTest1()
         {
-            GoslinParser parser = new GoslinParser();
-            LipidAdduct lipidAdduct = parser.parse("PA 16:0-18:1");
+            LipidParser parser = new LipidParser();
+            LipidAdduct lipidAdduct = parser.parse("2,2,9,9-tetramethyl-decan-1,10-diol");
             Console.WriteLine(lipidAdduct.get_lipid_string());
-            Console.WriteLine(lipidAdduct.get_sum_formula());
-            
-            LipidParser l = new LipidParser();
-            lipidAdduct = l.parse("MLCL 18:1-18:1-18:1");
-            Console.WriteLine(lipidAdduct.get_lipid_string());
-            Console.WriteLine(lipidAdduct.get_sum_formula());
-            Console.WriteLine(lipidAdduct.is_cardio_lipin());
-            
+            Assert.True(false);
         }
     }
 }

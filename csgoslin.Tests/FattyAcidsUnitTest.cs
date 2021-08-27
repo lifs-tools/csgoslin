@@ -72,130 +72,56 @@ namespace csgoslin.Tests
             }
             
             
-            int not_implemented = 0;
-            int failed = 0;
-            int failed_sum = 0;
-            
-            
             
             ////////////////////////////////////////////////////////////////////////////
             // Test for correctness
             ////////////////////////////////////////////////////////////////////////////
             
-            int i = -1;
             char[] trims = new char[]{'\"'};
-            foreach (string lipid_name in lipid_data)
+            foreach (string lipid_row in lipid_data)
             {
-                ++i;
+                List<string> data = StringFunctions.split_string(lipid_row, ',', '"', true);
+                string lmid = data[0].Trim(trims);
+                string lipid_name = data[1].Trim(trims);
+                string formula = data[2].Trim(trims);
+                string expected_lipid_name = data[3].Trim(trims);
                 
-                List<string> data = StringFunctions.split_string(lipid_name, ',', '"', true);
-                string name = data[3].Trim(trims);
-                if (name.Length == 0)
-                {
-                    continue;
-                }
+                formula = StringFunctions.compute_sum_formula(SumFormulaParser.get_instance().parse(formula));
                 
-                if (name.IndexOf("yn") != -1 || name.IndexOf("furan") != -1 || name.EndsWith("ane") || name.EndsWith("one") || name.IndexOf("phosphate") != -1 || name.IndexOf("pyran") != -1 || name.EndsWith("olide") || name.EndsWith("-one"))
-                {
-                    not_implemented += 1;
-                    continue;
-                }
-                
-                
-                LipidAdduct lipid = null;
-                try 
-                {
-                    //Console.WriteLine(name);
-                    lipid = fatty_acid_parser.parse(name);
-                }
-                catch (ArgumentException ex)
-                {
-                    Console.WriteLine(ex);
-                    Console.WriteLine("This-Error 1: '" + name + "'");
-                    Environment.Exit(-1);
-                }
-                catch
-                {
-                    failed += 1;
-                    continue;
-                }
+                LipidAdduct lipid = fatty_acid_parser.parse(lipid_name);
                     
                 string lipid_formula = lipid.get_sum_formula();
-                ElementTable e = SumFormulaParser.get_instance().parse(data[2]);
-                string formula = StringFunctions.compute_sum_formula(e);
                 
-                if (!formula.Equals(lipid_formula))
-                {
-                    Console.WriteLine(i + ", " + lipid_name + ": " + formula + " / " + lipid_formula);
-                    failed_sum += 1;
-                    Assert.True(false);
-                }
-                    
-                if (name.ToLower().IndexOf("cyano") != -1)
-                {
-                    continue;
-                }
+                Assert.True(expected_lipid_name.Equals(lipid.get_lipid_string()), lmid + " '" + lipid_name + "': " + expected_lipid_name + " != " + lipid.get_lipid_string() + " (computed)");
                 
-                LipidAdduct lipid2 = null;
-                try 
-                {
-                    lipid2 = shorthand_parser.parse(lipid.get_lipid_string());
-                    lipid_formula = lipid2.get_sum_formula();
-                }
-                catch (Exception ex2)
-                {
-                    Console.WriteLine(ex2);
-                    Console.WriteLine("This-Error 2: '" + name + "'");
-                    Environment.Exit(-1);
-                }
+                 
                 
-                if (!formula.Equals(lipid_formula))
-                {
-                    Console.WriteLine("current, " + i + ", " + lipid_name + ": " + formula + " != " + lipid_formula + " / " + lipid.get_lipid_string()); 
-                    failed_sum += 1;
-                }
                 
-                try 
-                {
-                    lipid2 = shorthand_parser.parse(lipid.get_lipid_string(LipidLevel.MOLECULAR_SUBSPECIES));
-                    lipid_formula = lipid2.get_sum_formula();
-                }
-                catch (Exception ex3)
-                {
-                    Console.WriteLine(ex3);
-                    Console.WriteLine("This-Error 3: '" + name + "'");
-                    Environment.Exit(-1);
-                }
-                if (!formula.Equals(lipid_formula))
-                {
-                    Console.WriteLine("molecular subspecies, " + i + ", " + lipid_name + ": " + formula + " != " + lipid_formula);
-                    failed_sum += 1;
-                }
+                Assert.True(formula.Equals(lipid_formula), "formula " + lmid + " '" + lipid_name + "': " + formula + " != " + lipid_formula + " (computed)");
+            
+                if (lipid_name.ToLower().IndexOf("cyano") != -1) continue;
                 
-                try 
-                {
-                    lipid2 = shorthand_parser.parse(lipid.get_lipid_string(LipidLevel.SPECIES));
-                    lipid_formula = lipid2.get_sum_formula();
                 
-                }
-                catch (Exception ex4)
-                {
-                    Console.WriteLine(ex4);
-                    Console.WriteLine("This-Error 4: '" + name + "'");
-                    Environment.Exit(-1);
-                }
-                if (!formula.Equals(lipid_formula))
-                {
-                    Console.WriteLine("species, " + i + ", " + lipid_name + ": " + formula + " != " + lipid_formula);
-                    failed_sum += 1;
-                }
+                LipidAdduct lipid2 = shorthand_parser.parse(lipid.get_lipid_string());
+                lipid_formula = lipid2.get_sum_formula();
+                
+                
+                Assert.True(formula.Equals(lipid_formula), "lipid " + lmid + " '" + lipid_name + "': " + formula + " != " + lipid_formula + " (computed)");
+                
+                lipid2 = shorthand_parser.parse(lipid.get_lipid_string(LipidLevel.MOLECULAR_SUBSPECIES));
+                lipid_formula = lipid2.get_sum_formula();
+                
+                Assert.True(formula.Equals(lipid_formula), "molecular " + lmid + " '" + lipid_name + "': " + formula + " != " + lipid_formula + " (computed)");
+                
+                lipid2 = shorthand_parser.parse(lipid.get_lipid_string(LipidLevel.SPECIES));
+                lipid_formula = lipid2.get_sum_formula();
+                
+                Assert.True(formula.Equals(lipid_formula), "species " + lmid + " '" + lipid_name + "': " + formula + " != " + lipid_formula + " (computed)");
+            
                 
             }
             
-            
-            Console.WriteLine("In the test, " + not_implemented + " of " + lipid_data.Count + " lipids can not be described by nomenclature");
-            Console.WriteLine("In the test, " + failed + " of " + (lipid_data.Count - not_implemented) + " lipids failed");
-            Console.WriteLine("In the test, " + failed_sum + " of " + (lipid_data.Count - not_implemented) + " lipid sum formulas failed");
+            Console.WriteLine("All tests passed without any problem");
         }
     }
 }

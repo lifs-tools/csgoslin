@@ -133,11 +133,14 @@ namespace csgoslin
                 fa_string.Append("(");
                 
                 int i = 0;
-                foreach (KeyValuePair<int, string> kv in double_bonds.double_bond_positions)
+                List<int> sorted_db = new List<int>();
+                foreach (KeyValuePair<int, string> kv in double_bonds.double_bond_positions) sorted_db.Add(kv.Key);
+                sorted_db.Sort();
+                foreach (int db_pos in sorted_db)
                 {
                     if (i++ > 0) fa_string.Append(",");
-                    fa_string.Append(kv.Key);
-                    if (level == LipidLevel.ISOMERIC_SUBSPECIES) fa_string.Append(kv.Value);
+                    fa_string.Append(db_pos);
+                    if (level == LipidLevel.ISOMERIC_SUBSPECIES) fa_string.Append(double_bonds.double_bond_positions[db_pos]);
                 }
                 fa_string.Append(")");
             }

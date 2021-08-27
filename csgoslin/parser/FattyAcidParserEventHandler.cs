@@ -885,7 +885,7 @@ namespace csgoslin
             {
                 foreach (int i in (Lst)tmp["reduction"])
                 {
-                    minus_pos = i < 8 ? 1 : 0;
+                    minus_pos += i < 8 ? 1 : 0;
                 }
             }
             

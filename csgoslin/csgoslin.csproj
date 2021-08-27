@@ -32,15 +32,16 @@
     <RepositoryType>git</RepositoryType>
     <!-- Root control Version Prefix -->
     <VersionPrefix>2.0.1</VersionPrefix>
+    <WriteEnumsExe>$(MSBuildProjectDirectory)\bin\$(Configuration)\$(TargetFramework)\writeLipidEnums.exe</WriteEnumsExe>
   </PropertyGroup>
   
-  <Target Name="GenerateGoslinLipidEnums" BeforeTargets="ExecuteGoslinLipidEnums">
+  <Target Name="GenerateGoslinLipidEnums" BeforeTargets="ExecuteGoslinLipidEnums" Condition="!Exists($(WriteEnumsExe))">
     <Message Text="Generating lipid enums" />
     <Exec Command="dotnet build csgoslin/writeLipidEnums.csproj --configuration $(Configuration)" WorkingDirectory="../" ConsoleToMsBuild="true" Condition=" '$(OS)' != 'Windows_NT' " />
     <Exec Command="dotnet build csgoslin/writeLipidEnums.csproj --configuration $(Configuration)" WorkingDirectory="..\" ConsoleToMsBuild="true" Condition=" '$(OS)' == 'Windows_NT' " />
   </Target>
   
-  <Target Name="ExecuteGoslinLipidEnums" BeforeTargets="PrepareForBuild">
+  <Target Name="ExecuteGoslinLipidEnums" BeforeTargets="PrepareForBuild" Condition="!Exists($(WriteEnumsExe))">
     <Message Text="Executing lipid enums" />
 	    <!--    <Exec Command="dotnet build csgoslin/writeLipidEnums.csproj" WorkingDirectory="../" ConsoleToMsBuild="true" Condition=" '$(OS)' != 'Windows_NT' " /> -->
     <Exec Command="mono $(MSBuildProjectDirectory)/bin/$(Configuration)/$(TargetFramework)/writeLipidEnums.exe" WorkingDirectory="../" ConsoleToMsBuild="true" Condition=" '$(OS)' != 'Windows_NT' " />
