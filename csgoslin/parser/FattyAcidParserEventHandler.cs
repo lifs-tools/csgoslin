@@ -284,20 +284,6 @@ namespace csgoslin
         {
             FattyAcid curr_fa = fatty_acyl_stack.back();
             
-            /*
-            if (tmp.get_dictionary(FA_I).contains_key("fg_pos_summary")){
-                for (auto &kv : tmp.get_dictionary(FA_I).get_dictionary("fg_pos_summary").dictionary){
-                    string str_pos = kv.first;
-                    string cistrans = to_upper(tmp.get_dictionary(FA_I).get_dictionary("fg_pos_summary").get_string(str_pos));
-                    int pos = Convert.ToInt32(str_pos);
-                    if (pos > 0 && (cistrans == "E" || cistrans == "Z")){
-                        curr_fa.double_bonds.double_bond_positions.insert({pos, cistrans});
-                    }
-                }
-                curr_fa.double_bonds.num_double_bonds = curr_fa.double_bonds.double_bond_positions.size();
-            }
-            */
-            
             if (curr_fa.functional_groups.ContainsKey("noyloxy"))
             {
                 if (headgroup.Equals("FA")) headgroup = "FAHFA";
@@ -437,9 +423,9 @@ namespace csgoslin
             {
                 FattyAcid fa = (FattyAcid)curr_fa.functional_groups["cyclo"][0];
                 curr_fa.functional_groups.Remove("cyclo");
-                tmp.Add("cyclo_len", curr_fa.num_carbon);
+                if (!tmp.ContainsKey("cyclo_len")) tmp.Add("cyclo_len", 5);
                 int start_pos = curr_fa.num_carbon + 1;
-                int end_pos = curr_fa.num_carbon + (tmp.ContainsKey("cyclo_len") ? (int)tmp["cyclo_len"] : 5);
+                int end_pos = curr_fa.num_carbon + (int)tmp["cyclo_len"];
                 fa.shift_positions(start_pos - 1);
                 
                 if (curr_fa.functional_groups.ContainsKey("cy"))

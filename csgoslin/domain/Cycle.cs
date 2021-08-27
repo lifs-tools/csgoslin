@@ -126,7 +126,7 @@ namespace csgoslin
                 int i = 0;
                 foreach (FunctionalGroup func_group in kv.Value)
                 {
-                    if (start <= func_group.position && func_group.position != end && func_group != this)
+                    if (start <= func_group.position && func_group.position <= end && func_group != this)
                     {
                         if (!functional_groups.ContainsKey(kv.Key))
                         {
