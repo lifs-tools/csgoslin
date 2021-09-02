@@ -86,6 +86,7 @@ namespace csgoslin
             registered_events.Add("furan_fa_pre_event", furan_fa);
             registered_events.Add("interlink_fa_pre_event", interlink_fa);
             registered_events.Add("lipid_suffix_pre_event", lipid_suffix);
+            registered_events.Add("methyl_pre_event", add_methyl);
             debug = "";
         }
 
@@ -265,6 +266,17 @@ namespace csgoslin
             if (!current_fa.functional_groups.ContainsKey("OH")) current_fa.functional_groups.Add("OH", new List<FunctionalGroup>());
             current_fa.functional_groups["OH"].Add(functional_group);
         }
+        
+        
+        public void add_methyl(TreeNode node)
+        {
+            FunctionalGroup functional_group = KnownFunctionalGroups.get_functional_group("Me");
+            functional_group.position = current_fa.num_carbon - (node.get_text().Equals("i-") ? 1 : 2);
+            current_fa.num_carbon -= 1;
+            
+            if (!current_fa.functional_groups.ContainsKey("Me")) current_fa.functional_groups.Add("Me", new List<FunctionalGroup>());
+            current_fa.functional_groups["Me"].Add(functional_group);
+        }
 
 
         public void add_one_hydroxyl(TreeNode node)
@@ -290,7 +302,7 @@ namespace csgoslin
 
         public void add_carbon(TreeNode node)
         {
-            current_fa.num_carbon = Convert.ToInt32(node.get_text());
+            current_fa.num_carbon += Convert.ToInt32(node.get_text());
         }
             
 
@@ -308,7 +320,7 @@ namespace csgoslin
 
         public void lipid_suffix(TreeNode node)
         {
-            throw new UnsupportedLipidException("Lipids with suffix '" + node.get_text() + "' are currently not supported");
+            //throw new UnsupportedLipidException("Lipids with suffix '" + node.get_text() + "' are currently not supported");
         }        
         
     }
