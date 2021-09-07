@@ -51,6 +51,8 @@ namespace csgoslin
         public string mod_text;
         public int mod_pos;
         public int mod_num;
+        public bool add_omega_linoleoyloxy_Cer;
+        public List<HeadgroupDecorator> headgroup_decorators;
         
         public static readonly HashSet<string> head_group_exceptions = new HashSet<string>{"PA", "PC", "PE", "PG", "PI", "PS"};
     
@@ -91,11 +93,16 @@ namespace csgoslin
             registered_events.Add("pk_hg_pre_event", set_head_group_name);
             registered_events.Add("hg_fa_pre_event", set_head_group_name);
             registered_events.Add("hg_lsl_pre_event", set_head_group_name);
+            registered_events.Add("special_cer_pre_event", set_head_group_name);
+            registered_events.Add("special_cer_hg_pre_event", set_head_group_name);
+            registered_events.Add("omega_linoleoyloxy_Cer_pre_event", set_omega_head_group_name);
             
             registered_events.Add("lcb_pre_event", new_lcb);
             registered_events.Add("lcb_post_event", clean_lcb);
             registered_events.Add("fa_pre_event", new_fa);
             registered_events.Add("fa_post_event", append_fa);
+            
+            registered_events.Add("glyco_struct_pre_event", add_glyco);
             
             registered_events.Add("db_single_position_pre_event", set_isomeric_level);
             registered_events.Add("db_single_position_post_event", add_db_position);
@@ -135,6 +142,8 @@ namespace csgoslin
             mod_pos = -1;
             mod_num = 1;
             mod_text = "";
+            headgroup_decorators = new List<HeadgroupDecorator>();
+            add_omega_linoleoyloxy_Cer = false;
         }
 
         public void set_molecular_subspecies_level(TreeNode node)
@@ -174,6 +183,32 @@ namespace csgoslin
                     level = (LipidLevel)Math.Min((int)level, (int)LipidLevel.STRUCTURAL_SUBSPECIES);
                 }
             }
+        }
+        
+        
+        
+        public void set_omega_head_group_name(TreeNode node)
+        {
+            add_omega_linoleoyloxy_Cer = true;
+            set_head_group_name(node);
+        }
+        
+        
+        public void add_glyco(TreeNode node)
+        {
+            string glyco_name = node.get_text();
+            HeadgroupDecorator functional_group = null;
+            try
+            {
+                functional_group = (HeadgroupDecorator)KnownFunctionalGroups.get_functional_group(glyco_name);
+            }
+            catch
+            {
+                throw new LipidParsingException("Carbohydrate '" + glyco_name + "' unknown");
+            }
+            
+            functional_group.elements[Element.O] -= 1;
+            headgroup_decorators.Add(functional_group);
         }
 
 
@@ -315,7 +350,7 @@ namespace csgoslin
         {
             int num_h = Convert.ToInt32(node.get_text());
             
-            if (Headgroup.get_category(head_group) == LipidCategory.SP && current_fa.lcb && !head_group.Equals("Cer") && !head_group.Equals("LCB")) num_h -= 1;
+            if (Headgroup.get_category(head_group) == LipidCategory.SP &&current_fa.lcb && ((!head_group.Equals("Cer") && !head_group.Equals("LCB")) || headgroup_decorators.Count > 0)) num_h -= 1;
             
             FunctionalGroup functional_group = KnownFunctionalGroups.get_functional_group("OH");
             functional_group.count = num_h;
@@ -334,7 +369,7 @@ namespace csgoslin
             else if (hydroxyl.Equals("t")) num_h = 3;
             
             
-            if (Headgroup.get_category(head_group) == LipidCategory.SP && current_fa.lcb && !head_group.Equals("Cer") && !head_group.Equals("LCB")) num_h -= 1;
+            if (Headgroup.get_category(head_group) == LipidCategory.SP && current_fa.lcb && ((!head_group.Equals("Cer") && !head_group.Equals("LCB")) || headgroup_decorators.Count > 0)) num_h -= 1;
             
             FunctionalGroup functional_group = KnownFunctionalGroups.get_functional_group("OH");
             functional_group.count = num_h;
@@ -373,7 +408,20 @@ namespace csgoslin
             lipid = null;
             LipidSpecies ls = null;
             
-            headgroup = new Headgroup(head_group, null, use_head_group);
+            if (add_omega_linoleoyloxy_Cer)
+            {
+                if (fa_list.Count != 2)
+                {
+                    throw new LipidException("omega-linoleoyloxy-Cer with a different combination to one long chain base and one fatty acyl chain unknown");
+                }
+                if (!fa_list[fa_list.Count - 1].functional_groups.ContainsKey("acyl")) fa_list[fa_list.Count - 1].functional_groups.Add("acyl", new List<FunctionalGroup>());
+                
+                DoubleBonds db = new DoubleBonds(2);
+                db.double_bond_positions.Add(9, "Z");
+                db.double_bond_positions.Add(12, "Z");
+                fa_list[fa_list.Count - 1].functional_groups["acyl"].Add(new AcylAlkylGroup(new FattyAcid("FA", 18, db)));
+            }
+            headgroup = new Headgroup(head_group, headgroup_decorators, use_head_group);
             
             int max_num_fa = LipidClasses.lipid_classes.ContainsKey(headgroup.lipid_class) ? LipidClasses.lipid_classes[headgroup.lipid_class].max_num_fa : 0;
             if (max_num_fa != fa_list.Count) level = (LipidLevel)Math.Min((int)level, (int)LipidLevel.MOLECULAR_SUBSPECIES);

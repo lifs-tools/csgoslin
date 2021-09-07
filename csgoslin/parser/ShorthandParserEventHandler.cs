@@ -321,6 +321,7 @@ namespace csgoslin
                 throw new LipidParsingException("Carbohydrate '" + carbohydrate + "' unknown");
             }
             
+            functional_group.elements[Element.O] -= 1;
             if (tmp.ContainsKey("func_group_head") && ((int)tmp["func_group_head"] == 1))
             {
                 headgroup_decorators.Add((HeadgroupDecorator)functional_group);
