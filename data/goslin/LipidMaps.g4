@@ -118,11 +118,20 @@ sphingosine_name: 'Sphingosine' | 'So' | 'Sphingosine-1-phosphate';
 sphinganine_name: 'Sphinganine' | 'Sa' | 'Sphinganine-1-phosphate';
 ctype: 'C' number;
 
-hg_dslc: hg_dsl | hg_dsl headgroup_separator;
-hg_dsl: 'Cer' | 'CerP' | 'EPC' | 'GB3' | 'GB4' | 'GD3' | 'GM3' | 'GM4' | 'Hex3Cer' | 'Hex2Cer' | 'HexCer' | 'IPC' | 'M(IP)2C' | 'MIPC' | 'SHexCer' | 'SulfoHexCer' | 'SM' | 'PE-Cer' | 'PI-Cer' | 'GlcCer' | 'FMC-5' | 'FMC-6' | 'LacCer' | 'GalCer' | 'C1P' | special_cer;
+hg_dslc: hg_dsl_global | hg_dsl_global headgroup_separator;
+hg_dsl_global : hg_dsl | special_cer | special_glyco;
+hg_dsl: 'Cer' | 'CerP' | 'EPC' | 'GB3' | 'GB4' | 'GD3' | 'GM3' | 'GM4' | 'Hex3Cer' | 'Hex2Cer' | 'HexCer' | 'IPC' | 'M(IP)2C' | 'MIPC' | 'SHexCer' | 'SulfoHexCer' | 'SM' | 'PE-Cer' | 'PI-Cer' | 'GlcCer' | 'FMC-5' | 'FMC-6' | 'LacCer' | 'GalCer' | 'C1P' | omega_linoleoyloxy_Cer;
+omega_linoleoyloxy_Cer : 'omega-linoleoyloxy-' special_cer_hg;
 special_cer : special_cer_prefix '-Cer';
+special_cer_hg : 'Cer';
 special_cer_prefix : '1-O-' special_cer_prefix_1_O | '(3\'-sulfo)Galbeta';
-special_cer_prefix_1_O : 'myristoyl' | 'palmitoyl' | 'stearoyl' | 'eicosanoyl' | 'behenoyl' | 'lignoceroyl' | 'cerotoyl' | 'carboceroyl' | 'tricosanoyl';
+special_glyco : glyco_cer '-' special_cer_hg;
+special_cer_prefix_1_O : 'myristoyl' | 'palmitoyl' | 'stearoyl' | 'eicosanoyl' | 'behenoyl' | 'lignoceroyl' | 'cerotoyl' | 'glyco_ceroyl' | 'tricosanoyl' | 'carboceroyl';
+glyco_cer : glyco_entity | glyco_entity '-' glyco_cer | number '(' glyco_cer '-' number ')' glyco_cer;
+glyco_entity : glyco_struct | glyco_number glyco_struct | glyco_number glyco_struct greek | glyco_number glyco_struct greek number | glyco_number glyco_struct number | glyco_struct greek | glyco_struct greek number;
+glyco_number : number | number '-';
+glyco_struct : 'Hex' | 'Gal' | 'Glc' | 'Man' | 'Neu' | 'HexNAc' | 'GalNAc' | 'GlcNAc' | 'NeuAc' | 'NeuGc' | 'Kdn' | 'GlcA' | 'Xyl' | 'Fuc' | 'KDN' | 'OAc-NeuAc';
+greek : 'alpha' | 'beta' | 'α' | 'β';
 
 
 hg_lslc: hg_lsl | hg_lsl headgroup_separator;
