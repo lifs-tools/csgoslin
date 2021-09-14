@@ -131,7 +131,7 @@ namespace csgoslin.Tests
                 
             }
             
-            Console.WriteLine("All tests passed without any problem");
+            Console.WriteLine("Fatty Acids Test: All tests passed without any problem");
         }
     }
 }

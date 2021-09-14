@@ -155,6 +155,8 @@ namespace csgoslin.Tests
                     }
                 }
             }
+            
+            Console.WriteLine("Shorthand Test: All tests passed without any problem");
         }
     }
 }
