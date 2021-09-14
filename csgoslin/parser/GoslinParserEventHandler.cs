@@ -83,6 +83,9 @@ namespace csgoslin
             registered_events.Add("fa2_unsorted_pre_event", set_molecular_subspecies_level);
             registered_events.Add("fa3_unsorted_pre_event", set_molecular_subspecies_level);
             registered_events.Add("fa4_unsorted_pre_event", set_molecular_subspecies_level);
+            registered_events.Add("slbpa_pre_event", set_molecular_subspecies_level);
+            registered_events.Add("dlcl_pre_event", set_molecular_subspecies_level);
+            registered_events.Add("mlcl_pre_event", set_molecular_subspecies_level);
             
             
             registered_events.Add("lcb_pre_event", new_lcb);

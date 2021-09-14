@@ -47,7 +47,6 @@ namespace csgoslin
         public bool use_head_group;
         public int db_position;
         public string db_cistrans;
-        public Headgroup headgroup;
         public string mod_text;
         public int mod_pos;
         public int mod_num;
@@ -63,7 +62,6 @@ namespace csgoslin
             registered_events.Add("lipid_post_event", build_lipid);
             
             registered_events.Add("mediator_pre_event", mediator_event);
-            registered_events.Add("sphingoxine_pre_event", mediator_event);
             
             registered_events.Add("sgl_species_pre_event", set_species_level);
             registered_events.Add("species_fa_pre_event", set_species_level);
@@ -74,6 +72,9 @@ namespace csgoslin
             registered_events.Add("fa2_unsorted_pre_event", set_molecular_subspecies_level);
             registered_events.Add("fa3_unsorted_pre_event", set_molecular_subspecies_level);
             registered_events.Add("fa4_unsorted_pre_event", set_molecular_subspecies_level);
+            registered_events.Add("hg_dg_pre_event", set_molecular_subspecies_level);
+            registered_events.Add("fa_lpl_molecular_pre_event", set_molecular_subspecies_level);
+            registered_events.Add("hg_lbpa_pre_event", set_molecular_subspecies_level);
             
             registered_events.Add("fa_no_hg_pre_event", pure_fa);
             
@@ -84,9 +85,8 @@ namespace csgoslin
             registered_events.Add("hg_lpl_pre_event", set_head_group_name);
             registered_events.Add("hg_threepl_pre_event", set_head_group_name);
             registered_events.Add("hg_fourpl_pre_event", set_head_group_name);
-            registered_events.Add("sphingosine_name_pre_event", set_head_group_name);
-            registered_events.Add("sphinganine_name_pre_event", set_head_group_name);
             registered_events.Add("hg_dsl_pre_event", set_head_group_name);
+            registered_events.Add("hg_cpa_pre_event", set_head_group_name);
             registered_events.Add("ch_pre_event", set_head_group_name);
             registered_events.Add("hg_che_pre_event", set_head_group_name);
             registered_events.Add("mediator_const_pre_event", set_head_group_name);
@@ -138,7 +138,6 @@ namespace csgoslin
             db_position = 0;
             db_numbers = -1;
             db_cistrans = "";
-            headgroup = null;
             mod_pos = -1;
             mod_num = 1;
             mod_text = "";
@@ -421,7 +420,46 @@ namespace csgoslin
                 db.double_bond_positions.Add(12, "Z");
                 fa_list[fa_list.Count - 1].functional_groups["acyl"].Add(new AcylAlkylGroup(new FattyAcid("FA", 18, db)));
             }
-            headgroup = new Headgroup(head_group, headgroup_decorators, use_head_group);
+            Headgroup headgroup = new Headgroup(head_group, headgroup_decorators, use_head_group);
+            
+            int true_fa = 0;
+            foreach (FattyAcid fa in fa_list)
+            {
+                true_fa += (fa.num_carbon > 0 || fa.double_bonds.get_num() > 0) ? 1 : 0;
+            }
+            int poss_fa = LipidClasses.lipid_classes.ContainsKey(headgroup.lipid_class) ? LipidClasses.lipid_classes[headgroup.lipid_class].possible_num_fa : 0;
+            
+            // make lyso
+            bool can_be_lyso = LipidClasses.lipid_classes.ContainsKey(Headgroup.get_class("L" + head_group)) ? LipidClasses.lipid_classes[Headgroup.get_class("L" + head_group)].special_cases.Contains("Lyso") : false;
+            
+            if (true_fa + 1 == poss_fa && level != LipidLevel.SPECIES && headgroup.lipid_category == LipidCategory.GP && can_be_lyso)
+            {
+                head_group = "L" + head_group;
+                headgroup = new Headgroup(head_group, headgroup_decorators, use_head_group);
+                poss_fa = LipidClasses.lipid_classes.ContainsKey(headgroup.lipid_class) ? LipidClasses.lipid_classes[headgroup.lipid_class].possible_num_fa : 0;
+            }
+            
+            else if (true_fa + 2 == poss_fa && level != LipidLevel.SPECIES && headgroup.lipid_category == LipidCategory.GP && head_group.Equals("CL"))
+            {
+                head_group = "DL" + head_group;
+                headgroup = new Headgroup(head_group, headgroup_decorators, use_head_group);
+                poss_fa = LipidClasses.lipid_classes.ContainsKey(headgroup.lipid_class) ? LipidClasses.lipid_classes[headgroup.lipid_class].possible_num_fa : 0;
+            }
+            
+            if (level == LipidLevel.SPECIES)
+            {
+                if (true_fa == 0 && poss_fa != 0)
+                {
+                    string hg_name = headgroup.headgroup;
+                    throw new ConstraintViolationException("No fatty acyl information lipid class '" + hg_name + "' provided.");
+                }
+            }
+                
+            else if (true_fa != poss_fa && (level == LipidLevel.ISOMERIC_SUBSPECIES || level == LipidLevel.STRUCTURAL_SUBSPECIES))
+            {
+                string hg_name = headgroup.headgroup;
+                throw new ConstraintViolationException("Number of described fatty acyl chains (" + true_fa.ToString() + ") not allowed for lipid class '" + hg_name + "' (having " + poss_fa.ToString() + " fatty aycl chains).");
+            }
             
             int max_num_fa = LipidClasses.lipid_classes.ContainsKey(headgroup.lipid_class) ? LipidClasses.lipid_classes[headgroup.lipid_class].max_num_fa : 0;
             if (max_num_fa != fa_list.Count) level = (LipidLevel)Math.Min((int)level, (int)LipidLevel.MOLECULAR_SUBSPECIES);

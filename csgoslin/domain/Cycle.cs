@@ -208,7 +208,7 @@ namespace csgoslin
             // add all implicit carbon chain elements
             if (start != -1 && end != -1)
             {
-                int n = cycle - (end - start + 1 + bridge_chain.Count);
+                int n = Math.Max(0, cycle - (end - start + 1 + bridge_chain.Count));
                 elements[Element.C] += n;
                 elements[Element.H] += 2 * n;
             }

@@ -50,7 +50,7 @@ namespace csgoslin
 
         public static readonly Dictionary<string, int> ate = new Dictionary<string, int>{{"formate", 1}, {"acetate", 2}, {"butyrate", 4}, {"propionate", 3}, {"valerate", 5}, {"isobutyrate", 4}};
 
-        public static readonly Dictionary<string, int> special_numbers = new Dictionary<string, int>{{"meth", 1}, {"etha", 2}, {"eth", 2}, {"propa", 3}, {"isoprop", 3}, {"prop", 3}, {"propi", 3}, {"propio", 3}, {"buta", 4}, {"but", 4}, {"butr", 4}, {"valer", 5}, {"eicosa", 20}, {"eicos", 20}, {"icosa", 20}, {"icos", 20}, {"prosta", 20}, {"prost", 20}, {"prostan", 20}};
+        public static readonly Dictionary<string, int> special_numbers = new Dictionary<string, int>{{"meth", 1}, {"etha", 2}, {"eth", 2}, {"propa", 3}, {"isoprop", 3}, {"prop", 3}, {"propi", 3}, {"propio", 3}, {"buta", 4}, {"but", 4}, {"butr", 4}, {"furan", 5}, {"valer", 5}, {"eicosa", 20}, {"eicos", 20}, {"icosa", 20}, {"icos", 20}, {"prosta", 20}, {"prost", 20}, {"prostan", 20}};
 
         public static readonly HashSet<string> noic_set = new HashSet<string>{"noic acid", "nic acid", "dioic_acid"};
         public static readonly HashSet<string> nal_set = new HashSet<string>{"nal", "dial"};
@@ -71,8 +71,8 @@ namespace csgoslin
             registered_events.Add("db_number_post_event", set_double_bond_position);
             registered_events.Add("cistrans_post_event", set_cistrans);
             registered_events.Add("acid_type_double_post_event", check_db);
-            registered_events.Add("db_length_pre_event", set_db_length);
-            registered_events.Add("db_length_post_event", check_db_length);
+            registered_events.Add("db_length_pre_event", open_db_length);
+            registered_events.Add("db_length_post_event", close_db_length);
             
             // lengths
             registered_events.Add("functional_length_pre_event", reset_length);
@@ -143,6 +143,10 @@ namespace csgoslin
             // CAR
             registered_events.Add("car_pre_event", set_car);
             registered_events.Add("car_post_event", add_car);
+            
+            // furan
+            registered_events.Add("tetrahydrofuran_pre_event", set_tetrahydrofuran);
+            registered_events.Add("furan_pre_event", set_furan);
             
             // amine
             registered_events.Add("ethanolamine_post_event", add_ethanolamine);
@@ -284,6 +288,64 @@ namespace csgoslin
         {
             FattyAcid curr_fa = fatty_acyl_stack.back();
             
+
+            if (tmp.ContainsKey("length_pattern")) {
+                
+                string length_pattern = (string)tmp["length_pattern"];
+                int[] num = new int[((Lst)tmp["length_tokens"]).Count];
+                for (int i = 0; i < ((Lst)tmp["length_tokens"]).Count; ++i) num[i] = (int)((Lst)tmp["length_tokens"])[i];
+                
+                int l = 0, d = 0;
+                if (length_pattern.Equals("L") || length_pattern.Equals("S"))
+                {
+                    l += num[0];
+                }
+                    
+                else if (length_pattern.Equals("LS"))
+                {
+                    l += num[0] + num[1];
+                }
+                
+                else if (length_pattern.Equals("LL") || length_pattern.Equals("SL") || length_pattern.Equals("SS"))
+                {
+                    l += num[0];
+                    d += num[1];
+                }
+                    
+                else if (length_pattern.Equals("LSL") || length_pattern.Equals("LSS"))
+                {
+                    l += num[0] + num[1];
+                    d += num[2];
+                }
+                    
+                else if (length_pattern.Equals("LSLS"))
+                {
+                    l += num[0] + num[1];
+                    d += num[2] + num[3];
+                }
+                    
+                else if (length_pattern.Equals("SLS"))
+                {
+                    l += num[0];
+                    d += num[1] + num[2];
+                }
+                    
+                else if (length_pattern.Length > 0 && length_pattern[0] == 'X')
+                {
+                    l += num[0];
+                    for (int i = 1; i < ((Lst)tmp["length_tokens"]).Count; ++i) d += num[i];
+                }
+                
+                else if (length_pattern == "LLS"){ // false
+                    throw new RuntimeException("Cannot determine fatty acid and double bond length in '" + node.get_text() + "'");
+                }
+                
+                curr_fa.num_carbon += l;
+                if (curr_fa.double_bonds.double_bond_positions.Count == 0 && d > 0) curr_fa.double_bonds.num_double_bonds = d;
+            }
+                
+            
+            
             if (curr_fa.functional_groups.ContainsKey("noyloxy"))
             {
                 if (headgroup.Equals("FA")) headgroup = "FAHFA";
@@ -357,11 +419,12 @@ namespace csgoslin
                             {
                                 int cyclo_len = curr_fa.num_carbon;
                                 tmp.Add("cyclo_len", cyclo_len);
-                                if (fa.position != cyclo_len)
+                                if (fa.position != cyclo_len && !tmp.ContainsKey("furan"))
                                 {
                                     switch_position(curr_fa, 2 + cyclo_len);
                                 }
                                 fa.shift_positions(cyclo_len);
+                                if (tmp.ContainsKey("furan")) curr_fa.shift_positions(-1);
                                 
                                 foreach (KeyValuePair<string, List<FunctionalGroup> > kv in fa.functional_groups)
                                 {
@@ -379,6 +442,14 @@ namespace csgoslin
                                     curr_fa.double_bonds.double_bond_positions.Add(kv.Key + cyclo_len, kv.Value);
                                 }
                                 curr_fa.double_bonds.num_double_bonds = curr_fa.double_bonds.double_bond_positions.Count;
+                                
+                                if (!tmp.ContainsKey("tetrahydrofuran") && tmp.ContainsKey("furan"))
+                                {
+                                    curr_fa.double_bonds.num_double_bonds += 2;
+                                    if (!curr_fa.double_bonds.double_bond_positions.ContainsKey(1)) curr_fa.double_bonds.double_bond_positions.Add(1, "E");
+                                    if (!curr_fa.double_bonds.double_bond_positions.ContainsKey(3)) curr_fa.double_bonds.double_bond_positions.Add(3, "E");
+                                }
+                                
                                 tmp.Add("cyclo_yl", true);
                             }
                             else {
@@ -451,6 +522,15 @@ namespace csgoslin
                 
                 foreach (KeyValuePair<int, string> kv in fa.double_bonds.double_bond_positions) curr_fa.double_bonds.double_bond_positions.Add(kv.Key + start_pos - 1, kv.Value);
                 curr_fa.double_bonds.num_double_bonds = curr_fa.double_bonds.double_bond_positions.Count;
+                
+                if (!tmp.ContainsKey("tetrahydrofuran") && tmp.ContainsKey("furan"))
+                {
+                    curr_fa.double_bonds.num_double_bonds += 2;
+                    if (!curr_fa.double_bonds.double_bond_positions.ContainsKey(1 + curr_fa.num_carbon)) curr_fa.double_bonds.double_bond_positions.Add(1 + curr_fa.num_carbon, "E");
+                    if (!curr_fa.double_bonds.double_bond_positions.ContainsKey(3 + curr_fa.num_carbon)) curr_fa.double_bonds.double_bond_positions.Add(3 + curr_fa.num_carbon, "E");
+                }
+                
+                curr_fa.num_carbon += fa.num_carbon;
                         
                 tmp.Add("fg_pos", new Lst());
                 Lst l1 = new Lst();
@@ -484,6 +564,10 @@ namespace csgoslin
                 
                 tmp.Remove("cyclo");
             }
+            
+            tmp.Add("length_pattern", "");
+            tmp.Add("length_tokens", new Lst());
+            tmp.Add("add_lengths", 0);
         }
         
         
@@ -562,10 +646,32 @@ namespace csgoslin
                 if (kv.Value.Count == 0) remove_list.Add(kv.Key);
             }
             foreach (string fg in remove_list) curr_fa.functional_groups.Remove(fg);
+            
+            List<Element> bridge_chain = new List<Element>();
+            if (tmp.ContainsKey("furan"))
+            {
+                tmp.Remove("furan");
+                bridge_chain.Add(Element.O);
+            }
 
-            Cycle cycle = new Cycle(end - start + 1, start, end, cyclo_db, cyclo_fg);
+            Cycle cycle = new Cycle(end - start + 1, start, end, cyclo_db, cyclo_fg, bridge_chain);
             if (!fatty_acyl_stack.back().functional_groups.ContainsKey("cy")) fatty_acyl_stack.back().functional_groups.Add("cy", new List<FunctionalGroup>());
             fatty_acyl_stack.back().functional_groups["cy"].Add(cycle);
+        }
+        
+        
+        public void set_tetrahydrofuran(TreeNode node)
+        {
+            tmp.Add("furan", 1);
+            tmp.Add("tetrahydrofuran", 1);
+            set_cycle(node);
+        }
+        
+        
+        public void set_furan(TreeNode node)
+        {
+            tmp.Add("furan", 1);
+            set_cycle(node);
         }
 
 
@@ -676,6 +782,9 @@ namespace csgoslin
         public void reset_length(TreeNode node)
         {
             tmp.Add("length", 0);
+            tmp.Add("length_pattern", "");
+            tmp.Add("length_tokens", new Lst());
+            tmp.Add("add_lengths", 1);
         }
 
 
@@ -690,25 +799,43 @@ namespace csgoslin
 
         public void set_fatty_length(TreeNode node)
         {
-            fatty_acyl_stack.back().num_carbon += (int)tmp["length"];
+            tmp.Add("add_lengths", 0);
         }
 
 
         public void special_number(TreeNode node)
         {
             tmp.Add("length", (int)tmp["length"] + special_numbers[node.get_text()]);
+            if ((int)tmp["add_lengths"] == 1)
+            {
+                tmp.Add("length", (int)tmp["length"] + special_numbers[node.get_text()]);
+                tmp.Add("length_pattern", (string)tmp["length_pattern"] + "X");
+                ((Lst)tmp["length_tokens"]).Add(special_numbers[node.get_text()]);
+            }
         }
 
 
         public void last_number(TreeNode node)
         {
             tmp.Add("length", (int)tmp["length"] + last_numbers[node.get_text()]);
+            if ((int)tmp["add_lengths"] == 1)
+            {
+                tmp.Add("length", (int)tmp["length"] + last_numbers[node.get_text()]);
+                tmp.Add("length_pattern", (string)tmp["length_pattern"] + "L");
+                ((Lst)tmp["length_tokens"]).Add(last_numbers[node.get_text()]);
+            }
         }
 
 
         public void second_number(TreeNode node)
         {
             tmp.Add("length", (int)tmp["length"] + second_numbers[node.get_text()]);
+            if ((int)tmp["add_lengths"] == 1)
+            {
+                tmp.Add("length", (int)tmp["length"] + second_numbers[node.get_text()]);
+                tmp.Add("length_pattern", (string)tmp["length_pattern"] + "S");
+                ((Lst)tmp["length_tokens"]).Add(second_numbers[node.get_text()]);
+            }
         }
 
 
@@ -975,6 +1102,13 @@ namespace csgoslin
             if (l == 0) return;
 
             FattyAcid curr_fa = fatty_acyl_stack.back();
+            
+            if (tmp.ContainsKey("furan"))
+            {
+                curr_fa.num_carbon -= l;
+                return;
+            }
+            
             string fname = "";
             FunctionalGroup fg = null;
             if (l == 1)
@@ -1183,19 +1317,15 @@ namespace csgoslin
         }
 
 
-        public void set_db_length(TreeNode node)
+        public void open_db_length(TreeNode node)
         {
-            tmp.Add("old_length", (int)tmp["length"]);
-            tmp.Add("length", 0);
+            tmp.Add("add_lengths", 1);
         }
 
 
-        public void check_db_length(TreeNode node)
+        public void close_db_length(TreeNode node)
         {
-            int old_length = (int)tmp["old_length"];
-            int db_length = (int)tmp["length"];
-            
-            if (old_length < db_length) fatty_acyl_stack.back().num_carbon += db_length;
+            tmp.Add("add_lengths", 0);
         }
     }
 }

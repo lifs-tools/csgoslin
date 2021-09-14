@@ -48,11 +48,11 @@ namespace csgoslin.Tests
             
             {"CerP(1) 18:1(4E);3OH/16:0;2OH", new List<string>{"CerP(1) 18:1(4E);3OH/16:0;2OH", "CerP 18:1(4);OH/16:0;OH", "CerP 18:1;O/16:0;O", "CerP 34:1;O3", "C34H68NO7P"}}, // CerP 34:1;O3 / C34H68NO7P
             
-            {"Gal-Gal-Glc-Cer(1) 18:1(4E);3OH/24:0", new List<string>{"Gal-Gal-Glc-Cer(1) 18:1(4E);3OH/24:0", "Gal-Gal-Glc-Cer 18:1(4);OH/24:0", "GalGalGlcCer 18:1;O/24:0", "GalGalGlcCer 42:1;O2", "C60H113NO18"}}, // GalGalGlcCer 42:1;O2 / C60H113NO18
+            {"Gal-Gal-Glc-Cer(1) 18:1(4E);3OH/26:1(17Z)", new List<string>{"Gal-Gal-Glc-Cer(1) 18:1(4E);3OH/26:1(17Z)", "Gal-Gal-Glc-Cer 18:1(4);OH/26:1(17)", "GalGalGlcCer 18:1;O/26:1", "GalGalGlcCer 44:2;O2", "C62H115NO18"}}, // GalGalGlcCer 42:1;O2 / C60H113NO18
             
             {"PC 16:0/20:2(5Z,13E);[8-12cy5;11OH;9oxo];15OH", new List<string>{"PC 16:0/20:2(5Z,13E);[8-12cy5:0;11OH;9oxo];15OH", "PC 16:0/20:2(5,13);[cy5:0;OH;oxo];OH", "PC 16:0_20:4;O3", "PC 36:4;O3"}}, // PC 36:4;O3
             
-            {"PE-N(FA 18:1(9Z)) 16:0/20:4(4Z,8Z,11Z,14Z)", new List<string>{"PE-N(FA 18:1(9Z)) 16:0/20:4(4Z,8Z,11Z,14Z)", "PE-N(FA 18:1(9)) 16:0/20:4(4,8,11,14)", "PE-N(FA 18:1) 16:0_20:4", "PE-N(FA) 54:5", "C59H106NO7P"}}, // PE-N(FA) 54:5
+            {"PE-N(FA 8:0) 30:5(12Z,15Z,18Z,21Z,24Z)/18:0", new List<string>{"PE-N(FA 8:0) 30:5(12Z,15Z,18Z,21Z,24Z)/18:0", "PE-N(FA 8:0) 30:5(12,15,18,21,24)/18:0", "PE-N(FA 8:0) 30:5_18:0", "PE-N(FA) 56:5", "C61H110NO9P"}}, // PE-N(FA) 56:5
             
             {"LPC O-16:1(11Z)/0:0", new List<string>{"LPC O-16:1(11Z)/0:0", "LPC O-16:1(11)/0:0", "LPC O-16:1", "LPC O-16:1"}}, // LPC O-16:1 / C24H50NO6P
             
