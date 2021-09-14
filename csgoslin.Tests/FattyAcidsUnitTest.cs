@@ -73,6 +73,14 @@ namespace csgoslin.Tests
             
             
             
+            
+            /*
+            fatty_acid_parser.parser_event_handler.debug = "a";
+            LipidAdduct lipid_test = fatty_acid_parser.parse("5-(2-cyclopentenyl)-pentanoic acid");
+            Console.WriteLine(lipid_test.get_lipid_string());
+            if (true) Environment.Exit(-1);
+            */
+            
             ////////////////////////////////////////////////////////////////////////////
             // Test for correctness
             ////////////////////////////////////////////////////////////////////////////
@@ -85,6 +93,8 @@ namespace csgoslin.Tests
                 string lipid_name = data[1].Trim(trims);
                 string formula = data[2].Trim(trims);
                 string expected_lipid_name = data[3].Trim(trims);
+                
+                //Console.WriteLine(lipid_name);
                 
                 formula = StringFunctions.compute_sum_formula(SumFormulaParser.get_instance().parse(formula));
                 

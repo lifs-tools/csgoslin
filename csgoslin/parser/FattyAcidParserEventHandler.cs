@@ -339,7 +339,6 @@ namespace csgoslin
                 else if (length_pattern == "LLS"){ // false
                     throw new RuntimeException("Cannot determine fatty acid and double bond length in '" + node.get_text() + "'");
                 }
-                
                 curr_fa.num_carbon += l;
                 if (curr_fa.double_bonds.double_bond_positions.Count == 0 && d > 0) curr_fa.double_bonds.num_double_bonds = d;
             }
@@ -518,8 +517,6 @@ namespace csgoslin
                     }
                 }
                 
-                curr_fa.num_carbon += fa.num_carbon;
-                
                 foreach (KeyValuePair<int, string> kv in fa.double_bonds.double_bond_positions) curr_fa.double_bonds.double_bond_positions.Add(kv.Key + start_pos - 1, kv.Value);
                 curr_fa.double_bonds.num_double_bonds = curr_fa.double_bonds.double_bond_positions.Count;
                 
@@ -654,7 +651,7 @@ namespace csgoslin
                 bridge_chain.Add(Element.O);
             }
 
-            Cycle cycle = new Cycle(end - start + 1, start, end, cyclo_db, cyclo_fg, bridge_chain);
+            Cycle cycle = new Cycle(end - start + 1 + bridge_chain.Count, start, end, cyclo_db, cyclo_fg, bridge_chain);
             if (!fatty_acyl_stack.back().functional_groups.ContainsKey("cy")) fatty_acyl_stack.back().functional_groups.Add("cy", new List<FunctionalGroup>());
             fatty_acyl_stack.back().functional_groups["cy"].Add(cycle);
         }
@@ -805,7 +802,6 @@ namespace csgoslin
 
         public void special_number(TreeNode node)
         {
-            tmp.Add("length", (int)tmp["length"] + special_numbers[node.get_text()]);
             if ((int)tmp["add_lengths"] == 1)
             {
                 tmp.Add("length", (int)tmp["length"] + special_numbers[node.get_text()]);
@@ -817,7 +813,6 @@ namespace csgoslin
 
         public void last_number(TreeNode node)
         {
-            tmp.Add("length", (int)tmp["length"] + last_numbers[node.get_text()]);
             if ((int)tmp["add_lengths"] == 1)
             {
                 tmp.Add("length", (int)tmp["length"] + last_numbers[node.get_text()]);
@@ -829,7 +824,6 @@ namespace csgoslin
 
         public void second_number(TreeNode node)
         {
-            tmp.Add("length", (int)tmp["length"] + second_numbers[node.get_text()]);
             if ((int)tmp["add_lengths"] == 1)
             {
                 tmp.Add("length", (int)tmp["length"] + second_numbers[node.get_text()]);
