@@ -46,6 +46,7 @@ namespace csgoslin
         public int db_position;
         public string db_cistrans;
         public Headgroup headgroup;
+        public Dict furan = new Dict();
     
         public HmdbParserEventHandler() : base()
         {
@@ -64,6 +65,7 @@ namespace csgoslin
             registered_events.Add("st_species_hg_pre_event", set_head_group_name);
             registered_events.Add("st_sub1_hg_pre_event", set_head_group_name);
             registered_events.Add("st_sub2_hg_pre_event", set_head_group_name);
+            registered_events.Add("ganglioside_names_pre_event", set_head_group_name);
             registered_events.Add("fa_species_pre_event", set_species_level);
             registered_events.Add("gl_molecular_pre_event", set_molecular_level);
             registered_events.Add("unsorted_fa_separator_pre_event", set_molecular_level);
@@ -83,10 +85,15 @@ namespace csgoslin
             registered_events.Add("db_count_pre_event", add_double_bonds);
             registered_events.Add("carbon_pre_event", add_carbon);
             registered_events.Add("fa_lcb_suffix_type_pre_event", add_one_hydroxyl);
-            registered_events.Add("furan_fa_pre_event", furan_fa);
             registered_events.Add("interlink_fa_pre_event", interlink_fa);
             registered_events.Add("lipid_suffix_pre_event", lipid_suffix);
             registered_events.Add("methyl_pre_event", add_methyl);
+            registered_events.Add("furan_fa_pre_event", furan_fa);
+            registered_events.Add("furan_fa_post_event", furan_fa_post);
+            registered_events.Add("furan_fa_mono_pre_event", furan_fa_mono);
+            registered_events.Add("furan_fa_di_pre_event", furan_fa_di);
+            registered_events.Add("furan_first_number_pre_event", furan_fa_first_number);
+            registered_events.Add("furan_second_number_pre_event", furan_fa_second_number);
             debug = "";
         }
 
@@ -103,6 +110,7 @@ namespace csgoslin
             db_position = 0;
             db_cistrans = "";
             headgroup = null;
+            furan = new Dict();
         }
 
         
@@ -347,8 +355,71 @@ namespace csgoslin
 
         public void furan_fa(TreeNode node)
         {
-            throw new UnsupportedLipidException("Furan fatty acyl chains are currently not supported");
+            furan = new Dict();
         }
+        
+        
+        public void furan_fa_post(TreeNode node)
+        {
+            int l = 4 + (int)furan["len_first"] + (int)furan["len_second"];
+            current_fa.num_carbon = l;
+            
+            int start = 1 + (int)furan["len_first"];
+            int end = 3 + start;
+            DoubleBonds cyclo_db = new DoubleBonds(2);
+            cyclo_db.double_bond_positions.Add(start, "E");
+            cyclo_db.double_bond_positions.Add(2 + start, "E");
+            
+            Dictionary<string, List<FunctionalGroup> > cyclo_fg = new Dictionary<string, List<FunctionalGroup> >();
+            cyclo_fg.Add("Me", new List<FunctionalGroup>());
+            
+            if (((string)furan["type"]).Equals("m"))
+            {
+                FunctionalGroup fg = KnownFunctionalGroups.get_functional_group("Me");
+                fg.position = 1 + start;
+                cyclo_fg["Me"].Add(fg);
+            }
+                
+            else if (((string)furan["type"]).Equals("d"))
+            {
+                FunctionalGroup fg = KnownFunctionalGroups.get_functional_group("Me");
+                fg.position = 1 + start;
+                cyclo_fg["Me"].Add(fg);
+                fg = KnownFunctionalGroups.get_functional_group("Me");
+                fg.position = 2 + start;
+                cyclo_fg["Me"].Add(fg);
+            }
+            
+            List<Element> bridge_chain = new List<Element>{Element.O};
+            Cycle cycle = new Cycle(end - start + 1 + bridge_chain.Count, start, end, cyclo_db, cyclo_fg, bridge_chain);
+            current_fa.functional_groups.Add("cy", new List<FunctionalGroup>(){cycle});
+        }
+        
+        
+        public void furan_fa_mono(TreeNode node)
+        {
+            furan.Add("type", "m");
+        }
+        
+        
+        public void furan_fa_di(TreeNode node)
+        {
+            furan.Add("type", "d");
+        }
+        
+        
+        public void furan_fa_first_number(TreeNode node)
+        {
+            furan.Add("len_first", Convert.ToInt32(node.get_text()));
+        }
+         
+         
+        public void furan_fa_second_number(TreeNode node)
+        {
+            furan.Add("len_second", Convert.ToInt32(node.get_text()));
+        }
+        
+        
             
 
         public void interlink_fa(TreeNode node)

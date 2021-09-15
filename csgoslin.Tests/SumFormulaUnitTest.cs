@@ -88,7 +88,7 @@ namespace csgoslin.Tests
                 
             }
             
-            Console.WriteLine("All tests passed without any problem");
+            Console.WriteLine("Sum Formula (LIPID MAPS) Test: All tests passed without any problem");
         }
 
         [Fact]
@@ -145,7 +145,7 @@ namespace csgoslin.Tests
                 
             }
             
-            Console.WriteLine("All tests passed without any problem");
+            Console.WriteLine("Sum Formula (SwissLipids) Test: All tests passed without any problem");
         }
     }
 }
