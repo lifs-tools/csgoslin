@@ -33,9 +33,17 @@ namespace csgoslin.Tests
     using ElementTable = System.Collections.Generic.Dictionary<Element, int>;
     public class UnitTests
     {
-
+        
+        // FattyAcidUnitTest
+        // HmdbUnitTest
+        // LipidMapsUnitTest
+        // ShorthandUnitTest
+        // SumFormulaUnitTest
+        // MassesUnitTest
+        // SwissLipidsUnitTest
+        
         [Fact]
-        public void FattyAcidUnitTest1()
+        public void FattyAcidUnitTest()
         {
             string prefixPath = Environment.CurrentDirectory;
             string test_file_name = Path.Combine(prefixPath, "..", "..", "..", "..", "data", "goslin", "testfiles", "fatty-acids-test.csv");
@@ -74,12 +82,6 @@ namespace csgoslin.Tests
             
             
             
-            /*
-            fatty_acid_parser.parser_event_handler.debug = "a";
-            LipidAdduct lipid_test = fatty_acid_parser.parse("5-(2-cyclopentenyl)-pentanoic acid");
-            Console.WriteLine(lipid_test.get_lipid_string());
-            if (true) Environment.Exit(-1);
-            */
             
             ////////////////////////////////////////////////////////////////////////////
             // Test for correctness
@@ -134,13 +136,21 @@ namespace csgoslin.Tests
             Console.WriteLine("Fatty Acids Test: All tests passed without any problem");
         }
 
+        
+        
+        
+        
+        
+        
+        
+        
         [Fact]
-        public void HmdbUnitTest1()
+        public void HmdbUnitTest()
         {
             string prefixPath = Environment.CurrentDirectory;
             string test_file_name = Path.Combine(prefixPath, "..", "..", "..", "..", "data", "goslin", "testfiles", "hmdb-test.csv");
         
-            HmdbParser lipid_maps_parser = new HmdbParser();
+            HmdbParser parser = new HmdbParser();
                 
             // test several more lipid names
             List<string> lipid_data = new List<string>();
@@ -178,16 +188,84 @@ namespace csgoslin.Tests
             {
                 
                 string lipid_name = lipid_row.Trim(trims);
-                LipidAdduct lipid = lipid_maps_parser.parse(lipid_name);
+                LipidAdduct lipid = parser.parse(lipid_name);
                 
                 Assert.True(lipid != null);
             }
             
             Console.WriteLine("HMDB Test: All tests passed without any problem");
         }
-
+        
+        
+        
+        
+        
+        
+        
+        
         [Fact]
-        public void LipidMapsUnitTest1()
+        public void SwissLipidsUnitTest()
+        {
+            string prefixPath = Environment.CurrentDirectory;
+            string test_file_name = Path.Combine(prefixPath, "..", "..", "..", "..", "data", "goslin", "testfiles", "swiss-lipids-test.csv");
+        
+            SwissLipidsParser parser = new SwissLipidsParser();
+                
+            // test several more lipid names
+            List<string> lipid_data = new List<string>();
+            if (File.Exists(test_file_name))
+            {
+                int lineCounter = 0;
+                try
+                {
+                    string line;
+                    using (StreamReader sr = new StreamReader(test_file_name))
+                    {
+                        while((line = sr.ReadLine()) != null)
+                        {
+                            lipid_data.Add(line.Trim(new char[]{' '}));
+                        }
+                    }
+                }
+                catch (Exception e)
+                {
+                    throw new Exception("The file '" + test_file_name + "' in line '" + lineCounter + "' could not be read:\n" + e);
+                }
+            }
+            
+            else
+            {
+                throw new Exception("File '" + test_file_name + "' does not exist.");
+            }
+            
+            ////////////////////////////////////////////////////////////////////////////
+            // Test for correctness
+            ////////////////////////////////////////////////////////////////////////////
+            
+            char[] trims = new char[]{'\"'};
+            foreach (string lipid_row in lipid_data)
+            {
+                
+                string lipid_name = lipid_row.Trim(trims);
+                LipidAdduct lipid = parser.parse(lipid_name);
+                
+                Assert.True(lipid != null);
+            }
+            
+            Console.WriteLine("SwissLipids Test: All tests passed without any problem");
+        }
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        [Fact]
+        public void LipidMapsUnitTest()
         {
             string prefixPath = Environment.CurrentDirectory;
             string test_file_name = Path.Combine(prefixPath, "..", "..", "..", "..", "data", "goslin", "testfiles", "lipid-maps-test.csv");
@@ -345,8 +423,15 @@ namespace csgoslin.Tests
         };
         
         
+        
+        
+        
+        
+        
+        
+        
         [Fact]
-        public void ShorthandUnitTest1()
+        public void ShorthandUnitTest()
         {
             ShorthandParser parser = new ShorthandParser();
             
@@ -383,9 +468,17 @@ namespace csgoslin.Tests
             
             Console.WriteLine("Shorthand Test: All tests passed without any problem");
         }
+        
+        
+        
+        
+        
+        
+        
+        
 
         [Fact]
-        public void SumFormulaUnitTest1()
+        public void SumFormulaUnitTest()
         {
             string prefixPath = Environment.CurrentDirectory;
             string test_file_name = Path.Combine(prefixPath, "..", "..", "..", "..", "data", "goslin", "testfiles", "formulas-lipid-maps.csv");
@@ -441,6 +534,10 @@ namespace csgoslin.Tests
             Console.WriteLine("Sum Formula (LIPID MAPS) Test: All tests passed without any problem");
         }
 
+        
+        
+        
+        
         [Fact]
         public void SumFormulaUnitTest2()
         {
@@ -497,9 +594,18 @@ namespace csgoslin.Tests
             
             Console.WriteLine("Sum Formula (SwissLipids) Test: All tests passed without any problem");
         }
+        
+        
+        
+        
+        
+        
+        
+        
+        
 
         [Fact]
-        public void MassesUnitTest1()
+        public void MassesUnitTest()
         {
             string prefixPath = Environment.CurrentDirectory;
             string test_file_name = Path.Combine(prefixPath, "..", "..", "..", "..", "data", "goslin", "testfiles", "lipid-masses.csv");

@@ -46,6 +46,7 @@ namespace csgoslin
         public int db_position;
         public string db_cistrans;
         public List<HeadgroupDecorator> headgroup_decorators;
+        public int suffix_number;
     
         public SwissLipidsParserEventHandler() : base()
         {
@@ -84,7 +85,8 @@ namespace csgoslin
             registered_events.Add("carbon_pre_event", add_carbon);
             registered_events.Add("sl_lcb_species_pre_event", set_species_level);
             registered_events.Add("st_species_fa_post_event", set_species_fa);
-            registered_events.Add("fa_lcb_suffix_type_pre_event", add_one_hydroxyl);
+            registered_events.Add("fa_lcb_suffix_type_pre_event", add_fa_lcb_suffix_type);
+            registered_events.Add("fa_lcb_suffix_number_pre_event", add_suffix_number);
             registered_events.Add("pl_three_post_event", set_nape);
             debug = "";
         }
@@ -102,6 +104,7 @@ namespace csgoslin
             db_position = 0;
             db_cistrans = "";
             headgroup_decorators = new List<HeadgroupDecorator>();
+            suffix_number = -1;
         }
 
         
@@ -154,19 +157,25 @@ namespace csgoslin
         {
             head_group = node.get_text().Replace("(", " ");
         }
+        
+        
+        
+        public void set_level(LipidLevel _level)
+        {
+            level = (LipidLevel)Math.Min((int)level, (int)_level);
+        }
 
 
         public void set_species_level(TreeNode node)
         {
-            level = LipidLevel.SPECIES;
+            set_level(LipidLevel.SPECIES);
         }
-            
 
 
 
         public void set_molecular_level(TreeNode node)
         {
-            level = LipidLevel.MOLECULAR_SUBSPECIES;
+            set_level(LipidLevel.MOLECULAR_SUBSPECIES);
         }
 
 
@@ -190,6 +199,7 @@ namespace csgoslin
             lcb = new FattyAcid("LCB");
             lcb.lcb = true;
             current_fa = lcb;
+            set_level(LipidLevel.STRUCTURAL_SUBSPECIES);
         }
                 
                 
@@ -331,6 +341,33 @@ namespace csgoslin
                 if (!current_fa.functional_groups.ContainsKey("OH")) current_fa.functional_groups.Add("OH", new List<FunctionalGroup>());
                 current_fa.functional_groups["OH"].Add(functional_group);
             }
+        }
+
+
+
+        public void add_suffix_number(TreeNode node)
+        {
+            suffix_number = Convert.ToInt32(node.get_text());
+        }
+
+
+
+        public void add_fa_lcb_suffix_type(TreeNode node)
+        {
+            string suffix_type = node.get_text();
+            if (suffix_type.Equals("me"))
+            {
+                suffix_type = "Me";
+                current_fa.num_carbon -= 1;
+            }
+                
+            FunctionalGroup functional_group = KnownFunctionalGroups.get_functional_group(suffix_type);
+            functional_group.position = suffix_number;
+            if (functional_group.position == -1) set_level(LipidLevel.STRUCTURAL_SUBSPECIES);
+            if (!current_fa.functional_groups.ContainsKey(suffix_type)) current_fa.functional_groups.Add(suffix_type, new List<FunctionalGroup>());
+            current_fa.functional_groups[suffix_type].Add(functional_group);
+                    
+            suffix_number = -1;
         }
             
             
