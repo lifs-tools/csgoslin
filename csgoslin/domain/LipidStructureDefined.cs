@@ -32,18 +32,20 @@ namespace csgoslin
 {
     using ElementTable = System.Collections.Generic.Dictionary<Element, int>;
     
-    public class LipidIsomericSubspecies : LipidStructuralSubspecies
+    public class LipidStructureDefined : LipidSnPosition
     {
-        public LipidIsomericSubspecies(Headgroup _headgroup, List<FattyAcid> _fa = null) : base(_headgroup, _fa)
+        public LipidStructureDefined(Headgroup _headgroup, List<FattyAcid> _fa = null) : base (_headgroup, _fa)
         {
-            info.level = LipidLevel.ISOMERIC_SUBSPECIES;
+            info.level = LipidLevel.STRUCTURE_DEFINED;
         }
+
 
 
         public override LipidLevel get_lipid_level()
         {
-            return LipidLevel.ISOMERIC_SUBSPECIES;
+            return LipidLevel.STRUCTURE_DEFINED;
         }
+
 
 
         public override string get_lipid_string(LipidLevel level = LipidLevel.NO_LEVEL)
@@ -51,18 +53,18 @@ namespace csgoslin
             switch(level)
             {
                 case LipidLevel.NO_LEVEL:
-                case LipidLevel.ISOMERIC_SUBSPECIES:
-                    return base.build_lipid_subspecies_name(LipidLevel.ISOMERIC_SUBSPECIES);
-                    
-                case LipidLevel.SPECIES:
-                case LipidLevel.STRUCTURAL_SUBSPECIES:
-                case LipidLevel.MOLECULAR_SUBSPECIES:
+                case LipidLevel.STRUCTURE_DEFINED:
+                    return build_lipid_subspecies_name(LipidLevel.STRUCTURE_DEFINED);
+            
+                case LipidLevel.SN_POSITION:
+                case LipidLevel.MOLECULAR_SPECIES:
                 case LipidLevel.CATEGORY:
                 case LipidLevel.CLASS:
+                case LipidLevel.SPECIES:
                     return base.get_lipid_string(level);
-            
+                
                 default:
-                    throw new IllegalArgumentException("LipidIsomericSubspecies does not know how to create a lipid string for level " + Convert.ToString(level));
+                    throw new RuntimeException("LipidStructureDefined does not know how to create a lipid string for level " + Convert.ToString(level));
             }
         }
         

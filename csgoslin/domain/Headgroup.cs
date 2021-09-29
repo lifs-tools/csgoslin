@@ -155,7 +155,7 @@ namespace csgoslin
             StringBuilder headgoup_string = new StringBuilder();
                     
             // adding prefixes to the headgroup
-            if (level != LipidLevel.ISOMERIC_SUBSPECIES && level != LipidLevel.STRUCTURAL_SUBSPECIES)
+            if (!is_level(level, LipidLevel.COMPLETE_STRUCTURE | LipidLevel.FULL_STRUCTURE | LipidLevel.STRUCTUR_DEFINED)
             {
                 List<string> prefixes = new List<string>();
                 foreach (HeadgroupDecorator hgd in decorators)
@@ -181,7 +181,7 @@ namespace csgoslin
             {
                 if (hgd.suffix) headgoup_string.Append(hgd.to_string(level));
             }
-            if (level == LipidLevel.ISOMERIC_SUBSPECIES && sp_exception)
+            if (is_level(level, LipidLevel.COMPLETE_STRUCTURE | LipidLevel.FULL_STRUCTURE) && sp_exception)
             {
                 headgoup_string.Append("(1)");
             }

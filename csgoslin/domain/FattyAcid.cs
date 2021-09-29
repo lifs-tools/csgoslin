@@ -113,11 +113,12 @@ namespace csgoslin
             int num_carbons = num_carbon;
             int num_double_bonds = double_bonds.get_num();
             
-            if (num_carbons == 0 && num_double_bonds == 0 && level != LipidLevel.ISOMERIC_SUBSPECIES && level != LipidLevel.STRUCTURAL_SUBSPECIES){
+            if (num_carbons == 0 && num_double_bonds == 0 && !is_level(level, LipidLevel.COMPLETE_STRUCTURE | LipidLevel.FULL_STRUCTURE | LipidLevel.STRUCTURE_DEFINED | LipidLevel.SN_POSITION))
+            {
                 return "";
             }
             
-            if (level == LipidLevel.MOLECULAR_SUBSPECIES)
+            if (is_level(level, LipidLevel.SN_POSITION | LipidLevel.MOLECULAR_SUBSPECIES))
             {
                 ElementTable e = get_elements();
                 num_carbons = e[Element.C];
@@ -128,7 +129,7 @@ namespace csgoslin
             fa_string.Append(num_carbons).Append(":").Append(num_double_bonds);
             
             
-            if (level != LipidLevel.MOLECULAR_SUBSPECIES && double_bonds.double_bond_positions.Count > 0)
+            if (!is_level(level, LipidLevel.SN_POSITION | LipidLevel.MOLECULAR_SUBSPECIES) && double_bonds.double_bond_positions.Count > 0)
             {
                 fa_string.Append("(");
                 
@@ -140,13 +141,13 @@ namespace csgoslin
                 {
                     if (i++ > 0) fa_string.Append(",");
                     fa_string.Append(db_pos);
-                    if (level == LipidLevel.ISOMERIC_SUBSPECIES) fa_string.Append(double_bonds.double_bond_positions[db_pos]);
+                    if (in_level(level, LipidLevel.COMPLETE_STRUCTURE | LipidLevel.FULL_STRUCTURE)) fa_string.Append(double_bonds.double_bond_positions[db_pos]);
                 }
                 fa_string.Append(")");
             }
                 
                 
-            if (level == LipidLevel.ISOMERIC_SUBSPECIES)
+            if (in_level(level, LipidLevel.COMPLETE_STRUCTURE | LipidLevel.FULL_STRUCTURE)
             {
                 List<string> fg_names = new List<string>();
                 foreach (KeyValuePair<string, List<FunctionalGroup> > kv in functional_groups) fg_names.Add(kv.Key);
@@ -358,7 +359,7 @@ namespace csgoslin
         
         public override string to_string(LipidLevel level)
         {
-            return (level == LipidLevel.ISOMERIC_SUBSPECIES ? Convert.ToString(position) : "") + "(" + ((FattyAcid)functional_groups["cc"][0]).to_string(level) + ")";
+            return (is_level(level, LipidLevel.COMPLETE_STRUCTURE, LipidLevel.FULL_STRUCTURE) ? Convert.ToString(position) : "") + "(" + ((FattyAcid)functional_groups["cc"][0]).to_string(level) + ")";
         }
     }
 }

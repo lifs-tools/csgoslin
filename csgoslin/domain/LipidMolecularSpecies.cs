@@ -32,11 +32,11 @@ namespace csgoslin
 {
     using ElementTable = System.Collections.Generic.Dictionary<Element, int>;
     
-    public class LipidMolecularSubspecies : LipidSpecies
+    public class LipidMolecularSpecies : LipidSpecies
     {
-        public LipidMolecularSubspecies (Headgroup _headgroup, List<FattyAcid> _fa = null) : base(_headgroup, _fa)
+        public LipidMolecularSpecies (Headgroup _headgroup, List<FattyAcid> _fa = null) : base(_headgroup, _fa)
         {
-            info.level = LipidLevel.MOLECULAR_SUBSPECIES;
+            info.level = LipidLevel.MOLECULAR_SPECIES;
             foreach (FattyAcid fatty_acid in fa_list)
             {
                 if (fa.ContainsKey(fatty_acid.name))
@@ -60,9 +60,9 @@ namespace csgoslin
 
         public string build_lipid_subspecies_name(LipidLevel level = LipidLevel.NO_LEVEL)
         {
-            if (level == LipidLevel.NO_LEVEL) level = LipidLevel.MOLECULAR_SUBSPECIES;
+            if (level == LipidLevel.NO_LEVEL) level = LipidLevel.MOLECULAR_SPECIES;
             
-            string fa_separator = (level != LipidLevel.MOLECULAR_SUBSPECIES || headgroup.lipid_category == LipidCategory.SP) ? "/" : "_";
+            string fa_separator = (level != LipidLevel.MOLECULAR_SPECIES || headgroup.lipid_category == LipidCategory.SP) ? "/" : "_";
             StringBuilder lipid_name = new StringBuilder();
             lipid_name.Append(headgroup.get_lipid_string(level));
             
@@ -71,8 +71,9 @@ namespace csgoslin
             
             switch (level)
             {
-                case LipidLevel.ISOMERIC_SUBSPECIES:
-                case LipidLevel.STRUCTURAL_SUBSPECIES:
+                case LipidLevel.COMPLETE_STRUCTURE:
+                case LipidLevel.FULL_STRUCTURE:
+                case LipidLevel.STRUCTURE_DEFINED:
                     if (fa_list.Count > 0)
                     {
                         lipid_name.Append(fa_headgroup_separator);
@@ -116,7 +117,7 @@ namespace csgoslin
 
 
         public override LipidLevel get_lipid_level(){
-            return LipidLevel.MOLECULAR_SUBSPECIES;
+            return LipidLevel.MOLECULAR_SPECIES;
         }
 
 
@@ -143,8 +144,8 @@ namespace csgoslin
             switch (level)
             {
                 case LipidLevel.NO_LEVEL:
-                case LipidLevel.MOLECULAR_SUBSPECIES:
-                    return build_lipid_subspecies_name(LipidLevel.MOLECULAR_SUBSPECIES);
+                case LipidLevel.MOLECULAR_SPECIES:
+                    return build_lipid_subspecies_name(LipidLevel.MOLECULAR_SPECIES);
             
                 case LipidLevel.CATEGORY:
                 case LipidLevel.CLASS:
@@ -152,7 +153,7 @@ namespace csgoslin
                     return base.get_lipid_string(level);
             
                 default:
-                    throw new IllegalArgumentException("LipidMolecularSubspecies does not know how to create a lipid string for level " + Convert.ToString(level));
+                    throw new IllegalArgumentException("LipidMolecularSpecies does not know how to create a lipid string for level " + Convert.ToString(level));
             }
         }
             

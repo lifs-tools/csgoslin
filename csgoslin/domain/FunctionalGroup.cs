@@ -141,7 +141,7 @@ namespace csgoslin
         public virtual string to_string(LipidLevel level)
         {
             string fg_string = "";
-            if (level == LipidLevel.ISOMERIC_SUBSPECIES)
+            if (is_level(level, LipidLevel.COMPLETE_STRUCTURE, LipidLevel.FULL_STRUCTURE))
             {
                 if ('0' <= name[0] && name[0] <= '9')
                 {
@@ -156,7 +156,7 @@ namespace csgoslin
             {
                 fg_string = (count > 1) ? ("(" + name + ")" + Convert.ToString(count)) : name;
             }
-            if (stereochemistry.Length > 0 && level == LipidLevel.ISOMERIC_SUBSPECIES)
+            if (stereochemistry.Length > 0 && level == LipidLevel.COMPLETE_STRUCTURE)
             {
                 fg_string += "[" + stereochemistry + "]";
             }

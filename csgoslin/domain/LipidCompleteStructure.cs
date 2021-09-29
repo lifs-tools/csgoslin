@@ -32,20 +32,18 @@ namespace csgoslin
 {
     using ElementTable = System.Collections.Generic.Dictionary<Element, int>;
     
-    public class LipidStructuralSubspecies : LipidMolecularSubspecies
+    public class LipidCompleteStructure : LipidFullStructure
     {
-        public LipidStructuralSubspecies(Headgroup _headgroup, List<FattyAcid> _fa = null) : base (_headgroup, _fa)
+        public LipidCompleteStructure(Headgroup _headgroup, List<FattyAcid> _fa = null) : base(_headgroup, _fa)
         {
-            info.level = LipidLevel.STRUCTURAL_SUBSPECIES;
+            info.level = LipidLevel.FULL_STRUCTURE;
         }
-
 
 
         public override LipidLevel get_lipid_level()
         {
-            return LipidLevel.STRUCTURAL_SUBSPECIES;
+            return LipidLevel.FULL_STRUCTURE;
         }
-
 
 
         public override string get_lipid_string(LipidLevel level = LipidLevel.NO_LEVEL)
@@ -53,17 +51,20 @@ namespace csgoslin
             switch(level)
             {
                 case LipidLevel.NO_LEVEL:
-                case LipidLevel.STRUCTURAL_SUBSPECIES:
-                    return build_lipid_subspecies_name(LipidLevel.STRUCTURAL_SUBSPECIES);
-            
-                case LipidLevel.MOLECULAR_SUBSPECIES:
+                case LipidLevel.COMPLETE_STRUCTURE:
+                    return base.build_lipid_subspecies_name(LipidLevel.COMPLETE_STRUCTURE);
+                    
+                case LipidLevel.FULL_STRUCTURE:
+                case LipidLevel.STRUCTURE_DEFINED:
+                case LipidLevel.SN_POSITION:
+                case LipidLevel.MOLECULAR_SPECIES:
+                case LipidLevel.SPECIES:
                 case LipidLevel.CATEGORY:
                 case LipidLevel.CLASS:
-                case LipidLevel.SPECIES:
                     return base.get_lipid_string(level);
-                
+            
                 default:
-                    throw new RuntimeException("LipidStructuralSubspecies does not know how to create a lipid string for level " + Convert.ToString(level));
+                    throw new IllegalArgumentException("LipidCompleteStructure does not know how to create a lipid string for level " + Convert.ToString(level));
             }
         }
         

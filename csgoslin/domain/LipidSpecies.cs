@@ -144,10 +144,12 @@ namespace csgoslin
             
             switch(info.level)
             {
-                case LipidLevel.STRUCTURAL_SUBSPECIES:
-                case LipidLevel.ISOMERIC_SUBSPECIES:
+                case LipidLevel.COMPLETE_STRUCTURE:
+                case LipidLevel.FULL_STRUCTURE:
+                case LipidLevel.STRUCTURE_DEFINED:
+                case LipidLevel.SN_POSITION:
+                case LipidLevel.MOLECULAR_SPECIES:
                 case LipidLevel.SPECIES:
-                case LipidLevel.MOLECULAR_SUBSPECIES:
                     break;
 
                 default:    
