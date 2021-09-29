@@ -32,6 +32,7 @@ namespace csgoslin
 {
     using ElementTable = System.Collections.Generic.Dictionary<Element, int>;
     using ClassMap = System.Collections.Generic.Dictionary<LipidClass, LipidClassMeta>;
+    using static LevelFunctions;
     
     public class Headgroup
     {
@@ -155,7 +156,7 @@ namespace csgoslin
             StringBuilder headgoup_string = new StringBuilder();
                     
             // adding prefixes to the headgroup
-            if (!is_level(level, LipidLevel.COMPLETE_STRUCTURE | LipidLevel.FULL_STRUCTURE | LipidLevel.STRUCTUR_DEFINED)
+            if (!is_level(level, LipidLevel.COMPLETE_STRUCTURE | LipidLevel.FULL_STRUCTURE | LipidLevel.STRUCTURE_DEFINED))
             {
                 List<string> prefixes = new List<string>();
                 foreach (HeadgroupDecorator hgd in decorators)

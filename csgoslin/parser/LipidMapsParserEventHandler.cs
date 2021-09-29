@@ -30,28 +30,19 @@ using System.Collections.Generic;
 namespace csgoslin
 {
     using ElementTable = System.Collections.Generic.Dictionary<Element, int>;
-
+    using static LevelFunctions;
         
     
-    public class LipidMapsParserEventHandler : BaseParserEventHandler<LipidAdduct>
+    public class LipidMapsParserEventHandler : LipidBaseParserEventHandler
     {
-        
-        public LipidLevel level;
-        public LipidAdduct lipid;
-        public string head_group;
-        public FattyAcid lcb;
-        public List<FattyAcid> fa_list;
-        public FattyAcid current_fa;
         public bool omit_fa;
         public int db_numbers;
-        public bool use_head_group;
         public int db_position;
         public string db_cistrans;
         public string mod_text;
         public int mod_pos;
         public int mod_num;
         public bool add_omega_linoleoyloxy_Cer;
-        public List<HeadgroupDecorator> headgroup_decorators;
         
         public static readonly HashSet<string> head_group_exceptions = new HashSet<string>{"PA", "PC", "PE", "PG", "PI", "PS"};
     
@@ -127,8 +118,7 @@ namespace csgoslin
                 
         public void reset_parser(TreeNode node)
         {
-            level = LipidLevel.ISOMERIC_SUBSPECIES;
-            lipid = null;
+            level = LipidLevel.FULL_STRUCTURE;
             head_group = "";
             lcb = null;
             fa_list = new List<FattyAcid>();
@@ -145,9 +135,10 @@ namespace csgoslin
             add_omega_linoleoyloxy_Cer = false;
         }
 
+        
         public void set_molecular_subspecies_level(TreeNode node)
         {
-            level = LipidLevel.MOLECULAR_SUBSPECIES;
+            set_lipid_level(LipidLevel.MOLECULAR_SPECIES);
         }
         
 
@@ -177,10 +168,9 @@ namespace csgoslin
             {
                 current_fa.double_bonds.double_bond_positions.Add(db_position, db_cistrans);
                 
-                if (!db_cistrans.Equals("E") && !db_cistrans.Equals("Z"))
-                {
-                    level = (LipidLevel)Math.Min((int)level, (int)LipidLevel.STRUCTURAL_SUBSPECIES);
-                }
+                
+                if (!db_cistrans.Equals("E") && !db_cistrans.Equals("Z")) set_lipid_level(LipidLevel.STRUCTURE_DEFINED);
+                   
             }
         }
         
@@ -231,14 +221,14 @@ namespace csgoslin
             
         public void set_species_level(TreeNode node)
         {
-            level = LipidLevel.SPECIES;
+            set_lipid_level(LipidLevel.SPECIES);
         }
         
         
         
         public void set_structural_subspecies_level(TreeNode node)
         {
-            level = (LipidLevel)Math.Min((int)level, (int)LipidLevel.STRUCTURAL_SUBSPECIES);
+            set_lipid_level(LipidLevel.STRUCTURE_DEFINED);
         }
 
 
@@ -290,7 +280,8 @@ namespace csgoslin
         public void new_lcb(TreeNode node)
         {
             lcb = new FattyAcid("LCB");
-            lcb.lcb = true;
+            lcb.set_type(LipidFaBondType.LCB_REGULAR);
+            set_lipid_level(LipidLevel.STRUCTURE_DEFINED);
             current_fa = lcb;
         }
                 
@@ -304,7 +295,7 @@ namespace csgoslin
             }
             if (current_fa.double_bonds.double_bond_positions.Count == 0 && current_fa.double_bonds.get_num() > 0)
             {
-                level = (LipidLevel)Math.Min((int)level, (int)LipidLevel.STRUCTURAL_SUBSPECIES);
+                set_lipid_level(LipidLevel.SN_POSITION);
             }
             current_fa = null;
         }
@@ -319,10 +310,10 @@ namespace csgoslin
             }
             if (current_fa.double_bonds.double_bond_positions.Count == 0 && current_fa.double_bonds.get_num() > 0)
             {
-                level = (LipidLevel)Math.Min((int)level, (int)LipidLevel.STRUCTURAL_SUBSPECIES);
+                set_lipid_level(LipidLevel.STRUCTURE_DEFINED);
             }
             
-            if (level == LipidLevel.STRUCTURAL_SUBSPECIES || level == LipidLevel.ISOMERIC_SUBSPECIES)
+            if (is_level(level, LipidLevel.COMPLETE_STRUCTURE | LipidLevel.FULL_STRUCTURE | LipidLevel.STRUCTURE_DEFINED))
             {
                     current_fa.position = fa_list.Count + 1;
             }
@@ -349,7 +340,7 @@ namespace csgoslin
         {
             int num_h = Convert.ToInt32(node.get_text());
             
-            if (Headgroup.get_category(head_group) == LipidCategory.SP &&current_fa.lcb && ((!head_group.Equals("Cer") && !head_group.Equals("LCB")) || headgroup_decorators.Count > 0)) num_h -= 1;
+            if (sp_regular_lcb()) num_h -= 1;
             
             FunctionalGroup functional_group = KnownFunctionalGroups.get_functional_group("OH");
             functional_group.count = num_h;
@@ -368,7 +359,7 @@ namespace csgoslin
             else if (hydroxyl.Equals("t")) num_h = 3;
             
             
-            if (Headgroup.get_category(head_group) == LipidCategory.SP && current_fa.lcb && ((!head_group.Equals("Cer") && !head_group.Equals("LCB")) || headgroup_decorators.Count > 0)) num_h -= 1;
+            if (sp_regular_lcb()) num_h -= 1;
             
             FunctionalGroup functional_group = KnownFunctionalGroups.get_functional_group("OH");
             functional_group.count = num_h;
@@ -399,82 +390,15 @@ namespace csgoslin
             
             if (lcb != null)
             {
-                level = (LipidLevel)Math.Min((int)level, (int)LipidLevel.STRUCTURAL_SUBSPECIES);
                 foreach (FattyAcid fa in fa_list) fa.position += 1;
                 fa_list.Insert(0, lcb);
             }
             
-            lipid = null;
-            LipidSpecies ls = null;
             
-            if (add_omega_linoleoyloxy_Cer)
-            {
-                if (fa_list.Count != 2)
-                {
-                    throw new LipidException("omega-linoleoyloxy-Cer with a different combination to one long chain base and one fatty acyl chain unknown");
-                }
-                if (!fa_list[fa_list.Count - 1].functional_groups.ContainsKey("acyl")) fa_list[fa_list.Count - 1].functional_groups.Add("acyl", new List<FunctionalGroup>());
-                
-                DoubleBonds db = new DoubleBonds(2);
-                db.double_bond_positions.Add(9, "Z");
-                db.double_bond_positions.Add(12, "Z");
-                fa_list[fa_list.Count - 1].functional_groups["acyl"].Add(new AcylAlkylGroup(new FattyAcid("FA", 18, db)));
-            }
-            Headgroup headgroup = new Headgroup(head_group, headgroup_decorators, use_head_group);
+            Headgroup headgroup = prepare_headgroup_and_checks();
             
-            int true_fa = 0;
-            foreach (FattyAcid fa in fa_list)
-            {
-                true_fa += (fa.num_carbon > 0 || fa.double_bonds.get_num() > 0) ? 1 : 0;
-            }
-            int poss_fa = LipidClasses.lipid_classes.ContainsKey(headgroup.lipid_class) ? LipidClasses.lipid_classes[headgroup.lipid_class].possible_num_fa : 0;
-            
-            // make lyso
-            bool can_be_lyso = LipidClasses.lipid_classes.ContainsKey(Headgroup.get_class("L" + head_group)) ? LipidClasses.lipid_classes[Headgroup.get_class("L" + head_group)].special_cases.Contains("Lyso") : false;
-            
-            if (true_fa + 1 == poss_fa && level != LipidLevel.SPECIES && headgroup.lipid_category == LipidCategory.GP && can_be_lyso)
-            {
-                head_group = "L" + head_group;
-                headgroup = new Headgroup(head_group, headgroup_decorators, use_head_group);
-                poss_fa = LipidClasses.lipid_classes.ContainsKey(headgroup.lipid_class) ? LipidClasses.lipid_classes[headgroup.lipid_class].possible_num_fa : 0;
-            }
-            
-            else if (true_fa + 2 == poss_fa && level != LipidLevel.SPECIES && headgroup.lipid_category == LipidCategory.GP && head_group.Equals("CL"))
-            {
-                head_group = "DL" + head_group;
-                headgroup = new Headgroup(head_group, headgroup_decorators, use_head_group);
-                poss_fa = LipidClasses.lipid_classes.ContainsKey(headgroup.lipid_class) ? LipidClasses.lipid_classes[headgroup.lipid_class].possible_num_fa : 0;
-            }
-            
-            if (level == LipidLevel.SPECIES)
-            {
-                if (true_fa == 0 && poss_fa != 0)
-                {
-                    string hg_name = headgroup.headgroup;
-                    throw new ConstraintViolationException("No fatty acyl information lipid class '" + hg_name + "' provided.");
-                }
-            }
-                
-            else if (true_fa != poss_fa && (level == LipidLevel.ISOMERIC_SUBSPECIES || level == LipidLevel.STRUCTURAL_SUBSPECIES))
-            {
-                string hg_name = headgroup.headgroup;
-                throw new ConstraintViolationException("Number of described fatty acyl chains (" + true_fa.ToString() + ") not allowed for lipid class '" + hg_name + "' (having " + poss_fa.ToString() + " fatty aycl chains).");
-            }
-            
-            int max_num_fa = LipidClasses.lipid_classes.ContainsKey(headgroup.lipid_class) ? LipidClasses.lipid_classes[headgroup.lipid_class].max_num_fa : 0;
-            if (max_num_fa != fa_list.Count) level = (LipidLevel)Math.Min((int)level, (int)LipidLevel.MOLECULAR_SUBSPECIES);
-            
-
-            switch (level)
-            {
-                case LipidLevel.SPECIES: ls = new LipidSpecies(headgroup, fa_list); break;
-                case LipidLevel.MOLECULAR_SUBSPECIES: ls = new LipidMolecularSubspecies(headgroup, fa_list); break;
-                case LipidLevel.STRUCTURAL_SUBSPECIES: ls = new LipidStructuralSubspecies(headgroup, fa_list); break;
-                case LipidLevel.ISOMERIC_SUBSPECIES: ls = new LipidIsomericSubspecies(headgroup, fa_list); break;
-                default: break;
-            }
-            lipid = new LipidAdduct();
-            lipid.lipid = ls;
+            LipidAdduct lipid = new LipidAdduct();
+            lipid.lipid = assemble_lipid(headgroup);
             content = lipid;
         }
     }

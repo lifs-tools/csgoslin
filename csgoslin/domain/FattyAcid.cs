@@ -31,20 +31,19 @@ using System.Collections.Generic;
 namespace csgoslin
 {
     using ElementTable = System.Collections.Generic.Dictionary<Element, int>;
+    using static LevelFunctions;
     
     public class FattyAcid : FunctionalGroup
     {
         public int num_carbon;
         public LipidFaBondType lipid_FA_bond_type;
-        public bool lcb;
         public HashSet<string> fg_exceptions = new HashSet<string>{"acyl", "alkyl", "cy", "cc", "acetoxy"};
         
-        public FattyAcid(string _name, int _num_carbon = 0, DoubleBonds _double_bonds = null, Dictionary<string, List<FunctionalGroup> > _functional_groups = null, LipidFaBondType _lipid_FA_bond_type = LipidFaBondType.ESTER, bool _lcb = false, int _position = 0) : base(_name, _position, 1, _double_bonds, false, "", null, _functional_groups)
+        public FattyAcid(string _name, int _num_carbon = 0, DoubleBonds _double_bonds = null, Dictionary<string, List<FunctionalGroup> > _functional_groups = null, LipidFaBondType _lipid_FA_bond_type = LipidFaBondType.ESTER, int _position = 0) : base(_name, _position, 1, _double_bonds, false, "", null, _functional_groups)
         {
     
             num_carbon = _num_carbon;
             lipid_FA_bond_type = _lipid_FA_bond_type;
-            lcb = _lcb;
             
             if (num_carbon < 0 || num_carbon == 1)
             {
@@ -76,7 +75,25 @@ namespace csgoslin
                 }
             }
             
-            return new FattyAcid(name, num_carbon, db, fg, lipid_FA_bond_type, lcb, position);
+            return new FattyAcid(name, num_carbon, db, fg, lipid_FA_bond_type, position);
+        }
+        
+        
+        
+        public void set_type(LipidFaBondType _lipid_FA_bond_type)
+        {
+            lipid_FA_bond_type = _lipid_FA_bond_type;
+            if (lipid_FA_bond_type == LipidFaBondType.LCB_REGULAR && !functional_groups.ContainsKey("[X]"))
+            {
+                functional_groups.Add("[X]", new List<FunctionalGroup>(){KnownFunctionalGroups.get_functional_group("X")});
+            }
+                
+            else if (functional_groups.ContainsKey("[X]"))
+            {
+                functional_groups.Remove("[X]");
+            }
+                
+            name = (lipid_FA_bond_type != LipidFaBondType.LCB_EXCEPTION && lipid_FA_bond_type != LipidFaBondType.LCB_REGULAR) ? "FA" : "LCB";
         }
 
 
@@ -118,7 +135,7 @@ namespace csgoslin
                 return "";
             }
             
-            if (is_level(level, LipidLevel.SN_POSITION | LipidLevel.MOLECULAR_SUBSPECIES))
+            if (is_level(level, LipidLevel.SN_POSITION | LipidLevel.MOLECULAR_SPECIES))
             {
                 ElementTable e = get_elements();
                 num_carbons = e[Element.C];
@@ -129,7 +146,7 @@ namespace csgoslin
             fa_string.Append(num_carbons).Append(":").Append(num_double_bonds);
             
             
-            if (!is_level(level, LipidLevel.SN_POSITION | LipidLevel.MOLECULAR_SUBSPECIES) && double_bonds.double_bond_positions.Count > 0)
+            if (!is_level(level, LipidLevel.SN_POSITION | LipidLevel.MOLECULAR_SPECIES) && double_bonds.double_bond_positions.Count > 0)
             {
                 fa_string.Append("(");
                 
@@ -141,13 +158,13 @@ namespace csgoslin
                 {
                     if (i++ > 0) fa_string.Append(",");
                     fa_string.Append(db_pos);
-                    if (in_level(level, LipidLevel.COMPLETE_STRUCTURE | LipidLevel.FULL_STRUCTURE)) fa_string.Append(double_bonds.double_bond_positions[db_pos]);
+                    if (is_level(level, LipidLevel.COMPLETE_STRUCTURE | LipidLevel.FULL_STRUCTURE)) fa_string.Append(double_bonds.double_bond_positions[db_pos]);
                 }
                 fa_string.Append(")");
             }
                 
                 
-            if (in_level(level, LipidLevel.COMPLETE_STRUCTURE | LipidLevel.FULL_STRUCTURE)
+            if (is_level(level, LipidLevel.COMPLETE_STRUCTURE | LipidLevel.FULL_STRUCTURE))
             {
                 List<string> fg_names = new List<string>();
                 foreach (KeyValuePair<string, List<FunctionalGroup> > kv in functional_groups) fg_names.Add(kv.Key);
@@ -176,7 +193,7 @@ namespace csgoslin
                 }
             }
             
-            else if (level == LipidLevel.STRUCTURAL_SUBSPECIES)
+            else if (level == LipidLevel.STRUCTURE_DEFINED)
             {
                 List<string> fg_names = new List<string>();
                 foreach (KeyValuePair<string, List<FunctionalGroup> > kv in functional_groups) fg_names.Add(kv.Key);
@@ -250,7 +267,7 @@ namespace csgoslin
                 return;
             }
             
-            if (!lcb)
+            if (lipid_FA_bond_type != LipidFaBondType.LCB_EXCEPTION && lipid_FA_bond_type != LipidFaBondType.LCB_REGULAR)
             {
                 elements[Element.C] = num_carbon; // carbon
                 if (lipid_FA_bond_type == LipidFaBondType.ESTER)
@@ -326,7 +343,7 @@ namespace csgoslin
         
         public override string to_string(LipidLevel level){
             StringBuilder acyl_alkyl_string = new StringBuilder();
-            if (level == LipidLevel.ISOMERIC_SUBSPECIES) acyl_alkyl_string.Append(position);
+            if (level == LipidLevel.FULL_STRUCTURE) acyl_alkyl_string.Append(position);
             acyl_alkyl_string.Append(N_bond ? "N" : "O").Append("(");
             if (!alkyl) acyl_alkyl_string.Append("FA ");
             acyl_alkyl_string.Append(((FattyAcid)functional_groups[alkyl ? "alkyl" :"acyl"][0]).to_string(level)).Append(")");
@@ -359,7 +376,7 @@ namespace csgoslin
         
         public override string to_string(LipidLevel level)
         {
-            return (is_level(level, LipidLevel.COMPLETE_STRUCTURE, LipidLevel.FULL_STRUCTURE) ? Convert.ToString(position) : "") + "(" + ((FattyAcid)functional_groups["cc"][0]).to_string(level) + ")";
+            return (is_level(level, LipidLevel.COMPLETE_STRUCTURE | LipidLevel.FULL_STRUCTURE) ? Convert.ToString(position) : "") + "(" + ((FattyAcid)functional_groups["cc"][0]).to_string(level) + ")";
         }
     }
 }

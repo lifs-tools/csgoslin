@@ -65,12 +65,15 @@ namespace csgoslin
 
         public void add(FattyAcid _fa)
         {
-            lcb |= _fa.lcb;
             if (_fa.lipid_FA_bond_type == LipidFaBondType.ETHER_PLASMENYL || _fa.lipid_FA_bond_type == LipidFaBondType.ETHER_PLASMANYL)
             {
                 num_ethers += 1;
                 lipid_FA_bond_type = LipidFaBondType.ETHER_PLASMANYL;
                 extended_class = _fa.lipid_FA_bond_type;
+            }
+            else if (_fa.lipid_FA_bond_type == LipidFaBondType.LCB_EXCEPTION | _fa.lipid_FA_bond_type == LipidFaBondType.LCB_REGULAR)
+            {
+                lipid_FA_bond_type = _fa.lipid_FA_bond_type;
             }
                     
             else

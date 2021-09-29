@@ -31,6 +31,7 @@ using System.Collections.Generic;
 namespace csgoslin
 {
     using ElementTable = System.Collections.Generic.Dictionary<Element, int>;
+    using static LevelFunctions;
     
     public class FunctionalGroup
     {
@@ -141,7 +142,7 @@ namespace csgoslin
         public virtual string to_string(LipidLevel level)
         {
             string fg_string = "";
-            if (is_level(level, LipidLevel.COMPLETE_STRUCTURE, LipidLevel.FULL_STRUCTURE))
+            if (is_level(level, LipidLevel.COMPLETE_STRUCTURE | LipidLevel.FULL_STRUCTURE))
             {
                 if ('0' <= name[0] && name[0] <= '9')
                 {

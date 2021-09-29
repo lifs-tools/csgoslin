@@ -32,7 +32,7 @@ namespace csgoslin
 {
     using ElementTable = System.Collections.Generic.Dictionary<Element, int>;
     
-    public class LipidSnPosition : LipidMolecularSubspecies
+    public class LipidSnPosition : LipidMolecularSpecies
     {
         public LipidSnPosition(Headgroup _headgroup, List<FattyAcid> _fa = null) : base (_headgroup, _fa)
         {

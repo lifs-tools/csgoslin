@@ -68,16 +68,19 @@ namespace csgoslin
         CATEGORY = 4, // Mediators, Glycerolipids, Glycerophospholipids, Sphingolipids, Steroids, Prenols
         CLASS = 8, // Glyerophospholipids -> Glycerophosphoinositols PI
         SPECIES = 16, // Phosphatidylinositol (16:0) or PI 16:0;O
-        MOLELECULAR_SPECIES = 32, // Phosphatidylinositol 8:0-8:0;O or PI 8:0-8:0;O
+        MOLECULAR_SPECIES = 32, // Phosphatidylinositol 8:0-8:0;O or PI 8:0-8:0;O
         SN_POSITION = 64, // Phosphatidylinositol 8:0/8:0;O or PI 8:0/8:0;O
         STRUCTURE_DEFINED = 128, // Phosphatidylinositol 8:0/8:0;OH or PI 8:0/8:0;OH
         FULL_STRUCTURE = 256, // e.g. PI 18:0/22:6(4Z,7Z,10Z,13Z,16Z,19Z);5OH
         COMPLETE_STRUCTURE = 512 // e.g. PI 18:0/22:6(4Z,7Z,10Z,13Z,16Z,19Z);5OH[R]
     };
     
-    public static bool in_level(LipidLevel l, LipidLevel pattern)
+    public class LevelFunctions
     {
-        return (l & pattern) != 0;
+        public static bool is_level(LipidLevel l, LipidLevel pattern)
+        {
+            return (l & pattern) != 0;
+        }
     }
 
 
@@ -114,6 +117,8 @@ namespace csgoslin
         ETHER_PLASMANYL,
         ETHER_PLASMENYL,
         ETHER_UNSPECIFIED,
+        LCB_EXCEPTION,
+        LCB_REGULAR,
         AMINE
     };
 

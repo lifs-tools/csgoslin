@@ -165,7 +165,7 @@ namespace csgoslin
                 
         public void reset_parser(TreeNode node)
         {
-            level = LipidLevel.ISOMERIC_SUBSPECIES;
+            level = LipidLevel.FULL_STRUCTURE;
             headgroup = "";
             fatty_acyl_stack = new ExendedList<FattyAcid>();
             fatty_acyl_stack.Add(new FattyAcid("FA"));
@@ -238,7 +238,7 @@ namespace csgoslin
                 foreach (KeyValuePair<int, string> kv in curr_fa.double_bonds.double_bond_positions) db_right += kv.Value.Length > 0 ? 1 : 0;
                 if (db_right != curr_fa.double_bonds.double_bond_positions.Count)
                 {
-                    set_lipid_level(LipidLevel.STRUCTURAL_SUBSPECIES);
+                    set_lipid_level(LipidLevel.STRUCTURE_DEFINED);
                 }
             }
             
@@ -248,24 +248,14 @@ namespace csgoslin
             
             switch(level)
             {
-                case LipidLevel.ISOMERIC_SUBSPECIES:
-                    lipid.lipid = new LipidIsomericSubspecies(head_group, fatty_acyl_stack);
-                    break;
-                    
-                case LipidLevel.STRUCTURAL_SUBSPECIES:
-                    lipid.lipid = new LipidStructuralSubspecies(head_group, fatty_acyl_stack);
-                    break;
-                    
-                case LipidLevel.MOLECULAR_SUBSPECIES:
-                    lipid.lipid = new LipidMolecularSubspecies(head_group, fatty_acyl_stack);
-                    break;
-                    
-                case LipidLevel.SPECIES:
-                    lipid.lipid = new LipidSpecies(head_group, fatty_acyl_stack);
-                    break;
-                    
-                default:
-                    break;
+                
+                case LipidLevel.COMPLETE_STRUCTURE: lipid.lipid = new LipidCompleteStructure(head_group, fatty_acyl_stack); break;
+                case LipidLevel.FULL_STRUCTURE: lipid.lipid = new LipidFullStructure(head_group, fatty_acyl_stack); break;
+                case LipidLevel.STRUCTURE_DEFINED: lipid.lipid = new LipidStructureDefined(head_group, fatty_acyl_stack); break;
+                case LipidLevel.SN_POSITION: lipid.lipid = new LipidSnPosition(head_group, fatty_acyl_stack); break;
+                case LipidLevel.MOLECULAR_SPECIES: lipid.lipid = new LipidMolecularSpecies(head_group, fatty_acyl_stack); break;
+                case LipidLevel.SPECIES: lipid.lipid = new LipidSpecies(head_group, fatty_acyl_stack); break;
+                default: break;
             }
             content = lipid;
         }

@@ -31,6 +31,8 @@ using System.Collections.Generic;
 namespace csgoslin.Tests
 {
     using ElementTable = System.Collections.Generic.Dictionary<Element, int>;
+    
+    
     public class UnitTests
     {
         
@@ -120,7 +122,7 @@ namespace csgoslin.Tests
                 
                 Assert.True(formula.Equals(lipid_formula), "lipid " + lmid + " '" + lipid_name + "': " + formula + " != " + lipid_formula + " (computed)");
                 
-                lipid2 = shorthand_parser.parse(lipid.get_lipid_string(LipidLevel.MOLECULAR_SUBSPECIES));
+                lipid2 = shorthand_parser.parse(lipid.get_lipid_string(LipidLevel.MOLECULAR_SPECIES));
                 lipid_formula = lipid2.get_sum_formula();
                 
                 Assert.True(formula.Equals(lipid_formula), "molecular " + lmid + " '" + lipid_name + "': " + formula + " != " + lipid_formula + " (computed)");
@@ -334,7 +336,7 @@ namespace csgoslin.Tests
             
             Console.WriteLine("LIPID MAPS Test: All tests passed without any problem");
         }
-        public static readonly List<LipidLevel> levels = new List<LipidLevel>{LipidLevel.ISOMERIC_SUBSPECIES, LipidLevel.STRUCTURAL_SUBSPECIES, LipidLevel.MOLECULAR_SUBSPECIES, LipidLevel.SPECIES};
+        public static readonly List<LipidLevel> levels = new List<LipidLevel>{LipidLevel.FULL_STRUCTURE, LipidLevel.STRUCTURE_DEFINED, LipidLevel.MOLECULAR_SPECIES, LipidLevel.SPECIES};
 
         public static readonly Dictionary<string, List<string>> 
         data = new Dictionary<string, List<string> >
