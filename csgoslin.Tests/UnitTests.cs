@@ -84,7 +84,6 @@ namespace csgoslin.Tests
             
             
             
-            
             ////////////////////////////////////////////////////////////////////////////
             // Test for correctness
             ////////////////////////////////////////////////////////////////////////////
@@ -143,7 +142,7 @@ namespace csgoslin.Tests
         
         
         
-        
+        /*
         
         
         [Fact]
@@ -670,6 +669,7 @@ namespace csgoslin.Tests
             
             Console.WriteLine("Masses Test: All tests passed without any problem");
         }
+        */
     }
 }
 

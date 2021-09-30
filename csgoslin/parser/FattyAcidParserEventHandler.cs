@@ -971,6 +971,10 @@ namespace csgoslin
             headgroup = "FA";
             
             int pos = (((Lst)tmp["fg_pos"]).Count == 2) ? (int)((Lst)((Lst)tmp["fg_pos"])[1])[0] : fatty_acyl_stack.back().num_carbon;
+            if (tmp.ContainsKey("reduction"))
+            {
+                pos -= ((Lst)tmp["reduction"]).Count;
+            }
             fatty_acyl_stack.back().num_carbon -= 1;
             FunctionalGroup func_group = KnownFunctionalGroups.get_functional_group("COOH");
             func_group.position = pos - 1;
@@ -1021,7 +1025,16 @@ namespace csgoslin
 
         public void reduction(TreeNode node)
         {
-            fatty_acyl_stack.back().num_carbon -= ((Lst)tmp["fg_pos"]).Count;
+            int shift_len = -((Lst)tmp["fg_pos"]).Count;
+            fatty_acyl_stack.back().num_carbon += shift_len;
+            foreach(KeyValuePair<string, List<FunctionalGroup>> kv in fatty_acyl_stack[fatty_acyl_stack.Count - 1].functional_groups)
+            {
+                foreach(FunctionalGroup func_group in kv.Value)
+                {
+                    func_group.shift_positions(shift_len);
+                }
+            }
+                
             tmp.Add("reduction", new Lst());
             foreach (Lst lst in (Lst)tmp["fg_pos"])
             {
