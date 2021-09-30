@@ -36,13 +36,7 @@ namespace csgoslin
     
     public class ShorthandParserEventHandler : LipidBaseParserEventHandler
     {
-        public LipidLevel level;
-        public LipidAdduct lipid;
-        public string head_group;
-        public ExendedList<FattyAcid> fa_list;
-        public ExendedList<FunctionalGroup> current_fa;
-        public Adduct adduct;
-        public ExendedList<HeadgroupDecorator> headgroup_decorators;
+        public ExendedList<FunctionalGroup> current_fas;
         public Dict tmp = new Dict();
         public static readonly HashSet<string> special_types = new HashSet<string>{"acyl", "alkyl", "decorator_acyl", "decorator_alkyl", "cc"};
         
@@ -163,7 +157,7 @@ namespace csgoslin
         
         public string FA_I()
         {
-            return "fa" + Convert.ToString(current_fa.Count);
+            return "fa" + Convert.ToString(current_fas.Count);
         }
         
     
@@ -171,11 +165,10 @@ namespace csgoslin
         {
             content = null;
             level = LipidLevel.FULL_STRUCTURE;
-            lipid = null;
             adduct = null;
             head_group = "";
             fa_list = new ExendedList<FattyAcid>();
-            current_fa = new ExendedList<FunctionalGroup>();
+            current_fas = new ExendedList<FunctionalGroup>();
             headgroup_decorators = new ExendedList<HeadgroupDecorator>();
             tmp = new Dict();
         }
@@ -265,11 +258,11 @@ namespace csgoslin
             }
             else
             {
-                if (!current_fa.back().functional_groups.ContainsKey(carbohydrate))
+                if (!current_fas.back().functional_groups.ContainsKey(carbohydrate))
                 {
-                    current_fa.back().functional_groups.Add(carbohydrate, new List<FunctionalGroup>());
+                    current_fas.back().functional_groups.Add(carbohydrate, new List<FunctionalGroup>());
                 }
-                current_fa.back().functional_groups[carbohydrate].Add(functional_group);
+                current_fas.back().functional_groups[carbohydrate].Add(functional_group);
             }
         }
 
@@ -344,8 +337,8 @@ namespace csgoslin
 
         public void set_lcb(TreeNode node)
         {
-                fa_list.back().name = "LCB";
-                fa_list.back().set_type(LipidFaBondType.LCB_REGULAR);
+                fa_list[fa_list.Count - 1].name = "LCB";
+                fa_list[fa_list.Count - 1].set_type(LipidFaBondType.LCB_REGULAR);
         }
 
 
@@ -363,7 +356,7 @@ namespace csgoslin
 
         public void new_fatty_acyl_chain(TreeNode node)
         {
-            current_fa.Add(new FattyAcid("FA"));
+            current_fas.Add(new FattyAcid("FA"));
             tmp.Add(FA_I(), new Dict());
         }
 
@@ -371,9 +364,9 @@ namespace csgoslin
 
         public void add_fatty_acyl_chain(TreeNode node)
         {
-            string fg_i = "fa" + Convert.ToString(current_fa.Count - 2);
+            string fg_i = "fa" + Convert.ToString(current_fas.Count - 2);
             string special_type = "";
-            if (current_fa.Count >= 2 && tmp.ContainsKey(fg_i) && ((Dict)tmp[fg_i]).ContainsKey("fg_name"))
+            if (current_fas.Count >= 2 && tmp.ContainsKey(fg_i) && ((Dict)tmp[fg_i]).ContainsKey("fg_name"))
             {
                 string fg_name = (string)((Dict)tmp[fg_i])["fg_name"];
                 if (special_types.Contains(fg_name))
@@ -383,25 +376,25 @@ namespace csgoslin
             }
             
             string fa_i = FA_I();
-            if (current_fa.back().double_bonds.get_num() != (int)((Dict)tmp[fa_i])["db_count"])
+            if (current_fas.back().double_bonds.get_num() != (int)((Dict)tmp[fa_i])["db_count"])
             {
                 throw new LipidException("Double bond count does not match with number of double bond positions");
             }
-            else if (current_fa.back().double_bonds.get_num() > 0 && current_fa.back().double_bonds.double_bond_positions.Count == 0)
+            else if (current_fas.back().double_bonds.get_num() > 0 && current_fas.back().double_bonds.double_bond_positions.Count == 0)
             {
                 set_lipid_level(LipidLevel.STRUCTURE_DEFINED);
             }
             tmp.Remove(fa_i);
             
-            FattyAcid fa = (FattyAcid)current_fa.PopBack();
+            FattyAcid fa = (FattyAcid)current_fas.PopBack();
             if (special_type.Length > 0)
             {
                 fa.name = special_type;
-                if (!current_fa.back().functional_groups.ContainsKey(special_type))
+                if (!current_fas.back().functional_groups.ContainsKey(special_type))
                 {
-                    current_fa.back().functional_groups.Add(special_type, new List<FunctionalGroup>());
+                    current_fas.back().functional_groups.Add(special_type, new List<FunctionalGroup>());
                 }
-                current_fa.back().functional_groups[special_type].Add(fa);
+                current_fas.back().functional_groups[special_type].Add(fa);
             }
             else
             {
@@ -441,7 +434,7 @@ namespace csgoslin
             
             d.Remove("db_position");
             d.Remove("db_cistrans");
-            current_fa.back().double_bonds.double_bond_positions.Add(pos, cistrans);
+            current_fas.back().double_bonds.double_bond_positions.Add(pos, cistrans);
         }
 
 
@@ -469,7 +462,7 @@ namespace csgoslin
         public void set_cycle(TreeNode node)
         {
             ((Dict)tmp[FA_I()]).Add("fg_name", "cy");
-            current_fa.Add(new Cycle(0));
+            current_fas.Add(new Cycle(0));
             
             string fa_i = FA_I();
             tmp.Add(fa_i, new Dict());
@@ -482,7 +475,7 @@ namespace csgoslin
         {
             string fa_i = FA_I();
             Lst cycle_elements = (Lst)((Dict)tmp[fa_i])["cycle_elements"];
-            Cycle cycle = (Cycle)current_fa.PopBack();
+            Cycle cycle = (Cycle)current_fas.PopBack();
             for (int i = 0; i < cycle_elements.Count; ++i)
             {
                 cycle.bridge_chain.Add((Element)cycle_elements[i]);
@@ -493,11 +486,11 @@ namespace csgoslin
             {
                 throw new ConstraintViolationException("Cycle length '" + Convert.ToString(cycle.cycle) + "' does not match with cycle description.");
             }
-            if (!current_fa.back().functional_groups.ContainsKey("cy"))
+            if (!current_fas.back().functional_groups.ContainsKey("cy"))
             {
-                current_fa.back().functional_groups.Add("cy", new List<FunctionalGroup>());
+                current_fas.back().functional_groups.Add("cy", new List<FunctionalGroup>());
             }
-            current_fa.back().functional_groups["cy"].Add(cycle);
+            current_fas.back().functional_groups["cy"].Add(cycle);
         }
 
 
@@ -514,7 +507,7 @@ namespace csgoslin
             string fa_i = FA_I();
             tmp.Add(fa_i, new Dict());
             ((Dict)tmp[fa_i]).Add("fg_name", "decorator_acyl");
-            current_fa.Add(new HeadgroupDecorator("decorator_acyl", -1, 1, null, true));
+            current_fas.Add(new HeadgroupDecorator("decorator_acyl", -1, 1, null, true));
             tmp.Add(FA_I(), new Dict());
         }
 
@@ -523,7 +516,7 @@ namespace csgoslin
         public void add_hg_acyl(TreeNode node)
         {
             tmp.Remove(FA_I());
-            headgroup_decorators.Add((HeadgroupDecorator)current_fa.PopBack());
+            headgroup_decorators.Add((HeadgroupDecorator)current_fas.PopBack());
             tmp.Remove(FA_I());
         }
 
@@ -533,7 +526,7 @@ namespace csgoslin
         {
             tmp.Add(FA_I(), new Dict());
             ((Dict)tmp[FA_I()]).Add("fg_name", "decorator_alkyl");
-            current_fa.Add(new HeadgroupDecorator("decorator_alkyl", -1, 1, null, true));
+            current_fas.Add(new HeadgroupDecorator("decorator_alkyl", -1, 1, null, true));
             tmp.Add(FA_I(), new Dict());
         }
 
@@ -541,7 +534,7 @@ namespace csgoslin
 
         public void add_hg_alkyl(TreeNode node){
             tmp.Remove(FA_I());
-            headgroup_decorators.Add((HeadgroupDecorator)current_fa.PopBack());
+            headgroup_decorators.Add((HeadgroupDecorator)current_fas.PopBack());
             tmp.Remove(FA_I());
         }
 
@@ -557,7 +550,7 @@ namespace csgoslin
         public void set_hydrocarbon_chain(TreeNode node)
         {
             ((Dict)tmp[FA_I()]).Add("fg_name", "cc");
-            current_fa.Add(new CarbonChain((FattyAcid)null));
+            current_fas.Add(new CarbonChain((FattyAcid)null));
             tmp.Add(FA_I(), new Dict());
             ((Dict)tmp[FA_I()]).Add("linkage_pos", -1);
         }
@@ -568,12 +561,12 @@ namespace csgoslin
         {
             int linkage_pos = (int)((Dict)tmp[FA_I()])["linkage_pos"];
             tmp.Remove(FA_I());
-            CarbonChain cc = (CarbonChain)current_fa.PopBack();
+            CarbonChain cc = (CarbonChain)current_fas.PopBack();
             cc.position = linkage_pos;
             if (linkage_pos == -1) set_lipid_level(LipidLevel.STRUCTURE_DEFINED);
             
-            if (!current_fa.back().functional_groups.ContainsKey("cc")) current_fa.back().functional_groups.Add("cc", new List<FunctionalGroup>());
-            current_fa.back().functional_groups["cc"].Add(cc);
+            if (!current_fas.back().functional_groups.ContainsKey("cc")) current_fas.back().functional_groups.Add("cc", new List<FunctionalGroup>());
+            current_fas.back().functional_groups["cc"].Add(cc);
         }
 
 
@@ -581,7 +574,7 @@ namespace csgoslin
         public void set_acyl_linkage(TreeNode node)
         {
             ((Dict)tmp[FA_I()]).Add("fg_name", "acyl");
-            current_fa.Add(new AcylAlkylGroup((FattyAcid)null));
+            current_fas.Add(new AcylAlkylGroup((FattyAcid)null));
             tmp.Add(FA_I(), new Dict());
             ((Dict)tmp[FA_I()]).Add("linkage_pos", -1);
         }
@@ -594,14 +587,14 @@ namespace csgoslin
             int linkage_pos = (int)((Dict)tmp[FA_I()])["linkage_pos"];
             
             tmp.Remove(FA_I());
-            AcylAlkylGroup acyl = (AcylAlkylGroup)current_fa.PopBack();
+            AcylAlkylGroup acyl = (AcylAlkylGroup)current_fas.PopBack();
                 
             acyl.position = linkage_pos;
             acyl.set_N_bond_type(linkage_type);
             if (linkage_pos == -1) set_lipid_level(LipidLevel.STRUCTURE_DEFINED);
                 
-            if (!current_fa.back().functional_groups.ContainsKey("acyl")) current_fa.back().functional_groups.Add("acyl", new List<FunctionalGroup>());
-            current_fa.back().functional_groups["acyl"].Add(acyl);
+            if (!current_fas.back().functional_groups.ContainsKey("acyl")) current_fas.back().functional_groups.Add("acyl", new List<FunctionalGroup>());
+            current_fas.back().functional_groups["acyl"].Add(acyl);
         }
 
 
@@ -609,7 +602,7 @@ namespace csgoslin
         public void set_alkyl_linkage(TreeNode node)
         {
             ((Dict)tmp[FA_I()]).Add("fg_name", "alkyl");
-            current_fa.Add(new AcylAlkylGroup(null, -1, 1, true));
+            current_fas.Add(new AcylAlkylGroup(null, -1, 1, true));
             tmp.Add(FA_I(), new Dict());
             ((Dict)tmp[FA_I()]).Add("linkage_pos", -1);
         }
@@ -620,55 +613,55 @@ namespace csgoslin
         {
             int linkage_pos = (int)((Dict)tmp[FA_I()])["linkage_pos"];
             tmp.Remove(FA_I());
-            AcylAlkylGroup alkyl = (AcylAlkylGroup)current_fa.PopBack();
+            AcylAlkylGroup alkyl = (AcylAlkylGroup)current_fas.PopBack();
             
             alkyl.position = linkage_pos;
             if (linkage_pos == -1) set_lipid_level(LipidLevel.STRUCTURE_DEFINED);
             
-            if (!current_fa.back().functional_groups.ContainsKey("alkyl")) current_fa.back().functional_groups.Add("alkyl", new List<FunctionalGroup>());
-            current_fa.back().functional_groups["alkyl"].Add(alkyl);
+            if (!current_fas.back().functional_groups.ContainsKey("alkyl")) current_fas.back().functional_groups.Add("alkyl", new List<FunctionalGroup>());
+            current_fas.back().functional_groups["alkyl"].Add(alkyl);
         }
 
 
 
         public void set_cycle_start(TreeNode node)
         {
-            ((Cycle)current_fa.back()).start = Convert.ToInt32(node.get_text());
+            ((Cycle)current_fas.back()).start = Convert.ToInt32(node.get_text());
         }
 
 
 
         public void set_cycle_end(TreeNode node)
         {
-            ((Cycle)current_fa.back()).end = Convert.ToInt32(node.get_text());
+            ((Cycle)current_fas.back()).end = Convert.ToInt32(node.get_text());
         }
 
 
 
         public void set_cycle_number(TreeNode node){
-            ((Cycle)current_fa.back()).cycle = Convert.ToInt32(node.get_text());
+            ((Cycle)current_fas.back()).cycle = Convert.ToInt32(node.get_text());
         }
 
 
 
         public void set_cycle_db_count(TreeNode node)
         {
-            ((Cycle)current_fa.back()).double_bonds.num_double_bonds = Convert.ToInt32(node.get_text());
+            ((Cycle)current_fas.back()).double_bonds.num_double_bonds = Convert.ToInt32(node.get_text());
         }
 
 
 
         public void set_cycle_db_positions(TreeNode node){
-            ((Dict)tmp[FA_I()]).Add("cycle_db", ((Cycle)current_fa.back()).double_bonds.get_num());
-            //delete ((Cycle*)current_fa.back()).double_bonds;
-            //((Cycle*)current_fa.back()).double_bonds = new DoubleBonds();
+            ((Dict)tmp[FA_I()]).Add("cycle_db", ((Cycle)current_fas.back()).double_bonds.get_num());
+            //delete ((Cycle*)current_fas.back()).double_bonds;
+            //((Cycle*)current_fas.back()).double_bonds = new DoubleBonds();
         }
 
 
 
         public void check_cycle_db_positions(TreeNode node)
         {
-            if (((Cycle)current_fa.back()).double_bonds.get_num() != (int)((Dict)tmp[FA_I()])["cycle_db"])
+            if (((Cycle)current_fas.back()).double_bonds.get_num() != (int)((Dict)tmp[FA_I()])["cycle_db"])
             {
                 throw new LipidException("Double bond number in cycle does not correspond to number of double bond positions.");
             }
@@ -679,7 +672,7 @@ namespace csgoslin
         public void set_cycle_db_position(TreeNode node)
         {
             int pos = Convert.ToInt32(node.get_text());
-            ((Cycle)current_fa.back()).double_bonds.double_bond_positions.Add(pos, "");
+            ((Cycle)current_fas.back()).double_bonds.double_bond_positions.Add(pos, "");
             ((Dict)tmp[FA_I()]).Add("last_db_pos", pos);
         }
 
@@ -688,7 +681,7 @@ namespace csgoslin
         public void set_cycle_db_position_cistrans(TreeNode node)
         {
             int pos = (int)((Dict)tmp[FA_I()])["last_db_pos"];
-            ((Cycle)current_fa.back()).double_bonds.double_bond_positions[pos] = node.get_text();
+            ((Cycle)current_fas.back()).double_bonds.double_bond_positions[pos] = node.get_text();
         }
 
 
@@ -765,8 +758,8 @@ namespace csgoslin
             gd.Remove("fg_cnt");
             gd.Remove("fg_stereo");
             
-            if (!current_fa.back().functional_groups.ContainsKey(fg_name)) current_fa.back().functional_groups.Add(fg_name, new List<FunctionalGroup>());
-            current_fa.back().functional_groups[fg_name].Add(functional_group);
+            if (!current_fas.back().functional_groups.ContainsKey(fg_name)) current_fas.back().functional_groups.Add(fg_name, new List<FunctionalGroup>());
+            current_fas.back().functional_groups[fg_name].Add(functional_group);
             
         }
 
@@ -775,8 +768,8 @@ namespace csgoslin
         public void set_ether_type(TreeNode node)
         {
             string ether_type = node.get_text();
-            if (ether_type.Equals("O-")) ((FattyAcid)current_fa.back()).lipid_FA_bond_type = LipidFaBondType.ETHER_PLASMANYL;
-            else if (ether_type.Equals("P-")) ((FattyAcid)current_fa.back()).lipid_FA_bond_type = LipidFaBondType.ETHER_PLASMENYL;
+            if (ether_type.Equals("O-")) ((FattyAcid)current_fas.back()).lipid_FA_bond_type = LipidFaBondType.ETHER_PLASMANYL;
+            else if (ether_type.Equals("P-")) ((FattyAcid)current_fas.back()).lipid_FA_bond_type = LipidFaBondType.ETHER_PLASMENYL;
         }
 
 
@@ -795,7 +788,7 @@ namespace csgoslin
 
         public void set_carbon(TreeNode node)
         {
-            ((FattyAcid)current_fa.back()).num_carbon = Convert.ToInt32(node.get_text());
+            ((FattyAcid)current_fas.back()).num_carbon = Convert.ToInt32(node.get_text());
         }
 
 
@@ -804,7 +797,7 @@ namespace csgoslin
         {
             int db_cnt = Convert.ToInt32(node.get_text());
             ((Dict)tmp[FA_I()]).Add("db_count", db_cnt);
-            ((FattyAcid)current_fa.back()).double_bonds.num_double_bonds = db_cnt;
+            ((FattyAcid)current_fas.back()).double_bonds.num_double_bonds = db_cnt;
         }
 
 

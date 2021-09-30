@@ -118,6 +118,7 @@ namespace csgoslin
                 
         public void reset_parser(TreeNode node)
         {
+            content = null;
             level = LipidLevel.FULL_STRUCTURE;
             head_group = "";
             lcb = null;

@@ -165,6 +165,7 @@ namespace csgoslin
                 
         public void reset_parser(TreeNode node)
         {
+            content = null;
             level = LipidLevel.FULL_STRUCTURE;
             headgroup = "";
             fatty_acyl_stack = new ExendedList<FattyAcid>();
