@@ -45,6 +45,8 @@ namespace csgoslin
         public bool add_omega_linoleoyloxy_Cer;
         
         public static readonly HashSet<string> head_group_exceptions = new HashSet<string>{"PA", "PC", "PE", "PG", "PI", "PS"};
+        public static readonly Dictionary<string, int> acer_heads = new Dictionary<string, int>{{"1-O-myristoyl", 14}, {"1-O-palmitoyl", 16}, {"1-O-stearoyl", 18}, {"1-O-eicosanoyl", 20}, {"1-O-behenoyl", 22}, {"1-O-lignoceroyl", 24}, {"1-O-cerotoyl", 26}, {"1-O-pentacosanoyl", 25},    {"1-O-carboceroyl", 28}, {"1-O-tricosanoyl", 30}, {"1-O-lignoceroyl-omega-linoleoyloxy", 24}, {"1-O-stearoyl-omega-linoleoyloxy", 18}};
+
     
         public LipidMapsParserEventHandler() : base()
         {
@@ -112,6 +114,7 @@ namespace csgoslin
             registered_events.Add("mod_pos_pre_event", set_mod_pos);
             registered_events.Add("mod_num_pre_event", set_mod_num);
             registered_events.Add("single_mod_post_event", add_functional_group);
+            registered_events.Add("special_cer_prefix_pre_event", add_ACer);
             debug = "";
         }
 
@@ -134,6 +137,30 @@ namespace csgoslin
             mod_text = "";
             headgroup_decorators = new List<HeadgroupDecorator>();
             add_omega_linoleoyloxy_Cer = false;
+        }
+        
+        
+    
+    
+        public void add_ACer(TreeNode node)
+        {
+            string head = node.get_text();
+            head_group = "ACer";
+            
+            if (!acer_heads.ContainsKey(head))
+            {
+                throw new LipidException("ACer head group '" + head + "' unknown");
+            }
+            
+            HeadgroupDecorator hgd = new HeadgroupDecorator("decorator_acyl", -1, 1, null, true);
+            int acer_num = acer_heads[head];
+            hgd.functional_groups.Add("decorator_acyl", new List<FunctionalGroup>(){new FattyAcid("FA", acer_num)});
+            headgroup_decorators.Add(hgd);
+            
+            if (head.Equals("1-O-lignoceroyl-omega-linoleoyloxy") || head.Equals("1-O-stearoyl-omega-linoleoyloxy"))
+            {
+                add_omega_linoleoyloxy_Cer = true;
+            }
         }
 
         
