@@ -36,13 +36,14 @@ namespace csgoslin.Tests
     public class UnitTests
     {
         
-        public bool test_fatty_acid = false;
-        public bool test_hmdb = false;
+        public bool test_fatty_acid = true;
+        public bool test_hmdb = true;
+        public bool test_goslin = true;
         public bool test_lipid_maps = true;
-        public bool test_swiss_lipids = false;
-        public bool test_shorthand = false;
-        public bool test_sum_formula = false;
-        public bool test_masses = false;
+        public bool test_swiss_lipids = true;
+        public bool test_shorthand = true;
+        public bool test_sum_formula = true;
+        public bool test_masses = true;
         
         
         [Fact]
@@ -276,6 +277,42 @@ namespace csgoslin.Tests
             string test_file_name = Path.Combine(prefixPath, "..", "..", "..", "..", "data", "goslin", "testfiles", "swiss-lipids-test.csv");
         
             SwissLipidsParser parser = new SwissLipidsParser();
+            
+                    
+            LipidAdduct l = parser.parse((string)"Cer(d18:1(8Z)/24:0)");
+            Assert.Equal(l.get_lipid_string(LipidLevel.STRUCTURE_DEFINED), (string)"Cer 18:1(8);(OH)2/24:0");
+            Assert.Equal(l.get_lipid_string(LipidLevel.SN_POSITION), (string)"Cer 18:1;O2/24:0");
+            Assert.Equal(l.get_lipid_string(LipidLevel.MOLECULAR_SPECIES), (string)"Cer 18:1;O2/24:0");
+            Assert.Equal(l.get_lipid_string(LipidLevel.SPECIES), (string)"Cer 42:1;O2");
+            Assert.Equal(l.get_sum_formula(), (string)"C42H83NO3");
+            
+            l = parser.parse((string)"GalCer(d18:1(5Z)/24:0)");
+            Assert.Equal(l.get_lipid_string(LipidLevel.STRUCTURE_DEFINED), (string)"GalCer 18:1(5);OH/24:0");
+            Assert.Equal(l.get_lipid_string(LipidLevel.SN_POSITION), (string)"GalCer 18:1;O2/24:0");
+            Assert.Equal(l.get_lipid_string(LipidLevel.MOLECULAR_SPECIES), (string)"GalCer 18:1;O2/24:0");
+            Assert.Equal(l.get_lipid_string(LipidLevel.SPECIES), (string)"GalCer 42:1;O2");
+            Assert.Equal(l.get_sum_formula(), (string)"C48H93NO8");
+
+            l = parser.parse((string)"PE-Cer(d14:1(4E)/20:1(11Z))");
+            Assert.Equal(l.get_lipid_string(LipidLevel.STRUCTURE_DEFINED), (string)"EPC 14:1(4);OH/20:1(11)");
+            Assert.Equal(l.get_lipid_string(LipidLevel.SN_POSITION), (string)"EPC 14:1;O2/20:1");
+            Assert.Equal(l.get_lipid_string(LipidLevel.MOLECULAR_SPECIES), (string)"EPC 14:1;O2/20:1");
+            Assert.Equal(l.get_lipid_string(LipidLevel.SPECIES), (string)"EPC 34:2;O2");
+            Assert.Equal(l.get_sum_formula(), (string)"C36H71N2O6P");
+            
+            l = parser.parse((string)"MIPC(t18:0/24:0)");
+            Assert.Equal(l.get_lipid_string(LipidLevel.STRUCTURE_DEFINED), (string)"MIPC 18:0;(OH)2/24:0");
+            Assert.Equal(l.get_lipid_string(LipidLevel.SN_POSITION), (string)"MIPC 18:0;O3/24:0");
+            Assert.Equal(l.get_lipid_string(LipidLevel.MOLECULAR_SPECIES), (string)"MIPC 18:0;O3/24:0");
+            Assert.Equal(l.get_lipid_string(LipidLevel.SPECIES), (string)"MIPC 42:0;O3");
+            Assert.Equal(l.get_sum_formula(), (string)"C54H106NO17P");
+            
+            l = parser.parse((string)"PE-Cer(d16:2(4E,6E)/22:1(13Z)(2OH))");
+            Assert.Equal(l.get_lipid_string(LipidLevel.STRUCTURE_DEFINED), (string)"EPC 16:2(4,6);OH/22:1(13);OH");
+            Assert.Equal(l.get_lipid_string(LipidLevel.SN_POSITION), (string)"EPC 16:2;O2/22:1;O");
+            Assert.Equal(l.get_lipid_string(LipidLevel.MOLECULAR_SPECIES), (string)"EPC 16:2;O2/22:1;O");
+            Assert.Equal(l.get_lipid_string(LipidLevel.SPECIES), (string)"EPC 38:3;O3");
+            Assert.Equal(l.get_sum_formula(), (string)"C40H77N2O7P");
                 
             // test several more lipid names
             List<string> lipid_data = new List<string>();
@@ -444,6 +481,114 @@ namespace csgoslin.Tests
             
             Console.WriteLine("LIPID MAPS Test: All tests passed without any problem");
         }
+        
+        
+        
+        
+        
+        [Fact]
+        public void GoslinUnitTest()
+        {
+            if (!test_goslin) return;
+            
+            string prefixPath = Environment.CurrentDirectory;
+            string test_file_name = Path.Combine(prefixPath, "..", "..", "..", "..", "data", "goslin", "testfiles", "goslin-test.csv");
+        
+            GoslinParser parser = new GoslinParser();
+            
+            LipidAdduct l = parser.parse((string)"Cer 18:1(8Z);2/24:0");
+            Assert.Equal(l.get_lipid_string(LipidLevel.STRUCTURE_DEFINED), (string)"Cer 18:1(8);(OH)2/24:0");
+            Assert.Equal(l.get_lipid_string(LipidLevel.SN_POSITION), (string)"Cer 18:1;O2/24:0");
+            Assert.Equal(l.get_lipid_string(LipidLevel.MOLECULAR_SPECIES), (string)"Cer 18:1;O2/24:0");
+            Assert.Equal(l.get_lipid_string(LipidLevel.SPECIES), (string)"Cer 42:1;O2");
+            Assert.Equal(l.get_sum_formula(), (string)"C42H83NO3");
+            
+            l = parser.parse((string)"HexCer 18:1(5Z);2/24:0");
+            Assert.Equal(l.get_lipid_string(LipidLevel.STRUCTURE_DEFINED), (string)"HexCer 18:1(5);OH/24:0");
+            Assert.Equal(l.get_lipid_string(LipidLevel.SN_POSITION), (string)"HexCer 18:1;O2/24:0");
+            Assert.Equal(l.get_lipid_string(LipidLevel.MOLECULAR_SPECIES), (string)"HexCer 18:1;O2/24:0");
+            Assert.Equal(l.get_lipid_string(LipidLevel.SPECIES), (string)"HexCer 42:1;O2");
+            Assert.Equal(l.get_sum_formula(), (string)"C48H93NO8");
+            
+            l = parser.parse((string)"LSM 17:1(4E);2");
+            Assert.Equal(l.get_lipid_string(LipidLevel.STRUCTURE_DEFINED), (string)"LSM 17:1(4);OH");
+            Assert.Equal(l.get_lipid_string(LipidLevel.SN_POSITION), (string)"LSM 17:1;O2");
+            Assert.Equal(l.get_lipid_string(LipidLevel.MOLECULAR_SPECIES), (string)"LSM 17:1;O2");
+            Assert.Equal(l.get_lipid_string(LipidLevel.SPECIES), (string)"LSM 17:1;O2");
+            Assert.Equal(l.get_sum_formula(), (string)"C22H47N2O5P");
+            
+            l = parser.parse((string)"LCB 18:1(4E);2");
+            Assert.Equal(l.get_lipid_string(LipidLevel.STRUCTURE_DEFINED), (string)"SPB 18:1(4);(OH)2");
+            Assert.Equal(l.get_lipid_string(LipidLevel.SN_POSITION), (string)"SPB 18:1;O2");
+            Assert.Equal(l.get_lipid_string(LipidLevel.MOLECULAR_SPECIES), (string)"SPB 18:1;O2");
+            Assert.Equal(l.get_lipid_string(LipidLevel.SPECIES), (string)"SPB 18:1;O2");
+            Assert.Equal(l.get_sum_formula(), (string)"C18H37NO2");
+
+            l = parser.parse((string)"EPC 14:1(4E);2/20:1(11Z)");
+            Assert.Equal(l.get_lipid_string(LipidLevel.STRUCTURE_DEFINED), (string)"EPC 14:1(4);OH/20:1(11)");
+            Assert.Equal(l.get_lipid_string(LipidLevel.SN_POSITION), (string)"EPC 14:1;O2/20:1");
+            Assert.Equal(l.get_lipid_string(LipidLevel.MOLECULAR_SPECIES), (string)"EPC 14:1;O2/20:1");
+            Assert.Equal(l.get_lipid_string(LipidLevel.SPECIES), (string)"EPC 34:2;O2");
+            Assert.Equal(l.get_sum_formula(), (string)"C36H71N2O6P");
+            
+            l = parser.parse((string)"MIPC 18:0;3/24:0");
+            Assert.Equal(l.get_lipid_string(LipidLevel.STRUCTURE_DEFINED), (string)"MIPC 18:0;(OH)2/24:0");
+            Assert.Equal(l.get_lipid_string(LipidLevel.SN_POSITION), (string)"MIPC 18:0;O3/24:0");
+            Assert.Equal(l.get_lipid_string(LipidLevel.MOLECULAR_SPECIES), (string)"MIPC 18:0;O3/24:0");
+            Assert.Equal(l.get_lipid_string(LipidLevel.SPECIES), (string)"MIPC 42:0;O3");
+            Assert.Equal(l.get_sum_formula(), (string)"C54H106NO17P");
+            
+            l = parser.parse((string)"EPC 16:2(4E,6E);2/22:1(13Z);1");
+            Assert.Equal(l.get_lipid_string(LipidLevel.STRUCTURE_DEFINED), (string)"EPC 16:2(4,6);OH/22:1(13);OH");
+            Assert.Equal(l.get_lipid_string(LipidLevel.SN_POSITION), (string)"EPC 16:2;O2/22:1;O");
+            Assert.Equal(l.get_lipid_string(LipidLevel.MOLECULAR_SPECIES), (string)"EPC 16:2;O2/22:1;O");
+            Assert.Equal(l.get_lipid_string(LipidLevel.SPECIES), (string)"EPC 38:3;O3");
+            Assert.Equal(l.get_sum_formula(), (string)"C40H77N2O7P");
+            
+            LipidAdduct lipid;
+                
+            // test several more lipid names
+            List<string> lipid_data = new List<string>();
+            if (File.Exists(test_file_name))
+            {
+                int lineCounter = 0;
+                try
+                {
+                    string line;
+                    using (StreamReader sr = new StreamReader(test_file_name))
+                    {
+                        while((line = sr.ReadLine()) != null)
+                        {
+                            lipid_data.Add(line.Trim(new char[]{' '}));
+                        }
+                    }
+                }
+                catch (Exception e)
+                {
+                    throw new Exception("The file '" + test_file_name + "' in line '" + lineCounter + "' could not be read:\n" + e);
+                }
+            }
+            
+            else
+            {
+                throw new Exception("File '" + test_file_name + "' does not exist.");
+            }
+            
+            ////////////////////////////////////////////////////////////////////////////
+            // Test for correctness
+            ////////////////////////////////////////////////////////////////////////////
+            
+            
+            foreach (string lipid_name in lipid_data)
+            {
+                lipid = parser.parse(lipid_name);
+                Assert.True(lipid != null);
+            }
+            
+            Console.WriteLine("Goslin Test: All tests passed without any problem");
+        }
+        
+        
         
         
         
