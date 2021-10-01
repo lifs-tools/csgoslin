@@ -74,6 +74,7 @@ namespace csgoslin
                 case LipidLevel.COMPLETE_STRUCTURE:
                 case LipidLevel.FULL_STRUCTURE:
                 case LipidLevel.STRUCTURE_DEFINED:
+                case LipidLevel.SN_POSITION:
                     if (fa_list.Count > 0)
                     {
                         lipid_name.Append(fa_headgroup_separator);

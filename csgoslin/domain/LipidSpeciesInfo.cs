@@ -56,7 +56,7 @@ namespace csgoslin
         public override ElementTable get_elements()
         {
             ElementTable elements = base.get_elements();
-            elements[Element.O] -= (num_ethers == 0) ? 1 : 0;
+            if (lipid_FA_bond_type != LipidFaBondType.LCB_EXCEPTION) elements[Element.O] -= (num_ethers == 0) ? 1 : 0;
             elements[Element.H] += num_ethers == 0 ? 1 : -1;
             
             return elements;
@@ -71,7 +71,7 @@ namespace csgoslin
                 lipid_FA_bond_type = LipidFaBondType.ETHER_PLASMANYL;
                 extended_class = _fa.lipid_FA_bond_type;
             }
-            else if (_fa.lipid_FA_bond_type == LipidFaBondType.LCB_EXCEPTION | _fa.lipid_FA_bond_type == LipidFaBondType.LCB_REGULAR)
+            else if (_fa.lipid_FA_bond_type == LipidFaBondType.LCB_EXCEPTION || _fa.lipid_FA_bond_type == LipidFaBondType.LCB_REGULAR)
             {
                 lipid_FA_bond_type = _fa.lipid_FA_bond_type;
             }
@@ -92,6 +92,7 @@ namespace csgoslin
             ElementTable e = _fa.get_elements();
             num_carbon += e[Element.C];
             double_bonds.num_double_bonds += _fa.get_double_bonds();
+            
         }
 
 
@@ -100,7 +101,6 @@ namespace csgoslin
             StringBuilder info_string = new StringBuilder();
             info_string.Append(ether_prefix[num_ethers]);
             info_string.Append(num_carbon).Append(":").Append(double_bonds.get_num());
-            
             
             ElementTable elements = get_functional_group_elements();
             for (int i = 2; i < Elements.element_order.Count; ++i)

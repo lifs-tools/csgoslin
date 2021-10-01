@@ -106,7 +106,7 @@ namespace csgoslin
         }
 
 
-        public ElementTable get_functional_group_elements(){
+        public virtual ElementTable get_functional_group_elements(){
             ElementTable _elements = StringFunctions.create_empty_table();
             
             foreach (KeyValuePair<string, List<FunctionalGroup> > kv in functional_groups)

@@ -232,7 +232,7 @@ namespace csgoslin
                 throw new LipidException("Double bond count does not match with number of double bond positions");
             }
             
-            if (is_level(level, LipidLevel.COMPLETE_STRUCTURE | LipidLevel.FULL_STRUCTURE | LipidLevel.STRUCTURE_DEFINED))
+            if (is_level(level, LipidLevel.COMPLETE_STRUCTURE | LipidLevel.FULL_STRUCTURE | LipidLevel.STRUCTURE_DEFINED | LipidLevel.SN_POSITION))
             {
                     current_fa.position = fa_list.Count + 1;
             }

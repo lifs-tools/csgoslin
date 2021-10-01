@@ -177,9 +177,7 @@ namespace csgoslin
         public void build_lipid(TreeNode node)
         {
             Headgroup headgroup = prepare_headgroup_and_checks();
-            
-            
-            
+
             // add count numbers for fatty acyl chains
             int fa_it = (fa_list.Count > 0 && (fa_list[0].lipid_FA_bond_type == LipidFaBondType.LCB_EXCEPTION || fa_list[0].lipid_FA_bond_type == LipidFaBondType.LCB_REGULAR)) ? 1 : 0;
             for (int it = fa_it; it < fa_list.Count; ++it)
@@ -192,11 +190,6 @@ namespace csgoslin
             lipid.lipid = assemble_lipid(headgroup);
             
             if (tmp.ContainsKey("num_ethers")) lipid.lipid.info.num_ethers = (int)tmp["num_ethers"];
-            
-            if (level == LipidLevel.SPECIES && lipid.lipid.headgroup.sp_exception && lipid.lipid.info.functional_groups.ContainsKey("O"))
-            {
-                lipid.lipid.info.functional_groups["O"][0].count -= 1;
-            }
             
             content = lipid;
         }

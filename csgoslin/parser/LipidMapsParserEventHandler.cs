@@ -311,10 +311,10 @@ namespace csgoslin
             }
             if (current_fa.double_bonds.double_bond_positions.Count == 0 && current_fa.double_bonds.get_num() > 0)
             {
-                set_lipid_level(LipidLevel.STRUCTURE_DEFINED);
+                set_lipid_level(LipidLevel.SN_POSITION);
             }
             
-            if (is_level(level, LipidLevel.COMPLETE_STRUCTURE | LipidLevel.FULL_STRUCTURE | LipidLevel.STRUCTURE_DEFINED))
+            if (is_level(level, LipidLevel.COMPLETE_STRUCTURE | LipidLevel.FULL_STRUCTURE | LipidLevel.STRUCTURE_DEFINED | LipidLevel.SN_POSITION))
             {
                     current_fa.position = fa_list.Count + 1;
             }
@@ -358,7 +358,6 @@ namespace csgoslin
             if (hydroxyl.Equals("m")) num_h = 1;
             else if (hydroxyl.Equals("d")) num_h = 2;
             else if (hydroxyl.Equals("t")) num_h = 3;
-            
             
             if (sp_regular_lcb()) num_h -= 1;
             

@@ -57,13 +57,6 @@ namespace csgoslin
             }
             
             
-            if (headgroup.sp_exception)
-            {
-                if (!info.functional_groups.ContainsKey("OH")) info.functional_groups.Add("OH", new List<FunctionalGroup>());
-                info.functional_groups["OH"].Add(KnownFunctionalGroups.get_functional_group("OH"));
-            }
-            
-            
             foreach (HeadgroupDecorator decorator in headgroup.decorators)
             {
                 if (decorator.name.Equals("decorator_alkyl") || decorator.name.Equals("decorator_acyl"))

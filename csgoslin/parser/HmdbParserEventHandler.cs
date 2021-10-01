@@ -202,7 +202,7 @@ namespace csgoslin
                 set_lipid_level(LipidLevel.SN_POSITION);
             }
             
-            if (is_level(level, LipidLevel.COMPLETE_STRUCTURE | LipidLevel.FULL_STRUCTURE | LipidLevel.STRUCTURE_DEFINED))
+            if (is_level(level, LipidLevel.COMPLETE_STRUCTURE | LipidLevel.FULL_STRUCTURE | LipidLevel.STRUCTURE_DEFINED | LipidLevel.SN_POSITION))
             {
                     current_fa.position = fa_list.Count + 1;
             }

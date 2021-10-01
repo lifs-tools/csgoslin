@@ -65,7 +65,7 @@ namespace csgoslin
             lipid_class = get_class(headgroup);
             use_headgroup = _use_headgroup;
             decorators = (_decorators != null) ? _decorators : new List<HeadgroupDecorator>();
-            sp_exception = lipid_category == LipidCategory.SP && (!exception_headgroups.Contains(_headgroup) || decorators.Count > 0);
+            sp_exception = lipid_category == LipidCategory.SP && exception_headgroups.Contains(LipidClasses.lipid_classes[lipid_class].class_name) && decorators.Count == 0;
         }
                 
 
@@ -182,7 +182,7 @@ namespace csgoslin
             {
                 if (hgd.suffix) headgoup_string.Append(hgd.to_string(level));
             }
-            if (is_level(level, LipidLevel.COMPLETE_STRUCTURE | LipidLevel.FULL_STRUCTURE) && sp_exception)
+            if (is_level(level, LipidLevel.COMPLETE_STRUCTURE | LipidLevel.FULL_STRUCTURE) && lipid_category == LipidCategory.SP && !sp_exception)
             {
                 headgoup_string.Append("(1)");
             }
@@ -214,11 +214,6 @@ namespace csgoslin
                 {
                     elements[kv.Key] += kv.Value * hgd.count;
                 }
-            }
-            
-            if (lipid_category == LipidCategory.SP && exception_headgroups.Contains(get_class_string(lipid_class)) && decorators.Count == 0)
-            {
-                elements[Element.O] -= 1;
             }
             
             return elements;

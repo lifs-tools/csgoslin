@@ -45,6 +45,11 @@ namespace csgoslin
             num_carbon = _num_carbon;
             lipid_FA_bond_type = _lipid_FA_bond_type;
             
+            if (lipid_FA_bond_type == LipidFaBondType.LCB_REGULAR)
+            {
+                functional_groups.Add("[X]", new List<FunctionalGroup>(){KnownFunctionalGroups.get_functional_group("X")});
+            }
+            
             if (num_carbon < 0 || num_carbon == 1)
             {
                 throw new ConstraintViolationException("FattyAcid must have at least 2 carbons! Got " + Convert.ToString(num_carbon));
@@ -175,6 +180,7 @@ namespace csgoslin
                 
                 foreach (string fg in fg_names)
                 {
+                    if (fg.Equals("[X]")) continue;
                     List<FunctionalGroup> fg_list = functional_groups[fg];
                     if (fg_list.Count == 0) continue;
                     
@@ -205,6 +211,7 @@ namespace csgoslin
                 
                 foreach (string fg in fg_names)
                 {
+                    if (fg.Equals("[X]")) continue;
                     List<FunctionalGroup> fg_list = functional_groups[fg];
                     if (fg_list.Count == 0) continue;
                         
@@ -252,6 +259,19 @@ namespace csgoslin
         }
 
 
+            
+        public override ElementTable get_functional_group_elements(){
+            ElementTable elements = base.get_functional_group_elements();
+            
+            // subtract the invisible [X] functional group for regular LCBs
+            if (lipid_FA_bond_type == LipidFaBondType.LCB_REGULAR && functional_groups.ContainsKey("O"))
+            {
+                elements[Element.O] -= 1;
+            }
+                
+            return elements;
+        }
+
 
 
         public override void compute_elements()
@@ -296,7 +316,7 @@ namespace csgoslin
                 elements[Element.C] = num_carbon; // carbon
                 elements[Element.H] = (2 * (num_carbon - num_double_bonds) + 1); // hydrogen
                 elements[Element.N] = 1; // nitrogen
-                elements[Element.O] = 1; // oxygen
+                //elements[Element.O] = 1; // oxygen
             }
         }
     }
