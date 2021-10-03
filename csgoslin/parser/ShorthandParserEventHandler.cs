@@ -38,6 +38,7 @@ namespace csgoslin
     {
         public ExendedList<FunctionalGroup> current_fas;
         public Dict tmp = new Dict();
+        public bool acer_species = false;
         public static readonly HashSet<string> special_types = new HashSet<string>{"acyl", "alkyl", "decorator_acyl", "decorator_alkyl", "cc"};
         
         public ShorthandParserEventHandler() : base()
@@ -150,7 +151,9 @@ namespace csgoslin
             registered_events.Add("hg_pip_d_pre_event", suffix_decorator_molecular);
             registered_events.Add("hg_pip_t_pre_event", suffix_decorator_molecular);
             registered_events.Add("hg_PE_PS_type_pre_event", suffix_decorator_species);
-            
+            registered_events.Add("acer_hg_post_event", set_acer);
+            registered_events.Add("acer_species_post_event", set_acer_species);
+     
             debug = "";
         }
         
@@ -171,11 +174,13 @@ namespace csgoslin
             current_fas = new ExendedList<FunctionalGroup>();
             headgroup_decorators = new ExendedList<HeadgroupDecorator>();
             tmp = new Dict();
+            acer_species = false;
         }
 
 
         public void build_lipid(TreeNode node)
         {
+            if (acer_species) fa_list[0].num_carbon -= 2;
             Headgroup headgroup = prepare_headgroup_and_checks();
 
             // add count numbers for fatty acyl chains
@@ -192,6 +197,27 @@ namespace csgoslin
             if (tmp.ContainsKey("num_ethers")) lipid.lipid.info.num_ethers = (int)tmp["num_ethers"];
             
             content = lipid;
+        }
+        
+        
+        public void set_acer(TreeNode node)
+        {
+            head_group = "ACer";
+            HeadgroupDecorator hgd = new HeadgroupDecorator("decorator_acyl", -1, 1, null, true);
+            hgd.functional_groups.Add("decorator_acyl", new List<FunctionalGroup>{fa_list[fa_list.Count - 1]});
+            fa_list.RemoveAt(fa_list.Count - 1);
+            headgroup_decorators.Add(hgd);
+        }
+            
+            
+        public void set_acer_species(TreeNode node)
+        {
+            head_group = "ACer";
+            set_lipid_level(LipidLevel.SPECIES);
+            HeadgroupDecorator hgd = new HeadgroupDecorator("decorator_acyl", -1, 1, null, true);
+            hgd.functional_groups.Add("decorator_acyl", new List<FunctionalGroup>{new FattyAcid("FA", 2)});
+            headgroup_decorators.Add(hgd);
+            acer_species = true;
         }
 
 

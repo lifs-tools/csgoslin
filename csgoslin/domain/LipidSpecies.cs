@@ -56,7 +56,7 @@ namespace csgoslin
                 }
             }
             
-            
+            /*
             foreach (HeadgroupDecorator decorator in headgroup.decorators)
             {
                 if (decorator.name.Equals("decorator_alkyl") || decorator.name.Equals("decorator_acyl"))
@@ -66,7 +66,7 @@ namespace csgoslin
                     info.double_bonds.num_double_bonds += decorator.get_double_bonds();
                 }
             }
-                
+            */  
         }
 
 
@@ -98,7 +98,17 @@ namespace csgoslin
                     
                     if (info.elements[Element.C] > 0 || info.num_carbon > 0)
                     {
-                        lipid_string.Append(headgroup.lipid_category != LipidCategory.ST ? " " : "/").Append(info.to_string());
+                        LipidSpeciesInfo lsi = info.copy();
+                        foreach (HeadgroupDecorator decorator in headgroup.decorators)
+                        {
+                            if (decorator.name.Equals("decorator_alkyl") || decorator.name.Equals("decorator_acyl"))
+                            {
+                                ElementTable e = decorator.get_elements();
+                                lsi.num_carbon += e[Element.C];
+                                lsi.double_bonds.num_double_bonds += decorator.get_double_bonds();
+                            }
+                        }
+                        lipid_string.Append(headgroup.lipid_category != LipidCategory.ST ? " " : "/").Append(lsi.to_string());
                     }
                     return lipid_string.ToString();
             }
@@ -147,6 +157,11 @@ namespace csgoslin
 
                 default:    
                     throw new LipidException("Element table cannot be computed for lipid level " + Convert.ToString(info.level));
+            }
+            
+            if (headgroup.use_headgroup)
+            {
+                throw new LipidException("Element table cannot be computed for lipid level " + Convert.ToString(info.level));
             }
             
             

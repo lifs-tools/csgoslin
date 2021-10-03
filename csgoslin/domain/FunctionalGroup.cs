@@ -235,13 +235,28 @@ namespace csgoslin
             if (lowest_visible_level == LipidLevel.NO_LEVEL || lowest_visible_level <= level)
             {
                 
-                if (functional_groups.ContainsKey("decorator_alkyl") && functional_groups["decorator_alkyl"].Count > 0)
+                if (functional_groups.ContainsKey("decorator_alkyl"))
                 {
-                    decorator_string = (level > LipidLevel.SPECIES) ? functional_groups["decorator_alkyl"][0].to_string(level) : "Alk";
+                    if (functional_groups["decorator_alkyl"].Count > 0)
+                    {
+                        decorator_string = (level > LipidLevel.SPECIES) ? functional_groups["decorator_alkyl"][0].to_string(level) : "Alk";
+                    }
+                    else
+                    {
+                        decorator_string = "Alk";
+                    }
                 }
-                else if (functional_groups.ContainsKey("decorator_acyl") && functional_groups["decorator_acyl"].Count > 0)
+                else if (functional_groups.ContainsKey("decorator_acyl"))
                 {
-                    decorator_string = (level > LipidLevel.SPECIES) ? ("FA " + functional_groups["decorator_acyl"][0].to_string(level)) : "FA";
+                    if (functional_groups["decorator_acyl"].Count > 0)
+                    {
+                        decorator_string = (level > LipidLevel.SPECIES) ? ("FA " + functional_groups["decorator_acyl"][0].to_string(level)) :
+                        "FA";
+                    }
+                    else
+                    {
+                        decorator_string = "FA";
+                    }
                 }
                 else
                 {
