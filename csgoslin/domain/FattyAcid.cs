@@ -163,7 +163,10 @@ namespace csgoslin
                 {
                     if (i++ > 0) fa_string.Append(",");
                     fa_string.Append(db_pos);
-                    if (is_level(level, LipidLevel.COMPLETE_STRUCTURE | LipidLevel.FULL_STRUCTURE)) fa_string.Append(double_bonds.double_bond_positions[db_pos]);
+                    if (is_level(level, LipidLevel.COMPLETE_STRUCTURE | LipidLevel.FULL_STRUCTURE))
+                    {
+                        fa_string.Append(double_bonds.double_bond_positions[db_pos]);
+                    }
                 }
                 fa_string.Append(")");
             }

@@ -239,11 +239,19 @@ namespace csgoslin
                 {
                     int i = 0;
                     cycle_string.Append("(");
-                    foreach (KeyValuePair<int, string> kv in double_bonds.double_bond_positions)
+                    
+                    List<int> db_keys = new List<int>();
+                    foreach (KeyValuePair<int, string> kv in double_bonds.double_bond_positions) db_keys.Add(kv.Key);
+                    db_keys.Sort(delegate(int x, int y)
+                    {
+                        return x - y;
+                    });
+                    
+                    foreach (int key in db_keys)
                     {
                         if (i++ > 0) cycle_string.Append(",");
-                        if (is_level(level, LipidLevel.COMPLETE_STRUCTURE | LipidLevel.FULL_STRUCTURE)) cycle_string.Append(kv.Key).Append(kv.Value);
-                        else cycle_string.Append(kv.Key);
+                        if (is_level(level, LipidLevel.COMPLETE_STRUCTURE | LipidLevel.FULL_STRUCTURE)) cycle_string.Append(key).Append(double_bonds.double_bond_positions[key]);
+                        else cycle_string.Append(key);
                     }
                     cycle_string.Append(")");
                 }

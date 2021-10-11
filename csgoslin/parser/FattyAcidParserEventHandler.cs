@@ -68,7 +68,7 @@ namespace csgoslin
             registered_events.Add("ol_ending_pre_event", set_fatty_acyl_type);
             registered_events.Add("double_bond_position_pre_event", set_double_bond_information);
             registered_events.Add("double_bond_position_post_event", add_double_bond_information);
-            registered_events.Add("db_number_post_event", set_double_bond_position);
+            registered_events.Add("db_number_post_event", set_double_bond_position); 
             registered_events.Add("cistrans_post_event", set_cistrans);
             registered_events.Add("acid_type_double_post_event", check_db);
             registered_events.Add("db_length_pre_event", open_db_length);
@@ -327,7 +327,7 @@ namespace csgoslin
                     for (int i = 1; i < ((Lst)tmp["length_tokens"]).Count; ++i) d += num[i];
                 }
                 
-                else if (length_pattern == "LLS"){ // false
+                else if (length_pattern.Equals("LLS")){ // false
                     throw new RuntimeException("Cannot determine fatty acid and double bond length in '" + node.get_text() + "'");
                 }
                 curr_fa.num_carbon += l;
@@ -940,6 +940,7 @@ namespace csgoslin
             tmp.Add("fg_type", "Epoxy");
         }
 
+        
         public void set_cycle(TreeNode node)
         {
             tmp.Add("cyclo", 1);
@@ -1238,12 +1239,12 @@ namespace csgoslin
 
         public void set_iso(TreeNode node)
         {
-                FattyAcid curr_fa = fatty_acyl_stack.back();
-                curr_fa.num_carbon -= 1;
-                FunctionalGroup fg = KnownFunctionalGroups.get_functional_group("Me");
-                fg.position = 2;
-                if (!curr_fa.functional_groups.ContainsKey("Me")) curr_fa.functional_groups.Add("Me", new List<FunctionalGroup>());
-                curr_fa.functional_groups["Me"].Add(fg);
+            FattyAcid curr_fa = fatty_acyl_stack.back();
+            curr_fa.num_carbon -= 1;
+            FunctionalGroup fg = KnownFunctionalGroups.get_functional_group("Me");
+            fg.position = 2;
+            if (!curr_fa.functional_groups.ContainsKey("Me")) curr_fa.functional_groups.Add("Me", new List<FunctionalGroup>());
+            curr_fa.functional_groups["Me"].Add(fg);
         }
 
 
