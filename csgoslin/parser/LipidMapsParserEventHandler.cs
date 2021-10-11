@@ -288,12 +288,22 @@ namespace csgoslin
             
         public void add_functional_group(TreeNode node)
         {
-            FunctionalGroup functional_group = KnownFunctionalGroups.get_functional_group(mod_text);
-            functional_group.position = mod_pos;
-            functional_group.count = mod_num;
-            string fg_name = functional_group.name;
-            if (!current_fa.functional_groups.ContainsKey(fg_name)) current_fa.functional_groups.Add(fg_name, new List<FunctionalGroup>());
-            current_fa.functional_groups[fg_name].Add(functional_group);
+            if (!mod_text.Equals("Cp"))
+            {
+                FunctionalGroup functional_group = KnownFunctionalGroups.get_functional_group(mod_text);
+                functional_group.position = mod_pos;
+                functional_group.count = mod_num;
+                string fg_name = functional_group.name;
+                if (!current_fa.functional_groups.ContainsKey(fg_name)) current_fa.functional_groups.Add(fg_name, new List<FunctionalGroup>());
+                current_fa.functional_groups[fg_name].Add(functional_group);
+            }
+            else
+            {
+                current_fa.num_carbon += 1;
+                Cycle cycle = new Cycle(3, mod_pos, mod_pos + 2);
+                if (!current_fa.functional_groups.ContainsKey("cy")) current_fa.functional_groups.Add("cy", new List<FunctionalGroup>());
+                current_fa.functional_groups["cy"].Add(cycle);
+            }
         }
                 
                 
