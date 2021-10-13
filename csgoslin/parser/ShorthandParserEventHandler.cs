@@ -823,7 +823,7 @@ namespace csgoslin
 
         public void new_adduct(TreeNode node)
         {
-            adduct = new Adduct("", "", 0, 0);
+            adduct = new Adduct("", "");
         }
 
 

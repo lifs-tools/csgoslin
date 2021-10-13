@@ -86,6 +86,11 @@ namespace csgoslin
             registered_events.Add("furan_fa_di_pre_event", furan_fa_di);
             registered_events.Add("furan_first_number_pre_event", furan_fa_first_number);
             registered_events.Add("furan_second_number_pre_event", furan_fa_second_number);
+            
+            registered_events.Add("adduct_info_pre_event", new_adduct);
+            registered_events.Add("adduct_pre_event", add_adduct);
+            registered_events.Add("charge_pre_event", add_charge);
+            registered_events.Add("charge_sign_pre_event", add_charge_sign);
             debug = "";
         }
 
@@ -100,6 +105,7 @@ namespace csgoslin
             current_fa = null;
             use_head_group = false;
             db_position = 0;
+            adduct = null;
             db_cistrans = "";
             furan = new Dict();
         }
@@ -225,6 +231,7 @@ namespace csgoslin
             
             LipidAdduct lipid = new LipidAdduct();
             lipid.lipid = assemble_lipid(headgroup);
+            lipid.adduct = adduct;
             content = lipid;
         }
             
@@ -373,7 +380,37 @@ namespace csgoslin
         public void lipid_suffix(TreeNode node)
         {
             //throw new UnsupportedLipidException("Lipids with suffix '" + node.get_text() + "' are currently not supported");
-        }        
+        }    
+            
+            
+
+        public void new_adduct(TreeNode node)
+        {
+            adduct = new Adduct("", "");
+        }
+            
+            
+
+        public void add_adduct(TreeNode node)
+        {
+            adduct.adduct_string = node.get_text();
+        }
+            
+            
+
+        public void add_charge(TreeNode node)
+        {
+            adduct.charge = Convert.ToInt32(node.get_text());
+        }
+            
+            
+
+        public void add_charge_sign(TreeNode node)
+        {
+            string sign = node.get_text();
+            if (sign.Equals("+")) adduct.set_charge_sign(1);
+            else if (sign.Equals("-")) adduct.set_charge_sign(-1);
+        }    
         
     }
 }

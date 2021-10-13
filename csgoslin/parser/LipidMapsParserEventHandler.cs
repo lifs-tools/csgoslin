@@ -115,6 +115,11 @@ namespace csgoslin
             registered_events.Add("mod_num_pre_event", set_mod_num);
             registered_events.Add("single_mod_post_event", add_functional_group);
             registered_events.Add("special_cer_prefix_pre_event", add_ACer);
+            
+            registered_events.Add("adduct_info_pre_event", new_adduct);
+            registered_events.Add("adduct_pre_event", add_adduct);
+            registered_events.Add("charge_pre_event", add_charge);
+            registered_events.Add("charge_sign_pre_event", add_charge_sign);
             debug = "";
         }
 
@@ -131,6 +136,7 @@ namespace csgoslin
             omit_fa = false;
             db_position = 0;
             db_numbers = -1;
+            adduct = null;
             db_cistrans = "";
             mod_pos = -1;
             mod_num = 1;
@@ -436,7 +442,38 @@ namespace csgoslin
             
             LipidAdduct lipid = new LipidAdduct();
             lipid.lipid = assemble_lipid(headgroup);
+            lipid.adduct = adduct;
             content = lipid;
+        }
+            
+            
+
+        public void new_adduct(TreeNode node)
+        {
+            adduct = new Adduct("", "");
+        }
+            
+            
+
+        public void add_adduct(TreeNode node)
+        {
+            adduct.adduct_string = node.get_text();
+        }
+            
+            
+
+        public void add_charge(TreeNode node)
+        {
+            adduct.charge = Convert.ToInt32(node.get_text());
+        }
+            
+            
+
+        public void add_charge_sign(TreeNode node)
+        {
+            string sign = node.get_text();
+            if (sign.Equals("+")) adduct.set_charge_sign(1);
+            else if (sign.Equals("-")) adduct.set_charge_sign(-1);
         }
     }
 }

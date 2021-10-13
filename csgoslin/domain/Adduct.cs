@@ -39,7 +39,30 @@ namespace csgoslin
         public int charge;
         public int charge_sign;
         
-        public Adduct(string _sum_formula, string _adduct_string, int _charge, int _sign)
+        public static readonly Dictionary<string, ElementTable> adducts = new Dictionary<string, ElementTable>{
+            {"+H", new ElementTable(){{Element.H, 1}} },
+            {"+2H", new ElementTable(){{Element.H, 2}} },
+            {"+3H", new ElementTable(){{Element.H, 3}} },
+            {"+4H", new ElementTable(){{Element.H, 4}} },
+            {"-H", new ElementTable(){{Element.H, -1}} },
+            {"-2H", new ElementTable(){{Element.H, -2}} },
+            {"-3H", new ElementTable(){{Element.H, -3}} },
+            {"-4H", new ElementTable(){{Element.H, -4}} },
+            {"+H-H2O", new ElementTable(){{Element.H, -1}, {Element.O, -1}} },
+            {"+NH4", new ElementTable(){{Element.N, 1}, {Element.H, 4}} },
+            {"+Cl", new ElementTable(){{Element.Cl, 1}} },
+            {"+HCOO", new ElementTable(){{Element.H, 1}, {Element.C, 1}, {Element.O, 2}} },
+            {"+CH3COO", new ElementTable(){{Element.H, 3}, {Element.C, 2}, {Element.O, 2}} },
+        };
+        
+        public static readonly Dictionary<string, int> adduct_charges = new Dictionary<string, int>{
+            {"+H", 1},  {"+2H", 2}, {"+3H", 3}, {"+4H", 4},
+            {"-H", -1}, {"-2H", -2}, {"-3H", -3}, {"-4H", -4},
+            {"+H-H2O", 1}, {"+NH4", 1}, {"+Cl", -1}, {"+HCOO", -1}, {"+CH3COO", -1}
+        };
+
+        
+        public Adduct(string _sum_formula, string _adduct_string, int _charge = 1, int _sign = 1)
         {
             sum_formula = _sum_formula;
             adduct_string = _adduct_string;
@@ -56,7 +79,7 @@ namespace csgoslin
             }
                 
             else {
-                throw new IllegalArgumentException("Sign can only be -1, 0, or 1");
+                throw new ConstraintViolationException("Sign can only be -1, 0, or 1");
             }
         }
                 
@@ -75,28 +98,23 @@ namespace csgoslin
         public ElementTable get_elements()
         {
             ElementTable elements = StringFunctions.create_empty_table();
-            try{
-                
-                string adduct_name = adduct_string.Substring(1);
-                ElementTable adduct_elements = SumFormulaParser.get_instance().parse(adduct_name);
-                foreach (KeyValuePair<Element, int> kvp in adduct_elements)
-                {
-                    elements[kvp.Key] += kvp.Value;
-                }
-                
-            }
-            catch
+            
+            if (adduct_charges.ContainsKey(adduct_string))
             {
-                return elements;
+                if (adduct_charges[adduct_string] != get_charge())
+                {
+                    throw new ConstraintViolationException("Provided charge '" + Convert.ToString(get_charge()) + "' in contradiction to adduct '" + adduct_string + "' charge '" + Convert.ToString(adduct_charges[adduct_string]) + "'.");
+                }
+                foreach (KeyValuePair<Element, int> kv in adducts[adduct_string])
+                {
+                    elements[kv.Key] += kv.Value;
+                }
+            }
+            else
+            {
+                throw new ConstraintViolationException("Adduct '" + adduct_string + "' is unknown.");
             }
             
-            if (adduct_string.Length > 0 && adduct_string[0] == '-')
-            {
-                foreach (Element e in Elements.element_order)
-                {
-                    elements[e] *= -1;
-                }
-            }
             
             return elements;
         }

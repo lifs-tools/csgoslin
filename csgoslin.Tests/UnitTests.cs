@@ -46,6 +46,82 @@ namespace csgoslin.Tests
         public bool test_masses = true;
         
         
+        
+        [Fact]
+        public void AdductUnitTest()
+        {
+            LipidMapsParser p_lm = new LipidMapsParser();
+            LipidAdduct lipid = p_lm.parse("PE(16:0/18:0)[M-4H]4-");
+            Assert.True(Math.Abs(lipid.get_mass() - 178.8794) < 0.001);
+            
+            lipid = p_lm.parse("PE(16:0/18:0)[M+HCOO]-");
+            Assert.True(Math.Abs(lipid.get_mass() - 764.5447) < 0.001);
+            
+            lipid = p_lm.parse("PE(16:0/18:0)[M+H-H2O]1+");
+            Assert.True(Math.Abs(lipid.get_mass() - 702.5432) < 0.001);
+            
+            lipid = p_lm.parse("PE(16:0/18:0)[M+2H]2+");
+            Assert.True(Math.Abs(lipid.get_mass() - 360.7805) < 0.001);
+            
+            
+            SwissLipidsParser p_sw = new SwissLipidsParser();
+            lipid = p_sw.parse("PE(16:0/18:0)[M-4H]4-");
+            Assert.True(Math.Abs(lipid.get_mass() - 178.8794) < 0.001);
+            
+            lipid = p_sw.parse("PE(16:0/18:0)[M+HCOO]-");
+            Assert.True(Math.Abs(lipid.get_mass() - 764.5447) < 0.001);
+            
+            lipid = p_sw.parse("PE(16:0/18:0)[M+H-H2O]1+");
+            Assert.True(Math.Abs(lipid.get_mass() - 702.5432) < 0.001);
+            
+            lipid = p_sw.parse("PE(16:0/18:0)[M+2H]2+");
+            Assert.True(Math.Abs(lipid.get_mass() - 360.7805) < 0.001);
+            
+            
+            HmdbParser p_hmdb = new HmdbParser();
+            lipid = p_hmdb.parse("PE(16:0/18:0)[M-4H]4-");
+            Assert.True(Math.Abs(lipid.get_mass() - 178.8794) < 0.001);
+            
+            lipid = p_hmdb.parse("PE(16:0/18:0)[M+HCOO]-");
+            Assert.True(Math.Abs(lipid.get_mass() - 764.5447) < 0.001);
+            
+            lipid = p_hmdb.parse("PE(16:0/18:0)[M+H-H2O]1+");
+            Assert.True(Math.Abs(lipid.get_mass() - 702.5432) < 0.001);
+            
+            lipid = p_hmdb.parse("PE(16:0/18:0)[M+2H]2+");
+            Assert.True(Math.Abs(lipid.get_mass() - 360.7805) < 0.001);
+            
+            
+            GoslinParser p_g = new GoslinParser();
+            lipid = p_g.parse("PE 16:0-18:0[M-4H]4-");
+            Assert.True(Math.Abs(lipid.get_mass() - 178.8794) < 0.001);
+            
+            lipid = p_g.parse("PE 16:0/18:0[M+HCOO]-");
+            Assert.True(Math.Abs(lipid.get_mass() - 764.5447) < 0.001);
+            
+            lipid = p_g.parse("PE 16:0/18:0[M+H-H2O]1+");
+            Assert.True(Math.Abs(lipid.get_mass() - 702.5432) < 0.001);
+            
+            lipid = p_g.parse("PE 16:0-18:0[M+2H]2+");
+            Assert.True(Math.Abs(lipid.get_mass() - 360.7805) < 0.001);
+            
+            
+            ShorthandParser p_s = new ShorthandParser();
+            lipid = p_s.parse("PE 16:0_18:0[M-4H]4-");
+            Assert.True(Math.Abs(lipid.get_mass() - 178.8794) < 0.001);
+            
+            lipid = p_s.parse("PE 16:0/18:0[M+HCOO]-");
+            Assert.True(Math.Abs(lipid.get_mass() - 764.5447) < 0.001);
+            
+            lipid = p_s.parse("PE 16:0/18:0[M+H-H2O]1+");
+            Assert.True(Math.Abs(lipid.get_mass() - 702.5432) < 0.001);
+            
+            lipid = p_s.parse("PE 16:0_18:0[M+2H]2+");
+            Assert.True(Math.Abs(lipid.get_mass() - 360.7805) < 0.001);
+        }
+        
+        
+        
         [Fact]
         public void FattyAcidUnitTest()
         {
