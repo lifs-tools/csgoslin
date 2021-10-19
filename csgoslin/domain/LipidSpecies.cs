@@ -127,7 +127,7 @@ namespace csgoslin
             
             else if (special_case && info.extended_class == LipidFaBondType.ETHER_PLASMENYL)
             {
-                return class_name + "-p";
+                return class_name + "-P";
             }
             
             return class_name;
