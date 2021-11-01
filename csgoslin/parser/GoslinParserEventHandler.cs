@@ -41,7 +41,7 @@ namespace csgoslin
         
         public int db_position;
         public string db_cistrans;
-        public bool unspecified_ether;
+        public char plasmalogen;
     
         public GoslinParserEventHandler() : base()
         {
@@ -53,8 +53,6 @@ namespace csgoslin
             registered_events.Add("hg_mlcl_pre_event", set_head_group_name);
             registered_events.Add("hg_pl_pre_event", set_head_group_name);
             registered_events.Add("hg_lpl_pre_event", set_head_group_name);
-            registered_events.Add("hg_lpl_o_pre_event", set_head_group_name);
-            registered_events.Add("hg_pl_o_pre_event", set_head_group_name);
             registered_events.Add("hg_lsl_pre_event", set_head_group_name);
             registered_events.Add("hg_dsl_pre_event", set_head_group_name);
             registered_events.Add("st_pre_event", set_head_group_name);
@@ -106,9 +104,7 @@ namespace csgoslin
             
             
             registered_events.Add("lpl_pre_event", set_molecular_subspecies_level);
-            registered_events.Add("lpl_o_pre_event", set_molecular_subspecies_level);
-            registered_events.Add("hg_lpl_oc_pre_event", set_unspecified_ether);
-            registered_events.Add("hg_pl_oc_pre_event", set_unspecified_ether);
+            registered_events.Add("plasmalogen_pre_event", add_plasmalogen);
             debug = "";
         }
 
@@ -124,13 +120,13 @@ namespace csgoslin
             adduct = null;
             db_position = 0;
             db_cistrans = "";
-            unspecified_ether = false;
+            plasmalogen = '\0';
         }
 
 
-        public void set_unspecified_ether(TreeNode node)
+        public void add_plasmalogen(TreeNode node)
         {
-            unspecified_ether = true;
+            plasmalogen = node.get_text().ToUpper()[0];
         }
 
         public void set_head_group_name(TreeNode node)
@@ -183,11 +179,6 @@ namespace csgoslin
         public void new_fa(TreeNode node)
         {
             LipidFaBondType lipid_FA_bond_type = LipidFaBondType.ESTER;
-            if (unspecified_ether)
-            {
-                unspecified_ether = false;
-                lipid_FA_bond_type = LipidFaBondType.ETHER_UNSPECIFIED;
-            }
             current_fa = new FattyAcid("FA" + Convert.ToString(fa_list.Count + 1), 2, null, null, lipid_FA_bond_type);
         }
             
@@ -252,6 +243,11 @@ namespace csgoslin
                 fa_list.Insert(0, lcb);
             }
             
+            if (lcb == null && plasmalogen != '\0' && fa_list.Count > 0)
+            {
+                fa_list[0].lipid_FA_bond_type = plasmalogen == 'O' ? LipidFaBondType.ETHER_PLASMANYL : LipidFaBondType.ETHER_PLASMENYL;
+            }
+            
             Headgroup headgroup = prepare_headgroup_and_checks();
             
             LipidAdduct lipid = new LipidAdduct();
@@ -272,6 +268,7 @@ namespace csgoslin
                 current_fa.lipid_FA_bond_type = LipidFaBondType.ETHER_PLASMENYL;
                 current_fa.double_bonds.num_double_bonds = Math.Max(0, current_fa.double_bonds.num_double_bonds - 1);
             }
+            plasmalogen = '\0';
         }
             
             
