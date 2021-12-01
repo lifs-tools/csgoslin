@@ -50,7 +50,7 @@ namespace csgoslin
             // add 0:0 dummys
             for (int i = _fa.Count; i < info.total_fa; ++i)
             {
-                FattyAcid fatty_acid = new FattyAcid("FA" + Convert.ToString(i + _fa.Count + 1));
+                FattyAcid fatty_acid = new FattyAcid("FA" + Convert.ToString(i + 1));
                 info.add(fatty_acid);
                 fa.Add(fatty_acid.name, fatty_acid);
                 fa_list.Add(fatty_acid);
