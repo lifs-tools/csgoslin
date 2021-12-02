@@ -164,6 +164,22 @@ namespace csgoslin
                     
             return fg_string;
         }
+        
+        
+        
+        public int get_total_functional_group_count(string fg_name)
+        {
+            if (!functional_groups.ContainsKey(fg_name))
+            {
+                return 0;
+            }
+            int count = 0;
+            foreach(FunctionalGroup fg_item in functional_groups[fg_name])
+            {
+                count += fg_item.count;
+            }
+            return count;
+        }
 
 
         public virtual int get_double_bonds()

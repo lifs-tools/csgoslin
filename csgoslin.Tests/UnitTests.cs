@@ -123,6 +123,31 @@ namespace csgoslin.Tests
         
         
         [Fact]
+        public void ParserUnitTest()
+        {
+            LipidParser lipid_parser = new LipidParser();
+            LipidAdduct lipid = lipid_parser.parse("Cer 36:1;2");
+            int ohCount = lipid.lipid.info.get_total_functional_group_count("OH");
+            Assert.True(2 == ohCount);
+            int asdCount = lipid.lipid.info.get_total_functional_group_count("ASD");
+            Assert.True(0 == asdCount);
+            lipid = lipid_parser.parse("Cer d36:1");
+            ohCount = lipid.lipid.info.get_total_functional_group_count("OH");
+            Assert.True(2 == ohCount);
+            lipid = lipid_parser.parse("Cer 18:1;2/18:0");
+            ohCount = lipid.lipid.info.get_total_functional_group_count("OH");
+            Assert.True(2 == ohCount);
+            lipid = lipid_parser.parse("Cer d18:1/18:0");
+            ohCount = lipid.lipid.info.get_total_functional_group_count("OH");
+            Assert.True(2 == ohCount);
+            lipid = lipid_parser.parse("Cer 18:1;(OH)2/18:0");
+            ohCount = lipid.lipid.info.get_total_functional_group_count("OH");
+            Assert.True(2 == ohCount);
+        }
+        
+        
+        
+        [Fact]
         public void FattyAcidUnitTest()
         {
             if (!test_fatty_acid) return;
