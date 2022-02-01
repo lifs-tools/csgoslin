@@ -1,7 +1,8 @@
-<Project Sdk="Microsoft.NET.Sdk">
-
+<Project Sdk="Microsoft.NET.Sdk">  
   <PropertyGroup>
     <TargetFramework>net472</TargetFramework>
+    <PlatformTarget>x64</PlatformTarget>
+    <DebugType>portable</DebugType>
 
     <IsPackable>false</IsPackable>
     <XunitConsole Condition=" '$(OS)' == 'Windows_NT' ">&quot;$(XunitConsole472Path)&quot;</XunitConsole>
