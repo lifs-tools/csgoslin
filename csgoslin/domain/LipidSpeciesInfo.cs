@@ -54,7 +54,7 @@ namespace csgoslin
             total_fa = lipid_classes.ContainsKey(lipid_class) ? lipid_classes[lipid_class].max_num_fa : 0;
         }
         
-        public override LipidSpeciesInfo copy()
+        public override FunctionalGroup copy()
         {
             LipidSpeciesInfo lsi = new LipidSpeciesInfo(lipid_class);
             lsi.level = level;

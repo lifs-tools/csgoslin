@@ -98,7 +98,7 @@ namespace csgoslin
                     
                     if (info.elements[Element.C] > 0 || info.num_carbon > 0)
                     {
-                        LipidSpeciesInfo lsi = info.copy();
+                        LipidSpeciesInfo lsi = (LipidSpeciesInfo)info.copy();
                         foreach (HeadgroupDecorator decorator in headgroup.decorators)
                         {
                             if (decorator.name.Equals("decorator_alkyl") || decorator.name.Equals("decorator_acyl"))

@@ -8,7 +8,6 @@
     <Compile Include="$(ProjectDir)domain\ClassesEnum.cs" />
     <Compile Include="$(ProjectDir)domain\LipidClasses.cs" />
     <Compile Include="$(ProjectDir)domain\KnownFunctionalGroups.cs" />
-    <Compile Include="$(ProjectDir)parser\KnownGrammars.cs" />
     
   </ItemGroup>
     

@@ -353,7 +353,7 @@ namespace csgoslin.Tests
                 }
                 catch(Exception e)
                 {
-                    Console.WriteLine("Error: " + lipid_row.Trim(trims));
+                    Console.WriteLine("Error: " + lipid_row.Trim(trims)+"\n" + e);
                     Environment.Exit(-1);
                 }
                 
