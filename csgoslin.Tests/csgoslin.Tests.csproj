@@ -3,7 +3,7 @@
     <TargetFramework>net472</TargetFramework>
     <PlatformTarget>x64</PlatformTarget>
     <DebugType>portable</DebugType>
-
+    <RuntimeIdentifiers>win-x64;linux-x64</RuntimeIdentifiers>
     <IsPackable>false</IsPackable>
     <XunitConsole Condition=" '$(OS)' == 'Windows_NT' ">&quot;$(XunitConsole472Path)&quot;</XunitConsole>
     <XunitConsole Condition=" '$(OS)' != 'Windows_NT' ">mono &quot;$(XunitConsole472Path)&quot;</XunitConsole>	    

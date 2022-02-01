@@ -23,6 +23,7 @@
     <TargetFramework>net472</TargetFramework>
     <PlatformTarget>x64</PlatformTarget>
     <DebugType>portable</DebugType>
+    <RuntimeIdentifiers>win-x64;linux-x64</RuntimeIdentifiers>
     <WriteGrammarExe>$(MSBuildProjectDirectory)\..\writeGrammarHeader\bin\$(Configuration)\$(TargetFramework)/writeGrammarHeader.exe</WriteGrammarExe>
   </PropertyGroup>
 
