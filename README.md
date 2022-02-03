@@ -5,7 +5,7 @@ This is the Goslin reference implementation for C#.
 
 > **_NOTE:_**  Please report issues to help improve it!
 
-csgoslin has been developed with regard the following general issues:
+csgoslin has been developed to address the following general issues:
 
 1. Facilitate the parsing of shorthand lipid names dialects.
 2. Provide a structural representation of the shorthand lipid after parsing.
