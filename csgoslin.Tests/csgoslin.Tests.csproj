@@ -12,7 +12,7 @@
   <ItemGroup>
     <!-- setup for Windows -->
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.11.0" Condition=" '$(OS)' == 'Windows_NT' " />
-    <PackageReference Include="xunit.runner.visualstudio" Version="2.4.3" Condition=" '$(OS)' == 'Windows_NT' " />
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.4.5" Condition=" '$(OS)' == 'Windows_NT' " />
     <!-- setup for Linux --> 
     <PackageReference
         Include="Microsoft.NETFramework.ReferenceAssemblies"
