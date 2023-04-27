@@ -27,8 +27,13 @@ grammar Goslin;
 
 /* first rule is always start rule */
 lipid : lipid_eof EOF;
-lipid_eof : lipid_pure | lipid_pure adduct_info;
+lipid_eof : lipid_rule | lipid_rule adduct_info;
+lipid_rule: lipid_pure | lipid_pure isotope;
 lipid_pure : gl | pl | sl | sterol | mediatorc | saccharolipid;
+isotope: SPACE round_open_bracket isotope_pair round_close_bracket | round_open_bracket isotope_pair round_close_bracket | DASH round_open_bracket isotope_pair round_close_bracket | DASH isotope_pair | SPACE isotope_pair | isotope_pair;
+isotope_pair: isotope_element isotope_number;
+isotope_number: number;
+isotope_element: 'd' | 'D';
 
 
 /* adduct information */
@@ -66,10 +71,10 @@ hg_sgl_full : hg_sgl | hg_sgl heavy_hg;
 hg_tgl_full : hg_tgl | hg_tgl heavy_hg;
 
 hg_sqml : 'SQMG';
-hg_mgl : 'MAG';
-hg_dgl : 'DAG';
+hg_mgl : 'MAG' | 'MG';
+hg_dgl : 'DAG' | 'DG';
 hg_sgl : 'MGDG' | 'DGDG' | 'SQDG';
-hg_tgl : 'TAG';
+hg_tgl : 'TAG' | 'TG';
 
 
 
@@ -120,17 +125,27 @@ plasmalogen : 'O' | 'o' | 'P' | 'p';
 
 
 /* sphingolipid rules (21) */
-sl : lsl | dsl;
+sl : lsl | dsl | so_lsl;
 lsl : hg_lslc headgroup_separator lcb;
+so_lsl : hg_so_lslc headgroup_separator fa;
 dsl : hg_dslc headgroup_separator sl_species | hg_dslc headgroup_separator sl_subspecies;
 
 sl_species : lcb;
 sl_subspecies : lcb sorted_fa_separator fa;
 
 hg_lslc : hg_lsl | hg_lsl heavy_hg;
-hg_lsl : 'LCB' | 'LCBP' | 'LHexCer' | 'LSM' | 'LIPC' | 'So' | 'Sa' | 'SPH' | 'Sph' | 'LCB' | 'S1P' | 'SPH-P' | 'SIP' | 'Sa1P';
+hg_lsl : 'LCB' | 'LCBP' | 'LHexCer' | 'LSM' | 'LIPC' | 'So' | 'Sa' | 'SPH' | 'Sph' | 'LCB' | 'S1P' | 'SPH-P' | 'SIP' | 'Sa1P' | 'SPA1P' | 'SPA';
+hg_so_lslc : hg_so_lsl | hg_so_lsl heavy_hg;
+hg_so_lsl : 'So' | 'Sa' | 'Sa1P' | 'S1P';
 hg_dslc : hg_dsl | hg_dsl heavy_hg;
-hg_dsl : 'Cer' | 'CerP' | 'EPC' | 'GB4' | 'GD3' | 'GB3' | 'GM1' | 'GM3' | 'GM4' | 'Hex3Cer' | 'Hex2Cer' | 'HexCer' | 'IPC' | 'MIP2C' | 'M(IP)2C' | 'MIPC' | 'SHexCer' | 'SM' | 'FMC-5' | 'FMC-6' | 'CerPE' | 'PE-Cer';
+hg_dsl : 'Cer' | 'CerP' | 'EPC' | 'HexCer' | 'Hex2Cer' | 'Hex3Cer' | 'IPC' | 'MIP2C' | 'M(IP)2C' | 'MIPC' | 'SHexCer' | 'SM' | 'FMC-5' | 'FMC-6' | 'CerPE' | 'PE-Cer' | glyco_sphingo_lipid;
+ glyco_sphingo_lipid : 'GA1' | 'Ga1' | 'GA2' | 'Ga2' |
+ 'GB3' | 'Gb3' | 'GB4' | 'Gb4' |
+ 'GD1' | 'Gd1' | 'GD2' | 'Gd2' | 'GD3' | 'Gd3' |
+ 'GM1' | 'Gm1' | 'GM2' | 'Gm2' | 'GM3' | 'Gm3' | 'GM4' | 'Gm4' |
+ 'GP1' | 'Gp1' |
+ 'GQ1' | 'Gq1' |
+ 'GT1' | 'Gt1' | 'GT2' | 'Gt2' | 'GT3' | 'Gt3';
 
 
 
@@ -139,19 +154,38 @@ hg_dsl : 'Cer' | 'CerP' | 'EPC' | 'GB4' | 'GD3' | 'GB3' | 'GM1' | 'GM3' | 'GM4' 
 /* sterol lipids (2 classes) */
 sterol : stc | ste | stes;
 stc : st | st heavy_hg;
-st : 'Ch' | 'Cholesterol' | 'ST 27:1;1' | 'ST 27:2;1' | 'ST 28:3;1' | 'ST 30:2;1' | 'ST 29:2;1' | 'ST 28:2;1' | 'Desmosterol' | 'Stigmasterol' | 'Ergosterol' | 'Lanosterol' | 'Ergostadienol' | 'Campesterol' | 'Sitosterol';
-ste : hg_stc sorted_fa_separator fa;
+st : 'Ch' | 'Cholesterol' | 'ST 27:1;1' | 'ST 27:2;1' | 'ST 28:3;1' | 'ST 30:2;1' | 'ST 29:2;1' | 'ST 28:2;1' | 'Desmosterol' | 'Stigmasterol' | 'Ergosterol' | 'Lanosterol' | 'Ergostadienol' | 'Campesterol' | 'Sitosterol' | 'Chol';
+ste : hg_stc sorted_fa_separator fa | hg_stc unsorted_fa_separator fa;
 stes : hg_stcs headgroup_separator fa;
 hg_stc : hg_ste | hg_ste heavy_hg;
 hg_ste : 'SE 27:1' | 'SE 27:2' | 'SE 28:3' | 'SE 30:2' | 'SE 29:2' | 'SE 28:2';
 hg_stcs : hg_stes | hg_stes heavy_hg;
-hg_stes : 'ChE' | 'CE';
+hg_stes : 'ChE' | 'CE' | 'ChoE' | 'CholE';
 
 
 /* mediator lipids (1 class) */
 mediatorc : mediator | mediator heavy_hg;
-mediator : '10-HDoHE' | '11-HDoHE' | '11-HETE' | '11,12-DHET' | '11(12)-EET'| '12-HEPE' | '12-HETE' | '12-HHTrE' | '12-OxoETE' | '12(13)-EpOME' | '13-HODE' | '13-HOTrE' | '14,15-DHET' | '14(15)-EET' | '14(15)-EpETE' | '15-HEPE' | '15-HETE' | '15d-PGJ2' | '16-HDoHE' | '16-HETE' | '18-HEPE' | '5-HEPE' | '5-HETE' | '5-HpETE' | '5-OxoETE' | '5,12-DiHETE' | '5,6-DiHETE' | '5,6,15-LXA4' | '5(6)-EET' | '8-HDoHE' | '8-HETE' | '8,9-DHET' | '8(9)-EET' | '9-HEPE' | '9-HETE' | '9-HODE' | '9-HOTrE' | '9(10)-EpOME' | 'AA' | 'alpha-LA' | 'DHA' | 'EPA' | 'Linoleic acid' | 'LTB4' | 'LTC4' | 'LTD4' | 'Maresin 1' | 'Palmitic acid' | 'PGB2' | 'PGD2' | 'PGE2' | 'PGF2alpha' | 'PGI2' | 'Resolvin D1' | 'Resolvin D2' | 'Resolvin D3' | 'Resolvin D5' | 'tetranor-12-HETE' | 'TXB1' | 'TXB2' | 'TXB3';
+mediator : unstructured_mediator | trivial_mediator | mediator_functional_group mediator_fa mediator_suffix | mediator_functional_group mediator_fa;
+mediator_fa : mediator_carbon mediator_db;
+mediator_carbon : 'H' | 'O' | 'E' | 'Do';
+mediator_db : 'M' | 'D' | 'Tr' | 'T' | 'P' | 'H';
+mediator_suffix: 'E';
+mediator_functional_group : mediator_functional_group_clear | mediator_tetranor mediator_functional_group_clear;
+mediator_tetranor : 'tetranor-';
+mediator_functional_group_clear: mediator_full_function | mediator_function_unknown_pos;
+mediator_function_unknown_pos : mediator_functions;
+mediator_functions : mediator_mono_functions | mediator_di_functions;
+mediator_mono_functions: 'H' | 'Oxo' | 'Hp';
+mediator_di_functions: 'E' | 'Ep' | 'DH' | 'DiH' | 'diH';
+mediator_mono_pos: mediator_position | mediator_position mediator_position_isotope;
+mediator_di_pos: mediator_position ',' mediator_position | mediator_position '_' mediator_position | mediator_position '(' mediator_position ')';
+mediator_full_function : mediator_mono_pos '-' mediator_mono_functions | mediator_di_pos '-' mediator_di_functions;
+mediator_position : number;
+mediator_position_isotope : 'S' | 'R';
 
+trivial_mediator : 'AA' | 'ALA' | 'DHA' | 'EPA' | 'Linoleic acid' | 'TXB1' | 'TXB2' | 'TXB3' | 'Resolvin D1' | 'Resolvin D2' | 'Resolvin D3' | 'Resolvin D5' | 'LTB4' | 'Maresin 1' | 'Palmitic acid' | 'PGB2' | 'PGD2' | 'PGE2' | 'PGF2alpha';
+
+unstructured_mediator : 'alpha-LA' | 'LTC4' | 'LTD4' | 'PGI2';
 
 
 
@@ -195,15 +229,12 @@ number :  digit | digit number;
 digit : '0' | '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9';
 
 
+heavy : '(+' adduct_heavy ')';
+adduct_heavy : adduct_heavy_component | adduct_heavy adduct_heavy;
+adduct_heavy_component : adduct_heavy_element adduct_heavy_number | adduct_heavy_element;
+adduct_heavy_element: '[2]H' | '[13]C' | '[15]N' | '[17]O' | '[18]O' | '[32]P' | '[33]S' | '[34]S';
+adduct_heavy_number : number;
 
-
-
-heavy : '(+' isotopes  ')';
-isotopes : isotopes isotopes | isotope;
-isotope : '[' isotope_number ']' isotope_element isotope_count | '[' isotope_number ']' isotope_element;
-isotope_number : number;
-isotope_element : element;
-isotope_count : number;
 
 /* separators */
 SPACE : ' ';
@@ -233,4 +264,3 @@ element: 'C' | 'H' | 'N' | 'O' | 'P' | 'S' | 'Br' | 'I' | 'F' | 'Cl' | 'As';
 charge : '1' | '2' | '3' | '4';
 charge_sign : plus_minus;
 plus_minus : '-' | '+';
-
