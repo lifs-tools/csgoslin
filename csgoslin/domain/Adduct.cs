@@ -38,6 +38,7 @@ namespace csgoslin
         public string adduct_string;
         public int charge;
         public int charge_sign;
+        public ElementTable heavy_elements;
         
         public static readonly Dictionary<string, ElementTable> adducts = new Dictionary<string, ElementTable>{
             {"+H", new ElementTable(){{Element.H, 1}} },
@@ -68,8 +69,20 @@ namespace csgoslin
             adduct_string = _adduct_string;
             charge = _charge;
             set_charge_sign(_sign);
+            foreach (KeyValuePair<Element, double> kvp in Elements.element_masses) heavy_elements.Add(kvp.Key, 0);
             
         }
+        
+        public Adduct(Adduct a){
+            if (a != null){
+                sum_formula = a.sum_formula;
+                adduct_string = a.adduct_string;
+                charge = a.charge;
+                charge_sign = a.charge_sign;
+                foreach (KeyValuePair<Element, int> kvp in a.heavy_elements) heavy_elements.Add(kvp.Key, kvp.Value);
+            }
+        }
+        
 
 
         public void set_charge_sign(int _sign)
@@ -82,15 +95,36 @@ namespace csgoslin
                 throw new ConstraintViolationException("Sign can only be -1, 0, or 1");
             }
         }
+        
+        
+
+        public string get_heavy_isotope_string(){
+            StringBuilder sb = new StringBuilder();
+            foreach (Element e in Elements.element_order){
+                if (heavy_elements[e] > 0){
+                    if (heavy_elements[e] == 1)
+                    {
+                        sb.Append(Elements.heavy_shortcut[e]);
+                    }
+                    else
+                    {
+                        sb.Append(Elements.heavy_shortcut[e]).Append(heavy_elements[e]);
+                    }
+                }
+            }
+            return sb.ToString();
+        }
+        
+        
                 
         public string get_lipid_string()
         {
             if (charge == 0)
             {
-                return "[M]";
+                return "[M" + get_heavy_isotope_string() + "]";
             }
             StringBuilder sb = new StringBuilder();
-            sb.Append("[M").Append(sum_formula).Append(adduct_string).Append("]").Append(charge).Append(((charge_sign > 0) ? "+" : "-"));
+            sb.Append("[M").Append(get_heavy_isotope_string()).Append(sum_formula).Append(adduct_string).Append("]").Append(charge).Append(((charge_sign > 0) ? "+" : "-"));
             
             return sb.ToString();
         }
@@ -98,6 +132,13 @@ namespace csgoslin
         public ElementTable get_elements()
         {
             ElementTable elements = StringFunctions.create_empty_table();
+            
+            foreach (KeyValuePair<Element, int> kvp in heavy_elements){
+                if (kvp.Value > 0){
+                    elements[heavy_to_regular[kvp.Key]] -= kvp.Value;
+                    elements[kvp.Key] += kvp.Value;
+                }
+            }
             
             if (adduct_charges.ContainsKey(adduct_string))
             {
