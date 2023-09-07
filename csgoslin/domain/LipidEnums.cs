@@ -111,15 +111,16 @@ namespace csgoslin
 
 
     public enum LipidFaBondType {
-        NO_FA,
-        UNDEFINED_FA,
-        ESTER,
+        LCB_REGULAR,
+        LCB_EXCEPTION,
         ETHER_PLASMANYL,
         ETHER_PLASMENYL,
+        ETHER,
         ETHER_UNSPECIFIED,
-        LCB_EXCEPTION,
-        LCB_REGULAR,
-        AMINE
+        ESTER,
+        AMIDE,
+        UNDEFINED_FA,
+        NO_FA
     };
 
     /*

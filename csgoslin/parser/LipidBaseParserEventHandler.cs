@@ -111,7 +111,7 @@ namespace csgoslin
             
             if (LipidClasses.lipid_classes[headgroup.lipid_class].special_cases.Contains("HC"))
             {
-                fa_list[0].lipid_FA_bond_type = LipidFaBondType.AMINE;
+                fa_list[0].lipid_FA_bond_type = LipidFaBondType.AMIDE;
             }
             
             

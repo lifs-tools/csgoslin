@@ -675,7 +675,7 @@ namespace csgoslin
             else if (t.Equals("ne"))
             {
                 headgroup = "HC";
-                fatty_acyl_stack.back().lipid_FA_bond_type = LipidFaBondType.AMINE;
+                fatty_acyl_stack.back().lipid_FA_bond_type = LipidFaBondType.AMIDE;
             }
             else
             {
@@ -1224,7 +1224,7 @@ namespace csgoslin
             FattyAcid fa = fatty_acyl_stack.PopBack();
             
             fa.name += "1";
-            fa.lipid_FA_bond_type = LipidFaBondType.AMINE;
+            fa.lipid_FA_bond_type = LipidFaBondType.AMIDE;
             fatty_acyl_stack.back().name += "2";
             fatty_acyl_stack.Insert(0, fa);
         }
@@ -1285,7 +1285,7 @@ namespace csgoslin
             
             fa.name += "1";
             fatty_acyl_stack.back().name += "2";
-            fa.lipid_FA_bond_type = LipidFaBondType.AMINE;
+            fa.lipid_FA_bond_type = LipidFaBondType.AMIDE;
             fatty_acyl_stack.Insert(0, fa);
         }
 

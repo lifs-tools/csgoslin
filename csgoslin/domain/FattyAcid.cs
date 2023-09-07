@@ -41,7 +41,6 @@ namespace csgoslin
         
         public FattyAcid(string _name, int _num_carbon = 0, DoubleBonds _double_bonds = null, Dictionary<string, List<FunctionalGroup> > _functional_groups = null, LipidFaBondType _lipid_FA_bond_type = LipidFaBondType.ESTER, int _position = 0) : base(_name, _position, 1, _double_bonds, false, "", null, _functional_groups)
         {
-    
             num_carbon = _num_carbon;
             lipid_FA_bond_type = _lipid_FA_bond_type;
             
@@ -53,11 +52,6 @@ namespace csgoslin
             if (num_carbon < 0 || num_carbon == 1)
             {
                 throw new ConstraintViolationException("FattyAcid must have at least 2 carbons! Got " + Convert.ToString(num_carbon));
-            }
-            
-            if (position < 0)
-            {
-                throw new ConstraintViolationException("FattyAcid position must be greater or equal to 0! Got " + Convert.ToString(position));
             }
             
             if (double_bonds.get_num() < 0)
@@ -127,6 +121,11 @@ namespace csgoslin
         }
 
 
+        public int num_oxygens(){
+            return get_functional_group_elements()[Element.O];
+        }
+
+
 
         public override string to_string(LipidLevel level)
         {
@@ -169,6 +168,11 @@ namespace csgoslin
                     }
                 }
                 fa_string.Append(")");
+            }
+    
+    
+            if(level == LipidLevel.COMPLETE_STRUCTURE && stereochemistry != ""){
+                fa_string.Append("[").Append(stereochemistry).Append("]");
             }
                 
                 
@@ -307,11 +311,11 @@ namespace csgoslin
                     elements[Element.H] = ((num_carbon + 1) * 2 - 1 - 2 * num_double_bonds); // hydrogen
                 }
                 
-                else if (lipid_FA_bond_type == LipidFaBondType.AMINE)
-                    elements[Element.H] = (2 * num_carbon + 1 - 2 * num_double_bonds); // hydrogen
+                else if (lipid_FA_bond_type == LipidFaBondType.AMIDE)
+                    elements[Element.H] = (2 * num_carbon + 1 - 2 * num_double_bonds) - 1; // hydrogen
                     
                 else {
-                    throw new LipidException("Mass cannot be computed for fatty acyl chain with this bond type");
+                    throw new LipidException("Mass cannot be computed for fatty acyl chain with this bond type: " + lipid_FA_bond_type);
                 }
             }
             else {
