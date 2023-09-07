@@ -135,7 +135,7 @@ namespace csgoslin
             
             foreach (KeyValuePair<Element, int> kvp in heavy_elements){
                 if (kvp.Value > 0){
-                    elements[heavy_to_regular[kvp.Key]] -= kvp.Value;
+                    elements[Elements.heavy_to_regular[kvp.Key]] -= kvp.Value;
                     elements[kvp.Key] += kvp.Value;
                 }
             }

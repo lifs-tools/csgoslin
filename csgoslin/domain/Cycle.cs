@@ -319,7 +319,7 @@ namespace csgoslin
             }
                         
             cycle_string.Append("]");
-            if (LipidLevel.COMPLETE_STRUCTURE && stereochemistry.Length > 0) cycle_string.Append("[").Append(stereochemistry).Append("]");
+            if (level == LipidLevel.COMPLETE_STRUCTURE && stereochemistry.Length > 0) cycle_string.Append("[").Append(stereochemistry).Append("]");
             
             return cycle_string.ToString();
         }

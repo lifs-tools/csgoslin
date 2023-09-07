@@ -43,6 +43,13 @@ namespace csgoslin
             num_double_bonds = num;
             double_bond_positions = new Dictionary<int, string>();
         }
+        
+        public DoubleBonds(Dictionary<int, string> pos)
+        {
+            num_double_bonds = pos.Count;
+            double_bond_positions = new Dictionary<int, string>();
+            foreach (KeyValuePair<int, string> kvp in pos) double_bond_positions.Add(kvp.Key, kvp.Value);
+        }
 
 
         public DoubleBonds copy(){
