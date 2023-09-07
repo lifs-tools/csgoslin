@@ -41,6 +41,7 @@ namespace csgoslin
         
         public Cycle(int _cycle, int _start = -1, int _end = -1, DoubleBonds _double_bonds = null, Dictionary<string, List< FunctionalGroup > > _functional_groups = null, List< Element > _bridge_chain = null) : base("cy", _start, 1, _double_bonds, false, "", null, _functional_groups)
         {
+            count = 1;
             cycle = _cycle;
             start = _start;
             end = _end;
@@ -318,7 +319,7 @@ namespace csgoslin
             }
                         
             cycle_string.Append("]");
-            if (stereochemistry.Length > 0) cycle_string.Append("[").Append(stereochemistry).Append("]");
+            if (LipidLevel.COMPLETE_STRUCTURE && stereochemistry.Length > 0) cycle_string.Append("[").Append(stereochemistry).Append("]");
             
             return cycle_string.ToString();
         }
