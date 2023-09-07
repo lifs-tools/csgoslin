@@ -39,7 +39,7 @@ namespace csgoslin
         public LipidFaBondType lipid_FA_bond_type;
         public HashSet<string> fg_exceptions = new HashSet<string>{"acyl", "alkyl", "cy", "cc", "acetoxy"};
         
-        public FattyAcid(string _name, int _num_carbon = 0, DoubleBonds _double_bonds = null, Dictionary<string, List<FunctionalGroup> > _functional_groups = null, LipidFaBondType _lipid_FA_bond_type = LipidFaBondType.ESTER, int _position = 0) : base(_name, _position, 1, _double_bonds, false, "", null, _functional_groups)
+        public FattyAcid(string _name, int _num_carbon = 0, DoubleBonds _double_bonds = null, Dictionary<string, List<FunctionalGroup> > _functional_groups = null, LipidFaBondType _lipid_FA_bond_type = LipidFaBondType.ESTER, int _position = 0) : base(_name, _position, 1, _double_bonds, false, "", false, null, _functional_groups)
         {
             num_carbon = _num_carbon;
             lipid_FA_bond_type = _lipid_FA_bond_type;

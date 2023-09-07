@@ -39,7 +39,7 @@ namespace csgoslin
         public int end;
         public List<Element> bridge_chain;
         
-        public Cycle(int _cycle, int _start = -1, int _end = -1, DoubleBonds _double_bonds = null, Dictionary<string, List< FunctionalGroup > > _functional_groups = null, List< Element > _bridge_chain = null) : base("cy", _start, 1, _double_bonds, false, "", null, _functional_groups)
+        public Cycle(int _cycle, int _start = -1, int _end = -1, DoubleBonds _double_bonds = null, Dictionary<string, List< FunctionalGroup > > _functional_groups = null, List< Element > _bridge_chain = null) : base("cy", _start, 1, _double_bonds, false, "", false, null, _functional_groups)
         {
             count = 1;
             cycle = _cycle;

@@ -423,10 +423,10 @@ namespace csgoslin
                                 if (row[i] == "") continue;
                                 
                                 if (add_comma) sw.Write(",");
-                                sw.Write("\n\n            // " + row[5] + "\n");
+                                sw.Write("\n\n            // " + row[6] + "\n");
                                 if (row[0].Equals("FG"))
                                 {
-                                    sw.Write("            {\"" + row[i] + "\", new FunctionalGroup(\"" + row[1] + "\", -1, 1, new DoubleBonds(" + row[3] + "), " + (row[4].Equals("1") ? "true" : "false") + ", \"\", new ElementTable{");
+                                    sw.Write("            {\"" + row[i] + "\", new FunctionalGroup(\"" + row[1] + "\", -1, 1, new DoubleBonds(" + row[3] + "), " + (row[4].Equals("1") ? "true" : "false") + ", \"\", " + (row[5].Equals("1") ? "true" : "false") + ", new ElementTable{");
                                     
                                     // add element table
                                     ElementTable table = row[2].Length > 0 ? SumFormulaParser.get_instance().parse(row[2]) : StringFunctions.create_empty_table();

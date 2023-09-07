@@ -39,19 +39,22 @@ namespace csgoslin
         public int position;
         public int count;
         public string stereochemistry;
+        public int num_atoms;
         public string ring_stereo;
+        public bool stereo_bound;
         public DoubleBonds double_bonds;
         public bool is_atomic;
         public ElementTable elements;
         public Dictionary<string, List<FunctionalGroup> > functional_groups;
         
-        public FunctionalGroup(string _name, int _position = -1, int _count = 1, DoubleBonds _double_bonds = null, bool _is_atomic = false, string _stereochemistry = "", ElementTable _elements = null, Dictionary<string, List<FunctionalGroup> > _functional_groups = null)
+        public FunctionalGroup(string _name, int _position = -1, int _count = 1, DoubleBonds _double_bonds = null, bool _is_atomic = false, string _stereochemistry = "", bool _stereo_bound = false, ElementTable _elements = null, Dictionary<string, List<FunctionalGroup> > _functional_groups = null)
         {
             name = _name;
             position = _position;
             count = _count;
             stereochemistry = _stereochemistry;
             ring_stereo = "";
+            stereo_bound = _stereo_bound;
             double_bonds = (_double_bonds != null) ? _double_bonds : new DoubleBonds(0);
             is_atomic = _is_atomic;
             elements = (_elements != null) ? _elements : StringFunctions.create_empty_table();
@@ -77,9 +80,23 @@ namespace csgoslin
                 e[kv.Key] = kv.Value;
             }
             
-            FunctionalGroup func_group_new = new FunctionalGroup(name, position, count, db, is_atomic, stereochemistry, e, fg);
+            FunctionalGroup func_group_new = new FunctionalGroup(name, position, count, db, is_atomic, stereochemistry, stereo_bound, e, fg);
             func_group_new.ring_stereo = ring_stereo;
             return func_group_new;
+        }
+        
+        
+        public bool stereo_information_missing(){
+            bool missing = stereo_bound && stereochemistry == "";
+            foreach (KeyValuePair<string, List<FunctionalGroup> > kv in functional_groups)
+            {
+                foreach (FunctionalGroup fg in kv.Value)
+                {
+                    missing |= fg.stereo_information_missing();
+                }
+            }
+                    
+            return missing;
         }
 
 
@@ -157,7 +174,7 @@ namespace csgoslin
             {
                 fg_string = (count > 1) ? ("(" + name + ")" + Convert.ToString(count)) : name;
             }
-            if (stereochemistry.Length > 0 && level == LipidLevel.COMPLETE_STRUCTURE)
+            if (stereochemistry.Length > 0 && is_level(level, LipidLevel.COMPLETE_STRUCTURE | LipidLevel.FULL_STRUCTURE))
             {
                 fg_string += "[" + stereochemistry + "]";
             }
@@ -225,7 +242,7 @@ namespace csgoslin
         public bool suffix;
         public LipidLevel lowest_visible_level;
             
-        public HeadgroupDecorator(string _name, int _position = -1, int _count = 1, ElementTable _elements = null, bool _suffix = false, LipidLevel _level = LipidLevel.NO_LEVEL) : base(_name, _position, _count, null, false, "", _elements)
+        public HeadgroupDecorator(string _name, int _position = -1, int _count = 1, ElementTable _elements = null, bool _suffix = false, LipidLevel _level = LipidLevel.NO_LEVEL) : base(_name, _position, _count, null, false, "", false, _elements, null)
         {
             suffix = _suffix;
             lowest_visible_level = _level;
@@ -282,9 +299,6 @@ namespace csgoslin
             }
                 
             return decorator_string;
-        }
-        
-        
-        
+        }        
     }
 }
