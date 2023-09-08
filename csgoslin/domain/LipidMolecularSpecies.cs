@@ -142,7 +142,7 @@ namespace csgoslin
         }
 
 
-        public void sort_fatty_acyl_chains()
+        public override void sort_fatty_acyl_chains()
         {
             if (info.level > LipidLevel.MOLECULAR_SPECIES || fa_list.Count < 2) return;
             
