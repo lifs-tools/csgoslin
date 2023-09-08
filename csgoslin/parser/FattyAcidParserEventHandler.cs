@@ -56,6 +56,13 @@ namespace csgoslin
         public static readonly HashSet<string> nal_set = new HashSet<string>{"nal", "dial"};
         public static readonly HashSet<string> acetate_set = new HashSet<string>{"acetate", "noate", "nate"};
     
+        
+        
+        public string FA_I()
+        {
+            return "fa" + Convert.ToString(fatty_acyl_stack.Count);
+        }
+        
         public FattyAcidParserHandler() : base()
         {
             reset_parser(null);
@@ -84,6 +91,10 @@ namespace csgoslin
             registered_events.Add("notation_specials_pre_event", special_number);
             registered_events.Add("notation_last_digit_pre_event", last_number);
             registered_events.Add("notation_second_digit_pre_event", second_number);
+            
+            // furan
+            registered_events.Add("tetrahydrofuran_pre_event", set_tetrahydrofuran);
+            registered_events.Add("furan_pre_event", set_furan);
             
             // functional groups
             registered_events.Add("functional_group_pre_event", set_functional_group);
@@ -144,10 +155,6 @@ namespace csgoslin
             registered_events.Add("car_pre_event", set_car);
             registered_events.Add("car_post_event", add_car);
             
-            // furan
-            registered_events.Add("tetrahydrofuran_pre_event", set_tetrahydrofuran);
-            registered_events.Add("furan_pre_event", set_furan);
-            
             // amine
             registered_events.Add("ethanolamine_post_event", add_ethanolamine);
             registered_events.Add("amine_n_pre_event", set_recursion);
@@ -161,6 +168,12 @@ namespace csgoslin
             
             debug = "";
         }
+        
+        
+        public void set_lipid_level(LipidLevel _level)
+        {
+            level = (LipidLevel)Math.Min((int)level, (int)_level);
+        }
 
                 
         public void reset_parser(TreeNode node)
@@ -172,18 +185,6 @@ namespace csgoslin
             fatty_acyl_stack.Add(new FattyAcid("FA"));
             tmp = new Dict();
             tmp.Add("fa1", new Dict());
-        }
-        
-        
-        public void set_lipid_level(LipidLevel _level)
-        {
-            level = (LipidLevel)Math.Min((int)level, (int)_level);
-        }
-        
-        
-        public string FA_I()
-        {
-            return "fa" + Convert.ToString(fatty_acyl_stack.Count);
         }
         
         
@@ -557,110 +558,6 @@ namespace csgoslin
             tmp.Add("length_tokens", new Lst());
             tmp.Add("add_lengths", 0);
         }
-        
-        
-        public void add_cyclo(TreeNode node)
-        {
-            int start = (int)((Lst)((Lst)tmp["fg_pos"])[0])[0];
-            int end = (int)((Lst)((Lst)tmp["fg_pos"])[1])[0];
-            
-            
-            DoubleBonds cyclo_db = new DoubleBonds();
-            // check double bonds
-            if (fatty_acyl_stack.back().double_bonds.double_bond_positions.Count > 0)
-            {
-                foreach (KeyValuePair<int, string> kv in fatty_acyl_stack.back().double_bonds.double_bond_positions)
-                {
-                    if (start <= kv.Key && kv.Key <= end)
-                    {
-                        cyclo_db.double_bond_positions.Add(kv.Key, kv.Value);
-                    }
-                }
-                cyclo_db.num_double_bonds = cyclo_db.double_bond_positions.Count;
-            
-                foreach (KeyValuePair<int, string> kv in cyclo_db.double_bond_positions)
-                {
-                    fatty_acyl_stack.back().double_bonds.double_bond_positions.Remove(kv.Key);
-                }
-                fatty_acyl_stack.back().double_bonds.num_double_bonds = fatty_acyl_stack.back().double_bonds.double_bond_positions.Count;
-                
-            }        
-            // check functional_groups
-            Dictionary<string, List<FunctionalGroup> > cyclo_fg = new Dictionary<string, List<FunctionalGroup> >();
-            HashSet<string> remove_list = new HashSet<string>();
-            FattyAcid curr_fa = fatty_acyl_stack.back();
-            
-            if (curr_fa.functional_groups.ContainsKey("noyloxy"))
-            {
-                List<int> remove_item = new List<int>();
-                int i = 0;
-                foreach (FunctionalGroup func_group in curr_fa.functional_groups["noyloxy"])
-                {
-                    if (start <= func_group.position && func_group.position <= end)
-                    {
-                        CarbonChain cc = new CarbonChain((FattyAcid)func_group, func_group.position);
-                        
-                        if (!curr_fa.functional_groups.ContainsKey("cc")) curr_fa.functional_groups.Add("cc", new List<FunctionalGroup>());
-                        curr_fa.functional_groups["cc"].Add(cc);
-                        remove_item.Add(i);
-                    }
-                    ++i;
-                }
-                for (int ii = remove_item.Count - 1; ii >= 0; --ii)
-                {
-                    curr_fa.functional_groups["noyloxy"].RemoveAt(remove_item[ii]);
-                }
-                if (curr_fa.functional_groups["noyloxy"].Count == 0) remove_list.Add("noyloxy");
-            }
-            
-            foreach (KeyValuePair<string, List<FunctionalGroup> > kv in curr_fa.functional_groups)
-            {
-                List<int> remove_item = new List<int>();
-                int i = 0;
-                foreach (FunctionalGroup func_group in kv.Value)
-                {
-                    if (start <= func_group.position && func_group.position <= end)
-                    {
-                        if (!cyclo_fg.ContainsKey(kv.Key)) cyclo_fg.Add(kv.Key, new List<FunctionalGroup>());
-                        cyclo_fg[kv.Key].Add(func_group);
-                        remove_item.Add(i);
-                    }
-                    ++i;    
-                }
-                for (int ii = remove_item.Count - 1; ii >= 0; --ii)
-                {
-                    kv.Value.RemoveAt(remove_item[ii]);
-                }
-                if (kv.Value.Count == 0) remove_list.Add(kv.Key);
-            }
-            foreach (string fg in remove_list) curr_fa.functional_groups.Remove(fg);
-            
-            List<Element> bridge_chain = new List<Element>();
-            if (tmp.ContainsKey("furan"))
-            {
-                tmp.Remove("furan");
-                bridge_chain.Add(Element.O);
-            }
-
-            Cycle cycle = new Cycle(end - start + 1 + bridge_chain.Count, start, end, cyclo_db, cyclo_fg, bridge_chain);
-            if (!fatty_acyl_stack.back().functional_groups.ContainsKey("cy")) fatty_acyl_stack.back().functional_groups.Add("cy", new List<FunctionalGroup>());
-            fatty_acyl_stack.back().functional_groups["cy"].Add(cycle);
-        }
-        
-        
-        public void set_tetrahydrofuran(TreeNode node)
-        {
-            tmp.Add("furan", 1);
-            tmp.Add("tetrahydrofuran", 1);
-            set_cycle(node);
-        }
-        
-        
-        public void set_furan(TreeNode node)
-        {
-            tmp.Add("furan", 1);
-            set_cycle(node);
-        }
 
 
         
@@ -675,7 +572,7 @@ namespace csgoslin
             else if (t.Equals("ne"))
             {
                 headgroup = "HC";
-                fatty_acyl_stack.back().lipid_FA_bond_type = LipidFaBondType.AMIDE;
+                fatty_acyl_stack.back().lipid_FA_bond_type = LipidFaBondType.ETHER;
             }
             else
             {
@@ -689,7 +586,7 @@ namespace csgoslin
             ((Dict)tmp[FA_I()]).Add("db_position", 0);
             ((Dict)tmp[FA_I()]).Add("db_cistrans", "");
         }
-
+        
 
         public void add_double_bond_information(TreeNode node)
         {    
@@ -739,6 +636,7 @@ namespace csgoslin
             
             ((Dict)tmp[FA_I()]).Add("db_position", pos - num_db);
         }
+
 
 
         public void set_cistrans(TreeNode node)
@@ -858,6 +756,9 @@ namespace csgoslin
                 t = func_groups[t];
                 if (t.Length == 0) return;
                 fg = KnownFunctionalGroups.get_functional_group(t);
+                if (fg == null) {
+                    throw new LipidException("Functional group not registered: '" + t + "'");
+                }
             }
             else
             {
@@ -972,11 +873,11 @@ namespace csgoslin
             headgroup = "FA";
             
             int pos = (((Lst)tmp["fg_pos"]).Count == 2) ? (int)((Lst)((Lst)tmp["fg_pos"])[1])[0] : fatty_acyl_stack.back().num_carbon;
+            fatty_acyl_stack.back().num_carbon -= 1;
             if (tmp.ContainsKey("reduction"))
             {
                 pos -= ((Lst)tmp["reduction"]).Count;
             }
-            fatty_acyl_stack.back().num_carbon -= 1;
             FunctionalGroup func_group = KnownFunctionalGroups.get_functional_group("COOH");
             func_group.position = pos - 1;
             if (!fatty_acyl_stack.back().functional_groups.ContainsKey("COOH")) fatty_acyl_stack.back().functional_groups.Add("COOH", new List<FunctionalGroup>());
@@ -1019,20 +920,107 @@ namespace csgoslin
             ((Lst)tmp["fg_pos"]).Add(l2);
             tmp.Add("fg_type", "cy");
         }
-
-
         
+        
+        
+        public void add_cyclo(TreeNode node)
+        {
+            int start = (int)((Lst)((Lst)tmp["fg_pos"])[0])[0];
+            int end = (int)((Lst)((Lst)tmp["fg_pos"])[1])[0];
+            
+            
+            DoubleBonds cyclo_db = new DoubleBonds();
+            // check double bonds
+            if (fatty_acyl_stack.back().double_bonds.double_bond_positions.Count > 0)
+            {
+                foreach (KeyValuePair<int, string> kv in fatty_acyl_stack.back().double_bonds.double_bond_positions)
+                {
+                    if (start <= kv.Key && kv.Key <= end)
+                    {
+                        cyclo_db.double_bond_positions.Add(kv.Key, kv.Value);
+                    }
+                }
+                cyclo_db.num_double_bonds = cyclo_db.double_bond_positions.Count;
+            
+                foreach (KeyValuePair<int, string> kv in cyclo_db.double_bond_positions)
+                {
+                    fatty_acyl_stack.back().double_bonds.double_bond_positions.Remove(kv.Key);
+                }
+                fatty_acyl_stack.back().double_bonds.num_double_bonds = fatty_acyl_stack.back().double_bonds.double_bond_positions.Count;
+                
+            }        
+            // check functional_groups
+            Dictionary<string, List<FunctionalGroup> > cyclo_fg = new Dictionary<string, List<FunctionalGroup> >();
+            HashSet<string> remove_list = new HashSet<string>();
+            FattyAcid curr_fa = fatty_acyl_stack.back();
+            
+            if (curr_fa.functional_groups.ContainsKey("noyloxy"))
+            {
+                List<int> remove_item = new List<int>();
+                int i = 0;
+                foreach (FunctionalGroup func_group in curr_fa.functional_groups["noyloxy"])
+                {
+                    if (start <= func_group.position && func_group.position <= end)
+                    {
+                        CarbonChain cc = new CarbonChain((FattyAcid)func_group, func_group.position);
+                        
+                        if (!curr_fa.functional_groups.ContainsKey("cc")) curr_fa.functional_groups.Add("cc", new List<FunctionalGroup>());
+                        curr_fa.functional_groups["cc"].Add(cc);
+                        remove_item.Add(i);
+                    }
+                    ++i;
+                }
+                for (int ii = remove_item.Count - 1; ii >= 0; --ii)
+                {
+                    curr_fa.functional_groups["noyloxy"].RemoveAt(remove_item[ii]);
+                }
+                if (curr_fa.functional_groups["noyloxy"].Count == 0) remove_list.Add("noyloxy");
+            }
+            
+            foreach (KeyValuePair<string, List<FunctionalGroup> > kv in curr_fa.functional_groups)
+            {
+                List<int> remove_item = new List<int>();
+                int i = 0;
+                foreach (FunctionalGroup func_group in kv.Value)
+                {
+                    if (start <= func_group.position && func_group.position <= end)
+                    {
+                        if (!cyclo_fg.ContainsKey(kv.Key)) cyclo_fg.Add(kv.Key, new List<FunctionalGroup>());
+                        cyclo_fg[kv.Key].Add(func_group);
+                        remove_item.Add(i);
+                    }
+                    ++i;    
+                }
+                for (int ii = remove_item.Count - 1; ii >= 0; --ii)
+                {
+                    kv.Value.RemoveAt(remove_item[ii]);
+                }
+                if (kv.Value.Count == 0) remove_list.Add(kv.Key);
+            }
+            foreach (string fg in remove_list) curr_fa.functional_groups.Remove(fg);
+            
+            List<Element> bridge_chain = new List<Element>();
+            if (tmp.ContainsKey("furan"))
+            {
+                tmp.Remove("furan");
+                bridge_chain.Add(Element.O);
+            }
+
+            Cycle cycle = new Cycle(end - start + 1 + bridge_chain.Count, start, end, cyclo_db, cyclo_fg, bridge_chain);
+            if (!fatty_acyl_stack.back().functional_groups.ContainsKey("cy")) fatty_acyl_stack.back().functional_groups.Add("cy", new List<FunctionalGroup>());
+            fatty_acyl_stack.back().functional_groups["cy"].Add(cycle);
+        }
 
 
         public void reduction(TreeNode node)
         {
-            int shift_len = -((Lst)tmp["fg_pos"]).Count;
-            fatty_acyl_stack.back().num_carbon += shift_len;
+            int reduction_num = ((Lst)tmp["fg_pos"]).Count;
+            fatty_acyl_stack.back().num_carbon -= reduction_num;
             foreach(KeyValuePair<string, List<FunctionalGroup>> kv in fatty_acyl_stack[fatty_acyl_stack.Count - 1].functional_groups)
             {
                 foreach(FunctionalGroup func_group in kv.Value)
                 {
-                    func_group.shift_positions(shift_len);
+                    func_group.shift_positions(-reduction_num);
                 }
             }
                 
@@ -1061,6 +1049,21 @@ namespace csgoslin
             fatty_acyl_stack.Add(new FattyAcid("FA"));
             tmp.Add(FA_I(), new Dict());
             ((Dict)tmp[FA_I()]).Add("recursion_pos", 0);
+        }
+        
+        
+        public void set_tetrahydrofuran(TreeNode node)
+        {
+            tmp.Add("furan", 1);
+            tmp.Add("tetrahydrofuran", 1);
+            set_cycle(node);
+        }
+        
+        
+        public void set_furan(TreeNode node)
+        {
+            tmp.Add("furan", 1);
+            set_cycle(node);
         }
 
 
@@ -1101,6 +1104,7 @@ namespace csgoslin
             if (l == 0) return;
 
             FattyAcid curr_fa = fatty_acyl_stack.back();
+            string fname = "";
             
             if (tmp.ContainsKey("furan"))
             {
@@ -1108,7 +1112,6 @@ namespace csgoslin
                 return;
             }
             
-            string fname = "";
             FunctionalGroup fg = null;
             if (l == 1)
             {
@@ -1222,10 +1225,7 @@ namespace csgoslin
         public void add_wax_ester(TreeNode node)
         {
             FattyAcid fa = fatty_acyl_stack.PopBack();
-            
-            fa.name += "1";
-            fa.lipid_FA_bond_type = LipidFaBondType.AMIDE;
-            fatty_acyl_stack.back().name += "2";
+            fa.lipid_FA_bond_type = LipidFaBondType.ETHER;
             fatty_acyl_stack.Insert(0, fa);
         }
 
@@ -1283,9 +1283,8 @@ namespace csgoslin
         {
             FattyAcid fa = fatty_acyl_stack.PopBack();
             
-            fa.name += "1";
-            fatty_acyl_stack.back().name += "2";
             fa.lipid_FA_bond_type = LipidFaBondType.AMIDE;
+            fatty_acyl_stack[fatty_acyl_stack.Count - 1].lipid_FA_bond_type = LipidFaBondType.AMIDE;
             fatty_acyl_stack.Insert(0, fa);
         }
 
