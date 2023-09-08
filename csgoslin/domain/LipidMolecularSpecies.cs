@@ -37,13 +37,14 @@ namespace csgoslin
         public LipidMolecularSpecies (Headgroup _headgroup, List<FattyAcid> _fa = null) : base(_headgroup, _fa)
         {
             info.level = LipidLevel.MOLECULAR_SPECIES;
-            foreach (FattyAcid fatty_acid in fa_list)
+            foreach (FattyAcid fatty_acid in _fa)
             {
                 if (fa.ContainsKey(fatty_acid.name))
                 {
                     throw new ConstraintViolationException("FA names must be unique! FA with name " + fatty_acid.name + " was already added!");
                 }
                 fa.Add(fatty_acid.name, fatty_acid);
+                fa_list.Add(fatty_acid);
             }
                 
                     
@@ -51,6 +52,7 @@ namespace csgoslin
             for (int i = _fa.Count; i < info.total_fa; ++i)
             {
                 FattyAcid fatty_acid = new FattyAcid("FA" + Convert.ToString(i + 1));
+                fatty_acid.position = -1;
                 info.add(fatty_acid);
                 fa.Add(fatty_acid.name, fatty_acid);
                 fa_list.Add(fatty_acid);
@@ -137,6 +139,30 @@ namespace csgoslin
             }
             
             return elements;
+        }
+
+
+        public void sort_fatty_acyl_chains()
+        {
+            if (info.level > LipidLevel.MOLECULAR_SPECIES || fa_list.Count < 2) return;
+            
+            fa_list.Sort(delegate(FattyAcid fa1, FattyAcid fa2)
+            {
+                // treat empty fatty acids individually
+                if (fa1 == null || fa1.num_carbon == 0) return -1;
+                if (fa2 == null || fa2.num_carbon == 0) return 1;
+                
+                if (fa1.lipid_FA_bond_type != fa2.lipid_FA_bond_type) return fa1.lipid_FA_bond_type - fa2.lipid_FA_bond_type;
+                if (fa1.num_carbon != fa2.num_carbon) return fa1.num_carbon - fa2.num_carbon;
+                int db1 = fa1.double_bonds.get_num();
+                int db2 = fa2.double_bonds.get_num();
+                if (db1 != db2) return db1 - db2;
+                ElementTable e1 = fa1.get_elements();
+                ElementTable e2 = fa2.get_elements();
+                double mass1 = StringFunctions.get_mass(e1);
+                double mass2 = StringFunctions.get_mass(e2);
+                return mass1 < mass2 ? -1 : 1;
+            });
         }
 
 

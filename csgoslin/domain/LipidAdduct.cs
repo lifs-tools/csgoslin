@@ -169,13 +169,7 @@ namespace csgoslin
         {
             ElementTable elements = get_elements();
             int charge = (adduct != null) ? adduct.get_charge() : 0;
-            double mass = 0;
-            
-            foreach( KeyValuePair<Element, int> kvp in elements)
-            {
-                mass += Elements.element_masses[kvp.Key] * kvp.Value;
-            }
-            
+            double mass = StringFunctions.get_mass(elements);
             if (charge != 0) mass = (mass - charge * Elements.ELECTRON_REST_MASS) / Math.Abs(charge);
             
             return mass;

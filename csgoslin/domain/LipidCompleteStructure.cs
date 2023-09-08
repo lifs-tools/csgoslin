@@ -36,13 +36,13 @@ namespace csgoslin
     {
         public LipidCompleteStructure(Headgroup _headgroup, List<FattyAcid> _fa = null) : base(_headgroup, _fa)
         {
-            info.level = LipidLevel.FULL_STRUCTURE;
+            info.level = LipidLevel.COMPLETE_STRUCTURE;
         }
 
 
         public override LipidLevel get_lipid_level()
         {
-            return LipidLevel.FULL_STRUCTURE;
+            return LipidLevel.COMPLETE_STRUCTURE;
         }
 
 
@@ -59,8 +59,8 @@ namespace csgoslin
                 case LipidLevel.SN_POSITION:
                 case LipidLevel.MOLECULAR_SPECIES:
                 case LipidLevel.SPECIES:
-                case LipidLevel.CATEGORY:
                 case LipidLevel.CLASS:
+                case LipidLevel.CATEGORY:
                     return base.get_lipid_string(level);
             
                 default:
