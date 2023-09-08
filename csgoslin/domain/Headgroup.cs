@@ -64,10 +64,69 @@ namespace csgoslin
             lipid_category = get_category(_headgroup);
             lipid_class = get_class(headgroup);
             use_headgroup = _use_headgroup;
-            decorators = (_decorators != null) ? _decorators : new List<HeadgroupDecorator>();
-            sp_exception = lipid_category == LipidCategory.SP && exception_headgroups.Contains(LipidClasses.lipid_classes[lipid_class].class_name) && decorators.Count == 0;
+            decorators = new List<HeadgroupDecorator>();
+            if (_decorators != null)
+            {
+                foreach (HeadgroupDecorator hgd in _decorators) decorators.Add(hgd);
+            }
+            sp_exception = lipid_category == LipidCategory.SP && LipidClasses.lipid_classes[lipid_class].special_cases.Contains("SP_Exception") && decorators.Count == 0;
+        }
+        
+        
+        public Headgroup(Headgroup h)
+        {
+            headgroup = h.headgroup;
+            lipid_category = h.lipid_category;
+            lipid_class = h.lipid_class;
+            use_headgroup = h.use_headgroup;
+            decorators = new List<HeadgroupDecorator>();
+            foreach (HeadgroupDecorator hgd in h.decorators) decorators.Add((HeadgroupDecorator)hgd.copy());
+            sp_exception = h.sp_exception;
         }
                 
+        public static void init()
+        {
+            lock(StringCategory)
+            {
+                if (StringCategory.Count == 0)
+                {
+                    foreach (KeyValuePair<LipidClass, LipidClassMeta> kvp in LipidClasses.lipid_classes)
+                    {
+                        LipidCategory category = kvp.Value.lipid_category;
+                        foreach (string hg in kvp.Value.synonyms)
+                        {
+                            StringCategory.Add(hg, category);
+                        }
+                    }
+                }
+            }
+            
+            lock(StringClass)
+            {
+                if (StringClass.Count == 0)
+                {
+                    foreach (KeyValuePair<LipidClass, LipidClassMeta> kvp in LipidClasses.lipid_classes)
+                    {
+                        LipidClass l_class = kvp.Key;
+                        foreach (string hg in kvp.Value.synonyms)
+                        {
+                            StringClass.Add(hg, l_class);
+                        }
+                    }
+                }
+            }
+            
+            lock(ClassString)
+            {
+                if (ClassString.Count == 0)
+                {
+                    foreach (KeyValuePair<LipidClass, LipidClassMeta> kvp in LipidClasses.lipid_classes)
+                    {
+                        ClassString.Add(kvp.Key, kvp.Value.synonyms[0]);
+                    }
+                }
+            }
+        }
 
         public static LipidCategory get_category(string _headgroup)
         {
@@ -131,7 +190,8 @@ namespace csgoslin
 
         public string get_class_name()
         {
-            return LipidClasses.lipid_classes[lipid_class].class_name;
+            
+            return  LipidClasses.lipid_classes.ContainsKey(lipid_class) ? LipidClasses.lipid_classes[lipid_class].class_name : "UNDEFINED";
         }
 
 
@@ -149,22 +209,33 @@ namespace csgoslin
             
             string hgs = use_headgroup ? headgroup : get_class_string(lipid_class);
             
+            /*
             if (level == LipidLevel.CLASS){
                 return hgs;
             }
+            */
             
             StringBuilder headgoup_string = new StringBuilder();
                     
             // adding prefixes to the headgroup
             if (!is_level(level, LipidLevel.COMPLETE_STRUCTURE | LipidLevel.FULL_STRUCTURE | LipidLevel.STRUCTURE_DEFINED))
             {
-                List<string> prefixes = new List<string>();
+                List<HeadgroupDecorator> decorators_tmp = new List<HeadgroupDecorator>();
                 foreach (HeadgroupDecorator hgd in decorators)
                 {
-                    if (!hgd.suffix) prefixes.Add(hgd.to_string(level));
+                    if (!hgd.suffix) decorators_tmp.Add((HeadgroupDecorator)hgd.copy());
                 }
-                prefixes.Sort();
-                foreach (string prefix in prefixes) headgoup_string.Append(prefix);
+                decorators_tmp.Sort();
+                for (int i = decorators_tmp.Count - 1; i > 0; i--)
+                {
+                    HeadgroupDecorator hge = decorators_tmp[i];
+                    HeadgroupDecorator hge_before = decorators_tmp[i - 1];
+                    if (hge.name == hge_before.name){
+                        hge_before.count += hge.count;
+                        decorators_tmp.RemoveAt(i);
+                    }
+                }
+                foreach (HeadgroupDecorator hge in decorators_tmp) headgoup_string.Append(hge.to_string(level));
             }
             else
             {
@@ -180,7 +251,7 @@ namespace csgoslin
             // ading suffixes to the headgroup
             foreach (HeadgroupDecorator hgd in decorators)
             {
-                if (hgd.suffix) headgoup_string.Append(hgd.to_string(level));
+                if (hgd != null && hgd.suffix) headgoup_string.Append(hgd.to_string(level));
             }
             if (is_level(level, LipidLevel.COMPLETE_STRUCTURE | LipidLevel.FULL_STRUCTURE) && lipid_category == LipidCategory.SP && !sp_exception)
             {
