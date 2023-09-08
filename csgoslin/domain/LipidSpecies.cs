@@ -68,6 +68,10 @@ namespace csgoslin
             }
             */  
         }
+        
+        public virtual void sort_fatty_acyl_chains(){
+            
+        }
 
 
         public virtual LipidLevel get_lipid_level()
