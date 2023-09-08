@@ -33,14 +33,18 @@ namespace csgoslin
     {
         public Dictionary<string, Action<TreeNode>> registered_events = new Dictionary<string, Action<TreeNode>>();
         public HashSet<string> rule_names = new HashSet<string>();
-        public Parser<T> parser = null;
-        public string debug = "";
         public T content = default(T);
+        public string debug = "";
+        public string error_message;
+        public bool word_in_grammar;
     
         public BaseParserEventHandler()
         {
             registered_events = new Dictionary<string, Action<TreeNode>>();
             rule_names = new HashSet<string>();
+            debug = "";
+            error_message = "";
+            word_in_grammar = false;
         }
         
         
@@ -56,7 +60,7 @@ namespace csgoslin
                 string rule_name = event_name.Replace("_pre_event", "").Replace("_post_event", "");
                 if (!rule_names.Contains(rule_name))
                 {
-                    throw new Exception("Parser event handler error: rule '" + rule_name + "' in event '" + event_name + "' is not present in the grammar" + (parser != null ? " '" + parser.grammar_name + "'" : ""));
+                    throw new Exception("Parser event handler error: rule '" + rule_name + "' in event '" + event_name + "' is not present in the grammar");
                 }
             }
         }
