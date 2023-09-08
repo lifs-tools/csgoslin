@@ -48,25 +48,18 @@ namespace csgoslin
             info.level = LipidLevel.SPECIES;
             
             // add fatty acids
-            if (_fa != null){
+            if (_fa != null)
+            {
+                int i = 0;
+                bool fa_it = (_fa.Count > 0) && (_fa[0].lipid_FA_bond_type == LipidFaBondType.LCB_EXCEPTION || _fa[0].lipid_FA_bond_type == LipidFaBondType.LCB_REGULAR);
                 foreach (FattyAcid fatty_acid in _fa)
                 {
+                    fatty_acid.name = (fa_it && i == 0) ? "LCB" : "FA" + (i + 1 - (fa_it ? 1 : 0)).ToString();
+                    fatty_acid.position = -1;
                     info.add(fatty_acid);
-                    fa_list.Add(fatty_acid);
+                    ++i;
                 }
-            }
-            
-            /*
-            foreach (HeadgroupDecorator decorator in headgroup.decorators)
-            {
-                if (decorator.name.Equals("decorator_alkyl") || decorator.name.Equals("decorator_acyl"))
-                {
-                    ElementTable e = decorator.get_elements();
-                    info.num_carbon += e[Element.C];
-                    info.double_bonds.num_double_bonds += decorator.get_double_bonds();
-                }
-            }
-            */  
+            } 
         }
         
         public virtual void sort_fatty_acyl_chains(){
@@ -122,18 +115,15 @@ namespace csgoslin
 
         public string get_extended_class()
         {
-            bool special_case = (info.num_carbon > 0) ? (headgroup.lipid_category == LipidCategory.GP) : false;
-            string class_name = headgroup.get_class_name();
-            if (special_case && (info.extended_class == LipidFaBondType.ETHER_PLASMANYL || info.extended_class == LipidFaBondType.ETHER_UNSPECIFIED))
+            bool special_case = (info.num_carbon > 0) ? LipidClasses.lipid_classes[headgroup.lipid_class].special_cases.Contains("Ether") : false;
+    
+            string class_name = info.level >= LipidLevel.STRUCTURE_DEFINED ? headgroup.get_lipid_string(LipidLevel.STRUCTURE_DEFINED) : headgroup.get_lipid_string(LipidLevel.SPECIES);
+            
+            if (class_name.CompareTo("UNDEFINED") == 0) return class_name;
+            if (special_case && (info.extended_class == LipidFaBondType.ETHER_PLASMANYL || info.extended_class == LipidFaBondType.ETHER_UNSPECIFIED || info.extended_class == LipidFaBondType.ETHER_PLASMENYL))
             {
                 return class_name + "-O";
             }
-            
-            else if (special_case && info.extended_class == LipidFaBondType.ETHER_PLASMENYL)
-            {
-                return class_name + "-P";
-            }
-            
             return class_name;
         }
 
@@ -185,6 +175,12 @@ namespace csgoslin
             
             elements[Element.O] -= -additional_fa + info.num_ethers + (headgroup.sp_exception ? 1 : 0) + hydrochain;
             elements[Element.H] += -additional_fa + remaining_H + 2 * info.num_ethers + 2 * hydrochain;
+    
+            if (meta.special_cases.Contains("Amide"))
+            {
+                elements[Element.O] -= meta.max_num_fa;
+                elements[Element.H] += meta.max_num_fa;
+            }
             
             return elements;
         }

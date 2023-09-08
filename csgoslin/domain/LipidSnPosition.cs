@@ -37,6 +37,9 @@ namespace csgoslin
         public LipidSnPosition(Headgroup _headgroup, List<FattyAcid> _fa = null) : base (_headgroup, _fa)
         {
             info.level = LipidLevel.SN_POSITION;
+            for (int i = 0; i < fa_list.Count; ++i){
+                fa_list[i].position = i + 1;
+            }
         }
 
 
