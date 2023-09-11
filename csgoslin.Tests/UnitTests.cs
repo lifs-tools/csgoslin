@@ -307,6 +307,27 @@ namespace csgoslin.Tests
             Assert.Equal(l.get_sum_formula(), (string)"C40H77N2O7P");
             
         
+            l = parser.parse((string)"DG(a-21:0/20:5(5Z,8Z,10E,14Z,17Z)+=O(12S)/0:0)");
+            Assert.Equal(l.get_lipid_string(LipidLevel.FULL_STRUCTURE), (string)"DG 20:0;Me/20:5(5Z,8Z,10E,14Z,17Z);12oxo/0:0");
+            Assert.Equal(l.get_lipid_string(LipidLevel.STRUCTURE_DEFINED), (string)"DG 20:0;Me/20:5(5,8,10,14,17);oxo/0:0");
+            Assert.Equal(l.get_lipid_string(LipidLevel.SN_POSITION), (string)"DG 21:0/20:6;O/0:0");
+            Assert.Equal(l.get_lipid_string(LipidLevel.MOLECULAR_SPECIES), (string)"DG 21:0_20:6;O");
+            Assert.Equal(l.get_lipid_string(LipidLevel.SPECIES), (string)"DG 41:6;O");
+            Assert.Equal(l.get_sum_formula(), (string)"C44H74O6");
+            
+            l = parser.parse((string)"PIP(16:2(9Z,12Z)/PGJ2)");
+            Assert.Equal(l.get_lipid_string(LipidLevel.SN_POSITION), (string)"PIP 16:2/20:5;O2");
+            Assert.Equal(l.get_lipid_string(LipidLevel.MOLECULAR_SPECIES), (string)"PIP 16:2_20:5;O2");
+            Assert.Equal(l.get_lipid_string(LipidLevel.SPECIES), (string)"PIP 36:7;O2");
+            Assert.Equal(l.get_sum_formula(), (string)"C45H74O18P2");
+            
+            l = parser.parse((string)"PC(14:0/20:5(7Z,9Z,11E,13E,17Z)-3OH(5,6,15))");
+            Assert.Equal(l.get_lipid_string(LipidLevel.FULL_STRUCTURE), (string)"PC 14:0/20:5(7Z,9Z,11E,13E,17Z);5OH,6OH,15OH");
+            Assert.Equal(l.get_lipid_string(LipidLevel.STRUCTURE_DEFINED), (string)"PC 14:0/20:5(7,9,11,13,17);(OH)3");
+            Assert.Equal(l.get_lipid_string(LipidLevel.SN_POSITION), (string)"PC 14:0/20:5;O3");
+            Assert.Equal(l.get_lipid_string(LipidLevel.MOLECULAR_SPECIES), (string)"PC 14:0_20:5;O3");
+            Assert.Equal(l.get_lipid_string(LipidLevel.SPECIES), (string)"PC 34:5;O3");
+            Assert.Equal(l.get_sum_formula(), (string)"C42H74NO11P");
             
             
                 
@@ -520,6 +541,10 @@ namespace csgoslin.Tests
             Assert.Equal(lipid.get_sum_formula(), (string)"C40H77N2O7P");
             
             
+
+            lipid = parser.parse((string)"GalNAcβ1-4(Galβ1-4GlcNAcβ1-3)Galβ1-4Glcβ-Cer(d18:1/24:1(15Z))");
+            Assert.Equal(lipid.get_lipid_string(LipidLevel.SPECIES), (string)"Gal2GalNAcGlcGlcNAcCer 42:2;O2");
+            
                 
             // test several more lipid names
             List<string> lipid_data = new List<string>();
@@ -645,7 +670,49 @@ namespace csgoslin.Tests
             Assert.Equal(l.get_lipid_string(LipidLevel.MOLECULAR_SPECIES), (string)"EPC 16:2;O2/22:1;O");
             Assert.Equal(l.get_lipid_string(LipidLevel.SPECIES), (string)"EPC 38:3;O3");
             Assert.Equal(l.get_sum_formula(), (string)"C40H77N2O7P");
+
+            l = parser.parse((string)"BMP 18:1-18:1");
+            Assert.Equal("BMP 18:1_18:1", l.get_lipid_string());
+            Assert.Equal("C42H79O10P", l.get_sum_formula());
+            Assert.Equal("FA1", l.lipid.fa_list[0].name);
+            Assert.Equal(-1, l.lipid.fa_list[0].position);
+            Assert.Equal(1, l.lipid.fa_list[0].double_bonds.num_double_bonds);
+            Assert.Equal("FA2", l.lipid.fa_list[1].name);
+            Assert.Equal(-1, l.lipid.fa_list[1].position);
+            Assert.Equal(1, l.lipid.fa_list[1].double_bonds.num_double_bonds);
+            Assert.Equal("FA3", l.lipid.fa_list[2].name);
+            Assert.Equal(-1, l.lipid.fa_list[2].position);
+            Assert.Equal(0, l.lipid.fa_list[2].num_carbon);
+            Assert.Equal(0, l.lipid.fa_list[2].double_bonds.num_double_bonds);
+            Assert.Equal("FA4", l.lipid.fa_list[3].name);
+            Assert.Equal(-1, l.lipid.fa_list[3].position);
+            Assert.Equal(0, l.lipid.fa_list[3].num_carbon);
+            Assert.Equal(0, l.lipid.fa_list[3].double_bonds.num_double_bonds);
+
+            l = parser.parse((string)"TAG 18:1/0:0/16:0");
+            Assert.Equal("DG 18:1/0:0/16:0", l.get_lipid_string());
+            Assert.Equal("C37H70O5", l.get_sum_formula());
+            Assert.Equal(3, l.lipid.fa_list.Count);
+            Assert.Equal("FA1", l.lipid.fa_list[0].name);
+            Assert.Equal(1, l.lipid.fa_list[0].position);
+            Assert.Equal(18, l.lipid.fa_list[0].num_carbon);
+            Assert.Equal(1, l.lipid.fa_list[0].double_bonds.num_double_bonds);
+            Assert.Equal("FA2", l.lipid.fa_list[1].name);
+            Assert.Equal(2, l.lipid.fa_list[1].position);
+            Assert.Equal(0, l.lipid.fa_list[1].num_carbon);
+            Assert.Equal(0, l.lipid.fa_list[1].double_bonds.num_double_bonds);
+            Assert.Equal("FA3", l.lipid.fa_list[2].name);
+            Assert.Equal(3, l.lipid.fa_list[2].position);
+            Assert.Equal(16, l.lipid.fa_list[2].num_carbon);
+            Assert.Equal(0, l.lipid.fa_list[2].double_bonds.num_double_bonds);
             
+            l = parser.parse((string)"15S-HETE-d8");
+            Assert.Equal("FA 20:4;OH[M[2]H8]", l.get_lipid_string());
+            Assert.Equal("C20H24O3H'8", l.get_sum_formula());
+            
+    
+    
+    
             LipidAdduct lipid;
                 
             // test several more lipid names

@@ -95,7 +95,7 @@ namespace csgoslin
 
         void count_pre_event(TreeNode node)
         {
-            count = node.int();
+            count = node.get_int();
         }
     
     }

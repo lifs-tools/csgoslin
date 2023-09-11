@@ -110,7 +110,7 @@ namespace csgoslin
             HeadgroupDecorator hgd = new HeadgroupDecorator("decorator_acyl", -1, 1, null, true);
             headgroup_decorators.Add(hgd);
             hgd.functional_groups.Add("decorator_acyl", new List<FunctionalGroup>());
-            hgd.functional_groups["decorator_acyl"].Add(fa_list.back());
+            hgd.functional_groups["decorator_acyl"].Add(fa_list[fa_list.Count - 1]);
             fa_list.RemoveAt(fa_list.Count - 1);
         }
 
