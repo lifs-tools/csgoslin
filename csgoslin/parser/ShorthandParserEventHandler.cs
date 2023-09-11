@@ -40,24 +40,28 @@ namespace csgoslin
         public Dict tmp = new Dict();
         public bool acer_species = false;
         public static readonly HashSet<string> special_types = new HashSet<string>{"acyl", "alkyl", "decorator_acyl", "decorator_alkyl", "cc"};
+        public bool contains_stereo_information;
+        public Element heavy_element;
+        public int heavy_element_number;
+        
+        
+        public string FA_I()
+        {
+            return "fa" + Convert.ToString(current_fas.Count);
+        }
         
         public ShorthandParserEventHandler() : base()
         {
             reset_parser(null);
             registered_events.Add("lipid_pre_event", reset_parser);
             registered_events.Add("lipid_post_event", build_lipid);
-
-            // set categories
-            registered_events.Add("sl_pre_event", pre_sphingolipid);
-            registered_events.Add("sl_post_event", post_sphingolipid);
-            registered_events.Add("sl_hydroxyl_pre_event", set_hydroxyl);
-
+            
             // set adduct events
             registered_events.Add("adduct_info_pre_event", new_adduct);
             registered_events.Add("adduct_pre_event", add_adduct);
             registered_events.Add("charge_pre_event", add_charge);
             registered_events.Add("charge_sign_pre_event", add_charge_sign);
-
+            
             // set species events
             registered_events.Add("med_species_pre_event", set_species_level);
             registered_events.Add("gl_species_pre_event", set_species_level);
@@ -68,19 +72,21 @@ namespace csgoslin
             registered_events.Add("pl_single_pre_event", set_molecular_level);
             registered_events.Add("unsorted_fa_separator_pre_event", set_molecular_level);
             registered_events.Add("ether_num_pre_event", set_ether_num);
-
+            
             // set head groups events
             registered_events.Add("med_hg_single_pre_event", set_headgroup_name);
             registered_events.Add("med_hg_double_pre_event", set_headgroup_name);
             registered_events.Add("med_hg_triple_pre_event", set_headgroup_name);
             registered_events.Add("gl_hg_single_pre_event", set_headgroup_name);
             registered_events.Add("gl_hg_double_pre_event", set_headgroup_name);
-            registered_events.Add("gl_hg_true_double_pre_event", set_headgroup_name);
+            registered_events.Add("gl_hg_glycosyl_single_pre_event", set_headgroup_name);
+            registered_events.Add("gl_hg_glycosyl_double_pre_event", set_headgroup_name);
             registered_events.Add("gl_hg_triple_pre_event", set_headgroup_name);
             registered_events.Add("pl_hg_single_pre_event", set_headgroup_name);
             registered_events.Add("pl_hg_double_pre_event", set_headgroup_name);
             registered_events.Add("pl_hg_quadro_pre_event", set_headgroup_name);
             registered_events.Add("sl_hg_single_pre_event", set_headgroup_name);
+            registered_events.Add("sl_hg_glyco_pre_event", set_headgroup_name);
             registered_events.Add("pl_hg_double_fa_hg_pre_event", set_headgroup_name);
             registered_events.Add("sl_hg_double_name_pre_event", set_headgroup_name);
             registered_events.Add("st_hg_pre_event", set_headgroup_name);
@@ -89,14 +95,18 @@ namespace csgoslin
             registered_events.Add("hg_pip_pure_d_pre_event", set_headgroup_name);
             registered_events.Add("hg_pip_pure_t_pre_event", set_headgroup_name);
             registered_events.Add("hg_PE_PS_pre_event", set_headgroup_name);
+            registered_events.Add("glyco_sphingo_lipid_pre_event", set_glyco_sphingo_lipid);
+            registered_events.Add("carbohydrate_number_pre_event", set_carbohydrate_number);
 
             // set head group headgroup_decorators
             registered_events.Add("carbohydrate_pre_event", set_carbohydrate);
+            registered_events.Add("carbohydrate_sulfo_pre_event", set_carbohydrate);
             registered_events.Add("carbohydrate_structural_pre_event", set_carbohydrate_structural);
             registered_events.Add("carbohydrate_isomeric_pre_event", set_carbohydrate_isomeric);
-
+            
             // fatty acyl events
-            registered_events.Add("lcb_post_event", set_lcb);
+            registered_events.Add("lcb_pre_event", new_lcb);
+            registered_events.Add("lcb_post_event", add_fatty_acyl_chain);
             registered_events.Add("fatty_acyl_chain_pre_event", new_fatty_acyl_chain);
             registered_events.Add("fatty_acyl_chain_post_event", add_fatty_acyl_chain);
             registered_events.Add("carbon_pre_event", set_carbon);
@@ -106,16 +116,18 @@ namespace csgoslin
             registered_events.Add("db_single_position_post_event", add_double_bond_information);
             registered_events.Add("cistrans_pre_event", set_cistrans);
             registered_events.Add("ether_type_pre_event", set_ether_type);
-
+            registered_events.Add("stereo_type_fa_pre_event", set_fatty_acyl_stereo);
+            
             // set functional group events
             registered_events.Add("func_group_data_pre_event", set_functional_group);
             registered_events.Add("func_group_data_post_event", add_functional_group);
             registered_events.Add("func_group_pos_number_pre_event", set_functional_group_position);
             registered_events.Add("func_group_name_pre_event", set_functional_group_name);
             registered_events.Add("func_group_count_pre_event", set_functional_group_count);
-            registered_events.Add("stereo_type_pre_event", set_functional_group_stereo);
-            registered_events.Add("molecular_func_group_name_pre_event", set_molecular_func_group);
-
+            registered_events.Add("stereo_type_fg_pre_event", set_functional_group_stereo);
+            registered_events.Add("molecular_func_group_name_pre_event", set_sn_position_func_group);
+            registered_events.Add("fa_db_only_post_event", add_dihydroxyl);
+            
             // set cycle events
             registered_events.Add("func_group_cycle_pre_event", set_cycle);
             registered_events.Add("func_group_cycle_post_event", add_cycle);
@@ -128,7 +140,7 @@ namespace csgoslin
             registered_events.Add("cycle_db_position_number_pre_event", set_cycle_db_position);
             registered_events.Add("cycle_db_position_cis_trans_pre_event", set_cycle_db_position_cistrans);
             registered_events.Add("cylce_element_pre_event", add_cycle_element);
-
+            
             // set linkage events
             registered_events.Add("fatty_acyl_linkage_pre_event", set_acyl_linkage);
             registered_events.Add("fatty_acyl_linkage_post_event", add_acyl_linkage);
@@ -139,7 +151,7 @@ namespace csgoslin
             registered_events.Add("hydrocarbon_chain_pre_event", set_hydrocarbon_chain);
             registered_events.Add("hydrocarbon_chain_post_event", add_hydrocarbon_chain);
             registered_events.Add("hydrocarbon_number_pre_event", set_fatty_linkage_number);
-
+            
             // set remaining events
             registered_events.Add("ring_stereo_pre_event", set_ring_stereo);
             registered_events.Add("pl_hg_fa_pre_event", set_hg_acyl);
@@ -153,21 +165,20 @@ namespace csgoslin
             registered_events.Add("hg_PE_PS_type_pre_event", suffix_decorator_species);
             registered_events.Add("acer_hg_post_event", set_acer);
             registered_events.Add("acer_species_post_event", set_acer_species);
+            
+            registered_events.Add("sterol_definition_post_event", set_sterol_definition);
+            registered_events.Add("adduct_heavy_element_pre_event", set_heavy_element);
+            registered_events.Add("adduct_heavy_number_pre_event", set_heavy_number);
+            registered_events.Add("adduct_heavy_component_post_event", add_heavy_component);
      
             debug = "";
-        }
-        
-        
-        public string FA_I()
-        {
-            return "fa" + Convert.ToString(current_fas.Count);
         }
         
     
         public void reset_parser(TreeNode node)
         {
             content = null;
-            level = LipidLevel.FULL_STRUCTURE;
+            level = LipidLevel.COMPLETE_STRUCTURE;
             adduct = null;
             head_group = "";
             fa_list = new ExendedList<FattyAcid>();
@@ -175,6 +186,34 @@ namespace csgoslin
             headgroup_decorators = new ExendedList<HeadgroupDecorator>();
             tmp = new Dict();
             acer_species = false;
+            contains_stereo_information = false;
+            heavy_element = Element.C;
+            heavy_element_number = 0;
+        }
+
+
+        public void set_sterol_definition(TreeNode node)
+        {
+            head_group += " " + node.get_text();
+            fa_list.RemoveAt(0);
+        }
+
+
+
+        public void set_carbohydrate_number(TreeNode node)
+        {
+            int carbohydrate_num = node.get_int();
+            if (headgroup_decorators.Count > 0 && carbohydrate_num > 0)
+            {
+                headgroup_decorators[headgroup_decorators.Count - 1].count += (carbohydrate_num - 1);
+            }
+        }
+            
+            
+
+        public void set_glyco_sphingo_lipid(TreeNode node)
+        {
+            
         }
 
 
@@ -221,21 +260,6 @@ namespace csgoslin
         }
 
 
-
-        public void set_species_level(TreeNode node)
-        {
-            set_lipid_level(LipidLevel.SPECIES);
-        }
-
-
-
-        public void set_molecular_level(TreeNode node)
-        {
-            set_lipid_level(LipidLevel.MOLECULAR_SPECIES);
-        }
-
-
-
         public void add_cycle_element(TreeNode node)
         {
             string element = node.get_text();
@@ -248,14 +272,12 @@ namespace csgoslin
             ((Lst)((Dict)tmp[FA_I()])["cycle_elements"]).Add(Elements.element_positions[element]);
         }
 
-
         
         public void set_headgroup_name(TreeNode node)
         {
             if (head_group.Length == 0) head_group = node.get_text();
         }
-
-
+        
 
         public void set_carbohydrate(TreeNode node)
         {
@@ -324,40 +346,30 @@ namespace csgoslin
 
 
 
-        public void pre_sphingolipid(TreeNode node)
-        {
-            tmp.Add("sl_hydroxyl", 0);
-        }
-
-
-
         public void set_ring_stereo(TreeNode node)
         {
             ((Dict)tmp[FA_I()]).Add("fg_ring_stereo", node.get_text());
         }
 
-
-
-        public void post_sphingolipid(TreeNode node)
+        
+        public void set_fatty_acyl_stereo(TreeNode node)
         {
-            if (((int)tmp["sl_hydroxyl"]) == 0 && !head_group.Equals("Cer") && !head_group.Equals("SPB"))
-            {
-                set_lipid_level(LipidLevel.STRUCTURE_DEFINED);
-            }
+            current_fas.back().stereochemistry = node.get_text();
+            contains_stereo_information = true;
         }
-
-
-        public void set_hydroxyl(TreeNode node)
+        
+        
+        public void add_dihydroxyl(TreeNode node)
         {
-            tmp.Add("sl_hydroxyl", 1);
-        }
-
-
-
-        public void set_lcb(TreeNode node)
-        {
-                fa_list[fa_list.Count - 1].name = "LCB";
-                fa_list[fa_list.Count - 1].set_type(LipidFaBondType.LCB_REGULAR);
+            if (!LipidEnum.LCB_STATES.Contains(((FattyAcid)current_fas.back()).lipid_FA_bond_type)) return;
+            
+            int num_h = 1;
+            if (SP_EXCEPTION_CLASSES.Contains(head_group) && headgroup_decorators.Count == 0) num_h += 1;
+            
+            FunctionalGroup functional_group = KnownFunctionalGroups.get_functional_group("OH");
+            functional_group.count = num_h;
+            if (!current_fas.back().functional_groups.ContainsKey("OH")) current_fas.back().functional_groups.Add("OH", new List<FunctionalGroup>());
+            current_fas.back().functional_groups["OH"].Add(functional_group);
         }
 
 
@@ -381,6 +393,15 @@ namespace csgoslin
 
 
 
+        public void new_lcb(TreeNode node)
+        {
+            new_fatty_acyl_chain(node);
+            ((FattyAcid)current_fas[current_fas.Count - 1]).set_type(LipidFaBondType.LCB_REGULAR);
+            current_fas[current_fas.Count - 1].name = "LCB";
+        }
+        
+        
+        
         public void add_fatty_acyl_chain(TreeNode node)
         {
             string fg_i = "fa" + Convert.ToString(current_fas.Count - 2);
@@ -425,7 +446,7 @@ namespace csgoslin
 
         public void set_double_bond_position(TreeNode node)
         {
-            ((Dict)tmp[FA_I()]).Add("db_position", Convert.ToInt32(node.get_text()));
+            ((Dict)tmp[FA_I()]).Add("db_position", node.get_int());
         }
 
 
@@ -516,7 +537,7 @@ namespace csgoslin
 
         public void set_fatty_linkage_number(TreeNode node)
         {
-            ((Dict)tmp[FA_I()]).Add("linkage_pos", Convert.ToInt32(node.get_text()));
+            ((Dict)tmp[FA_I()]).Add("linkage_pos", node.get_int());
         }
 
 
@@ -556,7 +577,6 @@ namespace csgoslin
             headgroup_decorators.Add((HeadgroupDecorator)current_fas.PopBack());
             tmp.Remove(FA_I());
         }
-
 
 
         public void set_linkage_type(TreeNode node)
@@ -645,35 +665,33 @@ namespace csgoslin
 
         public void set_cycle_start(TreeNode node)
         {
-            ((Cycle)current_fas.back()).start = Convert.ToInt32(node.get_text());
+            ((Cycle)current_fas.back()).start = node.get_int();
         }
 
 
 
         public void set_cycle_end(TreeNode node)
         {
-            ((Cycle)current_fas.back()).end = Convert.ToInt32(node.get_text());
+            ((Cycle)current_fas.back()).end = node.get_int();
         }
 
 
 
         public void set_cycle_number(TreeNode node){
-            ((Cycle)current_fas.back()).cycle = Convert.ToInt32(node.get_text());
+            ((Cycle)current_fas.back()).cycle = node.get_int();
         }
 
 
 
         public void set_cycle_db_count(TreeNode node)
         {
-            ((Cycle)current_fas.back()).double_bonds.num_double_bonds = Convert.ToInt32(node.get_text());
+            ((Cycle)current_fas.back()).double_bonds.num_double_bonds = node.get_int();
         }
 
 
 
         public void set_cycle_db_positions(TreeNode node){
             ((Dict)tmp[FA_I()]).Add("cycle_db", ((Cycle)current_fas.back()).double_bonds.get_num());
-            //delete ((Cycle*)current_fas.back()).double_bonds;
-            //((Cycle*)current_fas.back()).double_bonds = new DoubleBonds();
         }
 
 
@@ -690,11 +708,10 @@ namespace csgoslin
 
         public void set_cycle_db_position(TreeNode node)
         {
-            int pos = Convert.ToInt32(node.get_text());
+            int pos = node.get_int();
             ((Cycle)current_fas.back()).double_bonds.double_bond_positions.Add(pos, "");
             ((Dict)tmp[FA_I()]).Add("last_db_pos", pos);
         }
-
 
 
         public void set_cycle_db_position_cistrans(TreeNode node)
@@ -707,7 +724,7 @@ namespace csgoslin
 
         public void set_functional_group_position(TreeNode node)
         {
-            ((Dict)tmp[FA_I()]).Add("fg_pos", Convert.ToInt32(node.get_text()));
+            ((Dict)tmp[FA_I()]).Add("fg_pos", node.get_int());
         }
 
 
@@ -721,7 +738,7 @@ namespace csgoslin
 
         public void set_functional_group_count(TreeNode node)
         {
-            ((Dict)tmp[FA_I()]).Add("fg_cnt", Convert.ToInt32(node.get_text()));
+            ((Dict)tmp[FA_I()]).Add("fg_cnt", node.get_int());
         }
 
 
@@ -729,13 +746,15 @@ namespace csgoslin
         public void set_functional_group_stereo(TreeNode node)
         {
             ((Dict)tmp[FA_I()]).Add("fg_stereo", node.get_text());
+            contains_stereo_information = true;
         }
 
 
 
-        public void set_molecular_func_group(TreeNode node)
+        public void set_sn_position_func_group(TreeNode node)
         {
-            ((Dict)tmp[FA_I()]).Add("fg_name", node.get_text());
+            ((Dict)tmp[FA_I()])["fg_name"] = node.get_text();
+            set_lipid_level(LipidLevel.SN_POSITION);
         }
 
 
@@ -756,6 +775,11 @@ namespace csgoslin
             if (fg_pos == -1)
             {
                 set_lipid_level(LipidLevel.STRUCTURE_DEFINED);
+            }
+    
+            if (fg_cnt <= 0)
+            {
+                return;
             }
             
             FunctionalGroup functional_group = null;
@@ -804,17 +828,30 @@ namespace csgoslin
         }
 
 
+        public void set_species_level(TreeNode node)
+        {
+            set_lipid_level(LipidLevel.SPECIES);
+        }
+
+
+
+        public void set_molecular_level(TreeNode node)
+        {
+            set_lipid_level(LipidLevel.MOLECULAR_SPECIES);
+        }
+
+
 
         public void set_carbon(TreeNode node)
         {
-            ((FattyAcid)current_fas.back()).num_carbon = Convert.ToInt32(node.get_text());
+            ((FattyAcid)current_fas.back()).num_carbon = node.get_int();
         }
 
 
 
         public void set_double_bond_count(TreeNode node)
         {
-            int db_cnt = Convert.ToInt32(node.get_text());
+            int db_cnt = node.get_int();
             ((Dict)tmp[FA_I()]).Add("db_count", db_cnt);
             ((FattyAcid)current_fas.back()).double_bonds.num_double_bonds = db_cnt;
         }
@@ -837,7 +874,7 @@ namespace csgoslin
 
         public void add_charge(TreeNode node)
         {
-            adduct.charge = Convert.ToInt32(node.get_text());
+            adduct.charge = node.get_int();
         }
 
 
@@ -847,6 +884,28 @@ namespace csgoslin
             string sign = node.get_text();
             if (sign.Equals("+")) adduct.set_charge_sign(1);
             else adduct.set_charge_sign(-1);
+            if (adduct.charge == 0) adduct.charge = 1;
+        }
+
+
+
+        public void set_heavy_element(TreeNode node)
+        {
+            heavy_element = Elements.heavy_element_table[node.get_text()];
+        }
+
+
+
+        public void set_heavy_number(TreeNode node)
+        {
+            heavy_element_number = node.get_int();
+        }
+
+
+
+        public void add_heavy_component(TreeNode node)
+        {
+            adduct.heavy_elements[heavy_element] = heavy_element_number;
         }
     }
 }
