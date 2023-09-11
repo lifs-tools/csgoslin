@@ -26,7 +26,7 @@
     <DefaultLanguage>en-US</DefaultLanguage>
     <Authors>Dominik Kopczynski, Nils Hoffmann</Authors>
     <Copyright>© $([System.DateTime]::Now.Year) Dominik Kopczynski, Nils Hoffmann</Copyright>
-    <PackageLicenseUrl>https://raw.githubusercontent.com/lifs-tools/csgoslin/main/LICENSE</PackageLicenseUrl>
+    <PackageLicense>https://raw.githubusercontent.com/lifs-tools/csgoslin/main/LICENSE</PackageLicense>
     <PackageProjectUrl>https://github.com/lifs-tools/csgoslin</PackageProjectUrl>
     <RepositoryUrl>https://github.com/lifs-tools/csgoslin</RepositoryUrl>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>

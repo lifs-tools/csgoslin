@@ -34,7 +34,7 @@ namespace csgoslin
     {
         public ShorthandParser() : base(new ShorthandParserEventHandler(), new GrammarString(KnownGrammars.shorthand_grammar), StringFunctions.DEFAULT_QUOTE)
         {
-            
+            Headgroup.init();
         }
     }
     
@@ -43,7 +43,7 @@ namespace csgoslin
     {
         public FattyAcidParser() : base(new FattyAcidParserHandler(), new GrammarString(KnownGrammars.fatty_acid_grammar), StringFunctions.DEFAULT_QUOTE)
         {
-            
+            Headgroup.init();
         }
         
         public override LipidAdduct parse(string lipid_name, bool throw_error = true)
@@ -57,7 +57,7 @@ namespace csgoslin
     {
         public GoslinParser() : base(new GoslinParserEventHandler(), new GrammarString(KnownGrammars.goslin_grammar), StringFunctions.DEFAULT_QUOTE)
         {
-            
+            Headgroup.init();
         }
     }
     
@@ -66,7 +66,7 @@ namespace csgoslin
     {
         public LipidMapsParser() : base(new LipidMapsParserEventHandler(), new GrammarString(KnownGrammars.lipid_maps_grammar), StringFunctions.DEFAULT_QUOTE)
         {
-            
+            Headgroup.init();
         }
     }
     
@@ -75,7 +75,7 @@ namespace csgoslin
     {
         public SwissLipidsParser() : base(new SwissLipidsParserEventHandler(), new GrammarString(KnownGrammars.swiss_lipids_grammar), StringFunctions.DEFAULT_QUOTE)
         {
-            
+            Headgroup.init();
         }
     }
     
@@ -84,7 +84,7 @@ namespace csgoslin
     {
         public HmdbParser() : base(new HmdbParserEventHandler(), new GrammarString(KnownGrammars.hmdb_grammar), StringFunctions.DEFAULT_QUOTE)
         {
-            
+            Headgroup.init();
         }
     }
 
@@ -102,7 +102,6 @@ namespace csgoslin
             parser_list.Add(new LipidMapsParser());
             parser_list.Add(new SwissLipidsParser());
             parser_list.Add(new HmdbParser());
-            
             lastSuccessfulParser = null;
         }
         

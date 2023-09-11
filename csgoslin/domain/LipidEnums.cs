@@ -59,7 +59,12 @@ namespace csgoslin
             {LipidCategory.FA, "FA"},
             {LipidCategory.SL, "SL"}
         };
+        
+        
+        public static HashSet<LipidFaBondType> LCB_STATES = new HashSet<LipidFaBondType>(){LipidFaBondType.LCB_REGULAR, LipidFaBondType.LCB_EXCEPTION};
     }
+    
+    
 
     public enum LipidLevel
     {

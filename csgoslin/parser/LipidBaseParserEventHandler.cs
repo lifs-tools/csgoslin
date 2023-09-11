@@ -174,7 +174,6 @@ namespace csgoslin
                         f3.position = 17;
                         return new FattyAcid("FA", 22, new DoubleBonds(6), new Dictionary<string, List<FunctionalGroup>>{{"OH", new List<FunctionalGroup>(){f1, f2, f3}}});
                     }
-                    break;
                     
                 case "TXB1":
                     {
