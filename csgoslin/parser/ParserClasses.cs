@@ -88,6 +88,11 @@ namespace csgoslin
             }
             return Convert.ToString(terminal);
         }
+        
+        public int get_int()
+        {
+            return Convert.ToInt32(get_text());
+        }
     }
     
     // this class is dedicated to have an efficient sorted set class storing
