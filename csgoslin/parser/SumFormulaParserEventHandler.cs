@@ -54,8 +54,6 @@ namespace csgoslin
         void reset_parser(TreeNode node)
         {
             content = StringFunctions.create_empty_table();
-            element = Element.H;
-            count = 0;
         }
 
 
@@ -97,7 +95,7 @@ namespace csgoslin
 
         void count_pre_event(TreeNode node)
         {
-            count = Convert.ToInt32(node.get_text());
+            count = node.int();
         }
     
     }

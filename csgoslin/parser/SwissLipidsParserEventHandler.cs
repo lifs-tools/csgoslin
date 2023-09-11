@@ -79,7 +79,6 @@ namespace csgoslin
             registered_events.Add("fa_lcb_suffix_type_pre_event", add_fa_lcb_suffix_type);
             registered_events.Add("fa_lcb_suffix_number_pre_event", add_suffix_number);
             registered_events.Add("pl_three_post_event", set_nape);
-            
             registered_events.Add("adduct_info_pre_event", new_adduct);
             registered_events.Add("adduct_pre_event", add_adduct);
             registered_events.Add("charge_pre_event", add_charge);
@@ -104,6 +103,17 @@ namespace csgoslin
             suffix_number = -1;
         }
 
+
+        public void set_nape(TreeNode node)
+        {
+            head_group = "PE-N";
+            HeadgroupDecorator hgd = new HeadgroupDecorator("decorator_acyl", -1, 1, null, true);
+            headgroup_decorators.Add(hgd);
+            hgd.functional_groups.Add("decorator_acyl", new List<FunctionalGroup>());
+            hgd.functional_groups["decorator_acyl"].Add(fa_list.back());
+            fa_list.RemoveAt(fa_list.Count - 1);
+        }
+
         
         public void set_isomeric_level(TreeNode node)
         {
@@ -120,22 +130,11 @@ namespace csgoslin
                 if (!db_cistrans.Equals("E") && !db_cistrans.Equals("Z")) set_lipid_level(LipidLevel.STRUCTURE_DEFINED);
             }
         }
-        
-        
-        public void set_nape(TreeNode node)
-        {
-            head_group = "PE-N";
-            HeadgroupDecorator hgd = new HeadgroupDecorator("decorator_acyl", -1, 1, null, true);
-            headgroup_decorators.Add(hgd);
-            hgd.functional_groups.Add("decorator_acyl", new List<FunctionalGroup>());
-            hgd.functional_groups["decorator_acyl"].Add(fa_list[fa_list.Count - 1]);
-            fa_list.RemoveAt(fa_list.Count - 1);
-        }
 
 
         public void add_db_position_number(TreeNode node)
         {
-            db_position = Convert.ToInt32(node.get_text());
+            db_position = node.get_int();
         }
 
 
@@ -180,7 +179,7 @@ namespace csgoslin
 
         public void new_fa(TreeNode node)
         {
-            current_fa = new FattyAcid("FA" + Convert.ToString(fa_list.Count + 1));
+            current_fa = new FattyAcid("FA");
         }
             
             
@@ -218,11 +217,6 @@ namespace csgoslin
                 set_lipid_level(LipidLevel.SN_POSITION);
             }
             
-            if (is_level(level, LipidLevel.COMPLETE_STRUCTURE | LipidLevel.FULL_STRUCTURE | LipidLevel.STRUCTURE_DEFINED | LipidLevel.SN_POSITION))
-            {
-                    current_fa.position = fa_list.Count + 1;
-            }
-            
             fa_list.Add(current_fa);
             current_fa = null;
         }
@@ -233,7 +227,7 @@ namespace csgoslin
         {
             if (lcb != null)
             {
-                foreach (FattyAcid fa in fa_list) fa.position += 1;
+                set_lipid_level(LipidLevel.STRUCTURE_DEFINED);
                 fa_list.Insert(0, lcb);
             }
 
@@ -285,12 +279,19 @@ namespace csgoslin
                 current_fa.functional_groups["OH"].Add(functional_group);
             }
         }
+            
+            
+
+        public void add_double_bonds(TreeNode node)
+        {
+            current_fa.double_bonds.num_double_bonds += node.get_int();
+        }
 
 
 
         public void add_suffix_number(TreeNode node)
         {
-            suffix_number = Convert.ToInt32(node.get_text());
+            suffix_number = node.get_int();
         }
 
 
@@ -315,16 +316,9 @@ namespace csgoslin
             
             
 
-        public void add_double_bonds(TreeNode node)
-        {
-            current_fa.double_bonds.num_double_bonds += Convert.ToInt32(node.get_text());
-        }
-            
-            
-
         public void add_carbon(TreeNode node)
         {
-            current_fa.num_carbon = Convert.ToInt32(node.get_text());
+            current_fa.num_carbon = node.get_int();
         }
 
                 
@@ -354,7 +348,7 @@ namespace csgoslin
 
         public void add_charge(TreeNode node)
         {
-            adduct.charge = Convert.ToInt32(node.get_text());
+            adduct.charge = node.get_int();
         }
             
             
@@ -364,6 +358,7 @@ namespace csgoslin
             string sign = node.get_text();
             if (sign.Equals("+")) adduct.set_charge_sign(1);
             else if (sign.Equals("-")) adduct.set_charge_sign(-1);
+            if (adduct.charge == 0) adduct.charge = 1;
         }
         
     }
