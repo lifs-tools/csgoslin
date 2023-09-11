@@ -307,7 +307,7 @@ namespace csgoslin
                     elements[Element.H] = (2 * num_carbon - 1 - 2 * num_double_bonds + 2); // hydrogen
                 }
                 
-                else if (lipid_FA_bond_type == LipidFaBondType.ETHER_PLASMANYL){
+                else if (lipid_FA_bond_type == LipidFaBondType.ETHER_PLASMANYL || lipid_FA_bond_type == LipidFaBondType.ETHER){
                     elements[Element.H] = ((num_carbon + 1) * 2 - 1 - 2 * num_double_bonds); // hydrogen
                 }
                 

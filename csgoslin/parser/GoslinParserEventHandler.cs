@@ -39,15 +39,15 @@ namespace csgoslin
     public class GoslinParserEventHandler : LipidBaseParserEventHandler
     {
         
-        public int db_position;
-        public string db_cistrans;
-        public char plasmalogen;
-        public bool unspecified_ether;
-        public string mediator_function;
-        public List<int> mediator_function_positions;
-        public bool mediator_suffix;
-        public Element heavy_element;
-        public int heavy_element_number;
+        public int db_position = 0;
+        public string db_cistrans = "";
+        public char plasmalogen = '\0';
+        public bool unspecified_ether = false;
+        public string mediator_function = "";
+        public List<int> mediator_function_positions = new List<int>();
+        public bool mediator_suffix = false;
+        public Element heavy_element = Element.C;
+        public int heavy_element_number = 0;
     
         public static Dictionary<string, int> mediator_FA = new Dictionary<string, int>(){{"H", 17}, {"O", 18}, {"E", 20}, {"Do", 22}};
         public static Dictionary<string, int> mediator_DB = new Dictionary<string, int>(){{"M", 1}, {"D", 2}, {"Tr", 3}, {"T", 4}, {"P", 5}, {"H", 6}};
@@ -124,8 +124,6 @@ namespace csgoslin
             registered_events.Add("adduct_heavy_element_pre_event", set_heavy_element);
             registered_events.Add("adduct_heavy_number_pre_event", set_heavy_number);
             registered_events.Add("adduct_heavy_component_post_event", add_heavy_component);
-            
-            
             debug = "";
         }
 
@@ -137,6 +135,7 @@ namespace csgoslin
             head_group = "";
             lcb = null;
             fa_list = new List<FattyAcid>();
+            headgroup_decorators = new ExendedList<HeadgroupDecorator>();
             current_fa = null;
             adduct = null;
             db_position = 0;
@@ -450,7 +449,6 @@ namespace csgoslin
             lipid.lipid = assemble_lipid(headgroup);
             lipid.adduct = adduct;
             content = lipid;
-            
         }
             
             

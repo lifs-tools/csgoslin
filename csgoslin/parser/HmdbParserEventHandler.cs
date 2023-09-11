@@ -113,7 +113,7 @@ namespace csgoslin
             db_cistrans = "";
             adduct = null;
             furan = new Dict();
-            headgroup_decorators.Clear();
+            headgroup_decorators = new ExendedList<HeadgroupDecorator>();
             func_type = "";
         }
 

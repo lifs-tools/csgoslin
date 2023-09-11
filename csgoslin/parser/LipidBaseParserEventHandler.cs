@@ -35,15 +35,15 @@ namespace csgoslin
     
     public class LipidBaseParserEventHandler : BaseParserEventHandler<LipidAdduct>
     {
-        public LipidLevel level;
-        public string head_group;
-        public FattyAcid lcb;
-        public List<FattyAcid> fa_list;
-        public FattyAcid current_fa;
-        public List<HeadgroupDecorator> headgroup_decorators;
-        public bool use_head_group;
+        public LipidLevel level = LipidLevel.NO_LEVEL;
+        public string head_group = "";
+        public FattyAcid lcb = null;
+        public List<FattyAcid> fa_list = new List<FattyAcid>();
+        public FattyAcid current_fa = null;
+        public List<HeadgroupDecorator> headgroup_decorators = new List<HeadgroupDecorator>();
+        public bool use_head_group = false;
         public static HashSet<string> SP_EXCEPTION_CLASSES = new HashSet<string>{"Cer", "Ceramide", "Sphingosine", "So", "Sphinganine", "Sa", "SPH", "Sph", "LCB"};
-        public Adduct adduct;
+        public Adduct adduct = null;
         
         public static Dictionary<string, List<string> > glyco_table = new Dictionary<string, List<string>>(){{"ga1", new List<string>(){"Gal", "GalNAc", "Gal", "Glc"}},
                {"ga2", new List<string>(){"GalNAc", "Gal", "Glc"}},

@@ -34,11 +34,11 @@ namespace csgoslin
     
     public class Adduct
     {
-        public string sum_formula;
-        public string adduct_string;
-        public int charge;
-        public int charge_sign;
-        public ElementTable heavy_elements;
+        public string sum_formula = "";
+        public string adduct_string = "";
+        public int charge = 0;
+        public int charge_sign = 0;
+        public ElementTable heavy_elements = new ElementTable();
         
         public static readonly Dictionary<string, ElementTable> adducts = new Dictionary<string, ElementTable>{
             {"+H", new ElementTable(){{Element.H, 1}} },
@@ -63,7 +63,7 @@ namespace csgoslin
         };
 
         
-        public Adduct(string _sum_formula, string _adduct_string, int _charge = 1, int _sign = 1)
+        public Adduct(string _sum_formula, string _adduct_string, int _charge = 0, int _sign = 1)
         {
             sum_formula = _sum_formula;
             adduct_string = _adduct_string;
@@ -140,20 +140,23 @@ namespace csgoslin
                 }
             }
             
-            if (adduct_charges.ContainsKey(adduct_string))
+            if (adduct_string.Length > 0)
             {
-                if (adduct_charges[adduct_string] != get_charge())
+                if (adduct_charges.ContainsKey(adduct_string))
                 {
-                    throw new ConstraintViolationException("Provided charge '" + Convert.ToString(get_charge()) + "' in contradiction to adduct '" + adduct_string + "' charge '" + Convert.ToString(adduct_charges[adduct_string]) + "'.");
+                    if (adduct_charges[adduct_string] != get_charge())
+                    {
+                        throw new ConstraintViolationException("Provided charge '" + Convert.ToString(get_charge()) + "' in contradiction to adduct '" + adduct_string + "' charge '" + Convert.ToString(adduct_charges[adduct_string]) + "'.");
+                    }
+                    foreach (KeyValuePair<Element, int> kv in adducts[adduct_string])
+                    {
+                        elements[kv.Key] += kv.Value;
+                    }
                 }
-                foreach (KeyValuePair<Element, int> kv in adducts[adduct_string])
+                else
                 {
-                    elements[kv.Key] += kv.Value;
+                    throw new ConstraintViolationException("Adduct '" + adduct_string + "' is unknown.");
                 }
-            }
-            else
-            {
-                throw new ConstraintViolationException("Adduct '" + adduct_string + "' is unknown.");
             }
             
             

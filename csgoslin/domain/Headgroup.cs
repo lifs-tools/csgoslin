@@ -209,11 +209,6 @@ namespace csgoslin
             
             string hgs = use_headgroup ? headgroup : get_class_string(lipid_class);
             
-            /*
-            if (level == LipidLevel.CLASS){
-                return hgs;
-            }
-            */
             
             StringBuilder headgoup_string = new StringBuilder();
                     
@@ -225,12 +220,15 @@ namespace csgoslin
                 {
                     if (!hgd.suffix) decorators_tmp.Add((HeadgroupDecorator)hgd.copy());
                 }
-                decorators_tmp.Sort();
+                decorators_tmp.Sort(delegate(HeadgroupDecorator hi, HeadgroupDecorator hj){
+                    return hi.name.CompareTo(hj.name);
+                });
                 for (int i = decorators_tmp.Count - 1; i > 0; i--)
                 {
                     HeadgroupDecorator hge = decorators_tmp[i];
                     HeadgroupDecorator hge_before = decorators_tmp[i - 1];
-                    if (hge.name == hge_before.name){
+                    if (hge.name.Equals(hge_before.name))
+                    {
                         hge_before.count += hge.count;
                         decorators_tmp.RemoveAt(i);
                     }

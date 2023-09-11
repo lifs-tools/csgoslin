@@ -48,7 +48,7 @@ namespace csgoslin
         public bool sphinga_pure;
         public int lcb_carbon_pre_set;
         public int lcb_db_pre_set;
-        public List<FunctionalGroup> lcb_hydro_pre_set;
+        public List<FunctionalGroup> lcb_hydro_pre_set = new List<FunctionalGroup>();
         public string sphinga_prefix = "";
         public string sphinga_suffix = "";
         

@@ -36,6 +36,8 @@ namespace csgoslin.Tests
     public class UnitTests
     {
         
+        public bool test_adducts = true;
+        public bool test_parser = true;
         public bool test_fatty_acid = true;
         public bool test_hmdb = true;
         public bool test_goslin = true;
@@ -50,6 +52,8 @@ namespace csgoslin.Tests
         [Fact]
         public void AdductUnitTest()
         {
+            if (!test_adducts) return;
+            
             LipidMapsParser p_lm = new LipidMapsParser();
             LipidAdduct lipid = p_lm.parse("PE(16:0/18:0)[M-4H]4-");
             Assert.True(Math.Abs(lipid.get_mass() - 178.8794) < 0.001);
@@ -125,6 +129,8 @@ namespace csgoslin.Tests
         [Fact]
         public void ParserUnitTest()
         {
+            if (!test_parser) return;
+            
             LipidParser lipid_parser = new LipidParser();
             LipidAdduct lipid = lipid_parser.parse("Cer 36:1;2");
             int ohCount = lipid.lipid.info.get_total_functional_group_count("OH");
@@ -157,6 +163,12 @@ namespace csgoslin.Tests
         
             FattyAcidParser fatty_acid_parser = new FattyAcidParser();
             ShorthandParser shorthand_parser = new ShorthandParser();
+            
+            
+            
+            LipidAdduct lpd = fatty_acid_parser.parse("Methyl 7Z,11Z-Hexadecadienoate");
+            Assert.Equal("WE 1:0/16:2(7Z,11Z)", lpd.get_lipid_string());
+            
             
                 
             // test several more lipid names
@@ -543,7 +555,7 @@ namespace csgoslin.Tests
             
 
             lipid = parser.parse((string)"GalNAcβ1-4(Galβ1-4GlcNAcβ1-3)Galβ1-4Glcβ-Cer(d18:1/24:1(15Z))");
-            Assert.Equal(lipid.get_lipid_string(LipidLevel.SPECIES), (string)"Gal2GalNAcGlcGlcNAcCer 42:2;O2");
+            Assert.Equal("Gal2GalNAcGlcGlcNAcCer 42:2;O2", lipid.get_lipid_string(LipidLevel.SPECIES));
             
                 
             // test several more lipid names

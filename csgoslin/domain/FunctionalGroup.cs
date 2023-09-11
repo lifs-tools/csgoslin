@@ -262,7 +262,7 @@ namespace csgoslin
 
         public override string to_string(LipidLevel level)
         {
-            if (!suffix) return name;
+            if (!suffix) return name + (count > 1 ? count.ToString() : "");
 
             string decorator_string = "";
             if (lowest_visible_level == LipidLevel.NO_LEVEL || lowest_visible_level <= level)
