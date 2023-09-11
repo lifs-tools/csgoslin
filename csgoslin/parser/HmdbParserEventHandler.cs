@@ -39,6 +39,7 @@ namespace csgoslin
         public int db_position;
         public string db_cistrans;
         public Dict furan = new Dict();
+        public string func_type;
     
         public HmdbParserEventHandler() : base()
         {
@@ -86,11 +87,15 @@ namespace csgoslin
             registered_events.Add("furan_fa_di_pre_event", furan_fa_di);
             registered_events.Add("furan_first_number_pre_event", furan_fa_first_number);
             registered_events.Add("furan_second_number_pre_event", furan_fa_second_number);
-            
             registered_events.Add("adduct_info_pre_event", new_adduct);
             registered_events.Add("adduct_pre_event", add_adduct);
             registered_events.Add("charge_pre_event", add_charge);
             registered_events.Add("charge_sign_pre_event", add_charge_sign);
+            registered_events.Add("fa_lcb_suffix_types_pre_event", register_suffix_type);
+            registered_events.Add("fa_lcb_suffix_position_pre_event", register_suffix_pos);
+            registered_events.Add("fa_synonym_pre_event", register_fa_synonym);
+            
+            
             debug = "";
         }
 
@@ -105,9 +110,41 @@ namespace csgoslin
             current_fa = null;
             use_head_group = false;
             db_position = 0;
-            adduct = null;
             db_cistrans = "";
+            adduct = null;
             furan = new Dict();
+            headgroup_decorators.Clear();
+            func_type = "";
+        }
+
+
+        public void register_suffix_type(TreeNode node)
+        {
+                func_type = node.get_text();
+                if (!func_type.Equals("me") && !func_type.Equals("OH") && !func_type.Equals("O"))
+                {
+                    throw new LipidException("Unknown functional abbreviation: " + func_type);
+                }
+                if (func_type.Equals("me")) func_type = "Me";
+                else if (func_type.Equals("O")) func_type = "oxo";
+        }
+            
+            
+            
+        public void register_suffix_pos(TreeNode node)
+        {
+                int pos = node.get_int();
+                FunctionalGroup functional_group = KnownFunctionalGroups.get_functional_group(func_type);
+                functional_group.position = pos;
+                if (!current_fa.functional_groups.ContainsKey(func_type)) current_fa.functional_groups.Add(func_type, new List<FunctionalGroup>());
+                current_fa.functional_groups[func_type].Add(functional_group);
+        }
+
+
+
+        public void register_fa_synonym(TreeNode node)
+        {
+            current_fa = resolve_fa_synonym(node.get_text());
         }
 
         
@@ -130,7 +167,7 @@ namespace csgoslin
 
         public void add_db_position_number(TreeNode node)
         {
-            db_position = Convert.ToInt32(node.get_text());
+            db_position = node.get_int();
         }
 
 
@@ -170,7 +207,7 @@ namespace csgoslin
 
         public void new_fa(TreeNode node)
         {
-            current_fa = new FattyAcid("FA" + Convert.ToString(fa_list.Count + 1));
+            current_fa = new FattyAcid("FA");
         }
             
             
@@ -179,8 +216,8 @@ namespace csgoslin
         {
             lcb = new FattyAcid("LCB");
             lcb.set_type(LipidFaBondType.LCB_REGULAR);
-            set_lipid_level(LipidLevel.STRUCTURE_DEFINED);
             current_fa = lcb;
+            set_lipid_level(LipidLevel.STRUCTURE_DEFINED);
         }
                 
                 
@@ -207,11 +244,6 @@ namespace csgoslin
             {
                 set_lipid_level(LipidLevel.SN_POSITION);
             }
-            
-            if (is_level(level, LipidLevel.COMPLETE_STRUCTURE | LipidLevel.FULL_STRUCTURE | LipidLevel.STRUCTURE_DEFINED | LipidLevel.SN_POSITION))
-            {
-                    current_fa.position = fa_list.Count + 1;
-            }
 
             fa_list.Add(current_fa);
             current_fa = null;
@@ -223,7 +255,7 @@ namespace csgoslin
         {
             if (lcb != null)
             {
-                foreach (FattyAcid fa in fa_list) fa.position += 1;
+                set_lipid_level(LipidLevel.STRUCTURE_DEFINED);
                 fa_list.Insert(0, lcb);
             }
             
@@ -244,6 +276,17 @@ namespace csgoslin
             else if (ether.Equals("P-")) current_fa.lipid_FA_bond_type = LipidFaBondType.ETHER_PLASMENYL;
             else throw new UnsupportedLipidException("Fatty acyl chain of type '" + ether + "' is currently not supported");
         }
+    
+    
+
+        public void add_methyl(TreeNode node)
+        {
+            FunctionalGroup functional_group = KnownFunctionalGroups.get_functional_group("Me");
+            functional_group.position = current_fa.num_carbon - (node.get_text() == "i-" ? 1 : 2);
+            current_fa.num_carbon -= 1;
+            if (!current_fa.functional_groups.ContainsKey("Me")) current_fa.functional_groups.Add("Me", new List<FunctionalGroup>());
+            current_fa.functional_groups["Me"].Add(functional_group);
+        }
             
             
 
@@ -261,17 +304,6 @@ namespace csgoslin
             functional_group.count = num_h;
             if (!current_fa.functional_groups.ContainsKey("OH")) current_fa.functional_groups.Add("OH", new List<FunctionalGroup>());
             current_fa.functional_groups["OH"].Add(functional_group);
-        }
-        
-        
-        public void add_methyl(TreeNode node)
-        {
-            FunctionalGroup functional_group = KnownFunctionalGroups.get_functional_group("Me");
-            functional_group.position = current_fa.num_carbon - (node.get_text().Equals("i-") ? 1 : 2);
-            current_fa.num_carbon -= 1;
-            
-            if (!current_fa.functional_groups.ContainsKey("Me")) current_fa.functional_groups.Add("Me", new List<FunctionalGroup>());
-            current_fa.functional_groups["Me"].Add(functional_group);
         }
 
 
@@ -291,14 +323,14 @@ namespace csgoslin
 
         public void add_double_bonds(TreeNode node)
         {
-            current_fa.double_bonds.num_double_bonds = Convert.ToInt32(node.get_text());
+            current_fa.double_bonds.num_double_bonds = node.get_int();
         }
             
             
 
         public void add_carbon(TreeNode node)
         {
-            current_fa.num_carbon += Convert.ToInt32(node.get_text());
+            current_fa.num_carbon += node.get_int();
         }
             
 
@@ -359,13 +391,13 @@ namespace csgoslin
         
         public void furan_fa_first_number(TreeNode node)
         {
-            furan.Add("len_first", Convert.ToInt32(node.get_text()));
+            furan.Add("len_first", node.get_int());
         }
          
          
         public void furan_fa_second_number(TreeNode node)
         {
-            furan.Add("len_second", Convert.ToInt32(node.get_text()));
+            furan.Add("len_second", node.get_int());
         }
         
         
@@ -400,7 +432,7 @@ namespace csgoslin
 
         public void add_charge(TreeNode node)
         {
-            adduct.charge = Convert.ToInt32(node.get_text());
+            adduct.charge = node.get_int();
         }
             
             
@@ -410,6 +442,7 @@ namespace csgoslin
             string sign = node.get_text();
             if (sign.Equals("+")) adduct.set_charge_sign(1);
             else if (sign.Equals("-")) adduct.set_charge_sign(-1);
+            if (adduct.charge == 0) adduct.charge = 1;
         }    
         
     }
