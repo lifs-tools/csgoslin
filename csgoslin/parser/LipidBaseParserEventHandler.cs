@@ -45,25 +45,6 @@ namespace csgoslin
         public static HashSet<string> SP_EXCEPTION_CLASSES = new HashSet<string>{"Cer", "Ceramide", "Sphingosine", "So", "Sphinganine", "Sa", "SPH", "Sph", "LCB"};
         public Adduct adduct = null;
         
-        public static Dictionary<string, List<string> > glyco_table = new Dictionary<string, List<string>>(){{"ga1", new List<string>(){"Gal", "GalNAc", "Gal", "Glc"}},
-               {"ga2", new List<string>(){"GalNAc", "Gal", "Glc"}},
-               {"gb3", new List<string>(){"Gal", "Gal", "Glc"}},
-               {"gb4", new List<string>(){"GalNAc", "Gal", "Gal", "Glc"}},
-               {"gd1", new List<string>(){"Gal", "GalNAc", "NeuAc", "NeuAc", "Gal", "Glc"}},
-               {"gd1a", new List<string>(){"Hex", "Hex", "Hex", "HexNAc", "NeuAc", "NeuAc"}},
-               {"gd2", new List<string>(){"GalNAc", "NeuAc", "NeuAc", "Gal", "Glc"}},
-               {"gd3", new List<string>(){"NeuAc", "NeuAc", "Gal", "Glc"}},
-               {"gm1", new List<string>(){"Gal", "GalNAc", "NeuAc", "Gal", "Glc"}},
-               {"gm2", new List<string>(){"GalNAc", "NeuAc", "Gal", "Glc"}},
-               {"gm3", new List<string>(){"NeuAc", "Gal", "Glc"}},
-               {"gm4", new List<string>(){"NeuAc", "Gal"}},
-               {"gp1", new List<string>(){"NeuAc", "NeuAc", "Gal", "GalNAc", "NeuAc", "NeuAc", "NeuAc", "Gal", "Glc"}},
-               {"gq1", new List<string>(){"NeuAc", "Gal", "GalNAc", "NeuAc", "NeuAc", "NeuAc", "Gal", "Glc"}},
-               {"gt1", new List<string>(){"Gal", "GalNAc", "NeuAc", "NeuAc", "NeuAc", "Gal", "Glc"}},
-               {"gt2", new List<string>(){"GalNAc", "NeuAc", "NeuAc", "NeuAc", "Gal", "Glc"}},
-               {"gt3", new List<string>(){"NeuAc", "NeuAc", "NeuAc", "Gal", "Glc"}}};
-        
-        
     
         public LipidBaseParserEventHandler() : base()
         {
@@ -292,29 +273,6 @@ namespace csgoslin
         
         public Headgroup prepare_headgroup_and_checks()
         {
-            string hg = head_group.ToLower();
-            if (glyco_table.ContainsKey(hg))
-            {
-                foreach (string carbohydrate in glyco_table[hg]){
-                    FunctionalGroup functional_group = null;
-                    try
-                    {
-                        functional_group = KnownFunctionalGroups.get_functional_group(carbohydrate);
-                    }
-                    catch
-                    {
-                        throw new LipidParsingException("Carbohydrate '" + carbohydrate + "' unknown");
-                    }
-                    
-                    functional_group.elements[Element.O] -= 1;
-                    headgroup_decorators.Add((HeadgroupDecorator)functional_group);
-                }
-                head_group = "Cer";
-            }    
-                
-            
-            
-            
             Headgroup headgroup = new Headgroup(head_group, headgroup_decorators, use_head_group);
             if (use_head_group) return headgroup;
             

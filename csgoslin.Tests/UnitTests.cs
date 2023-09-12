@@ -555,7 +555,7 @@ namespace csgoslin.Tests
             
 
             lipid = parser.parse((string)"GalNAcβ1-4(Galβ1-4GlcNAcβ1-3)Galβ1-4Glcβ-Cer(d18:1/24:1(15Z))");
-            Assert.Equal("Gal2GalNAcGlcGlcNAcCer 42:2;O2", lipid.get_lipid_string(LipidLevel.SPECIES));
+            Assert.Equal("Hex3HexNAc2Cer 42:2;O2", lipid.get_lipid_string(LipidLevel.SPECIES));
             
                 
             // test several more lipid names
@@ -824,30 +824,30 @@ namespace csgoslin.Tests
             l = parser.parse((string)"Gal-Cer(1) 18:1(5Z);3OH/24:0");
             Assert.Equal(l.get_lipid_string(), (string)"Gal-Cer(1) 18:1(5Z);3OH/24:0");
             Assert.Equal(l.get_lipid_string(LipidLevel.STRUCTURE_DEFINED), (string)"Gal-Cer 18:1(5);OH/24:0");
-            Assert.Equal(l.get_lipid_string(LipidLevel.SN_POSITION), (string)"GalCer 18:1;O2/24:0");
-            Assert.Equal(l.get_lipid_string(LipidLevel.MOLECULAR_SPECIES), (string)"GalCer 18:1;O2/24:0");
-            Assert.Equal(l.get_lipid_string(LipidLevel.SPECIES), (string)"GalCer 42:1;O2");
+            Assert.Equal(l.get_lipid_string(LipidLevel.SN_POSITION), (string)"HexCer 18:1;O2/24:0");
+            Assert.Equal(l.get_lipid_string(LipidLevel.MOLECULAR_SPECIES), (string)"HexCer 18:1;O2/24:0");
+            Assert.Equal(l.get_lipid_string(LipidLevel.SPECIES), (string)"HexCer 42:1;O2");
             Assert.Equal(l.get_sum_formula(), (string)"C48H93NO8");
             
             
             l = parser.parse((string)"Gal-Cer 18:1(5);OH/24:0");
             Assert.Equal(l.get_lipid_string(), (string)"Gal-Cer 18:1(5);OH/24:0");
-            Assert.Equal(l.get_lipid_string(LipidLevel.SN_POSITION), (string)"GalCer 18:1;O2/24:0");
-            Assert.Equal(l.get_lipid_string(LipidLevel.MOLECULAR_SPECIES), (string)"GalCer 18:1;O2/24:0");
-            Assert.Equal(l.get_lipid_string(LipidLevel.SPECIES), (string)"GalCer 42:1;O2");
+            Assert.Equal(l.get_lipid_string(LipidLevel.SN_POSITION), (string)"HexCer 18:1;O2/24:0");
+            Assert.Equal(l.get_lipid_string(LipidLevel.MOLECULAR_SPECIES), (string)"HexCer 18:1;O2/24:0");
+            Assert.Equal(l.get_lipid_string(LipidLevel.SPECIES), (string)"HexCer 42:1;O2");
             Assert.Equal(l.get_sum_formula(), (string)"C48H93NO8");
             
             
             
-            l = parser.parse((string)"GalCer 18:1;O2/24:0");
-            Assert.Equal(l.get_lipid_string(), (string)"GalCer 18:1;O2/24:0");
-            Assert.Equal(l.get_lipid_string(LipidLevel.SPECIES), (string)"GalCer 42:1;O2");
+            l = parser.parse((string)"HexCer 18:1;O2/24:0");
+            Assert.Equal(l.get_lipid_string(), (string)"HexCer 18:1;O2/24:0");
+            Assert.Equal(l.get_lipid_string(LipidLevel.SPECIES), (string)"HexCer 42:1;O2");
             Assert.Equal(l.get_sum_formula(), (string)"C48H93NO8");
             
             
             
-            l = parser.parse((string)"GalCer 42:1;O2");
-            Assert.Equal(l.get_lipid_string(), (string)"GalCer 42:1;O2");
+            l = parser.parse((string)"HexCer 42:1;O2");
+            Assert.Equal(l.get_lipid_string(), (string)"HexCer 42:1;O2");
             Assert.Equal(l.get_sum_formula(), (string)"C48H93NO8");
             
             

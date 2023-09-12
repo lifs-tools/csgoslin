@@ -58,13 +58,54 @@ namespace csgoslin
             {LipidCategory.SL, "SL"}
         };
         
+        public static Dictionary<string, List<string> > glyco_table = new Dictionary<string, List<string>>(){{"ga1", new List<string>(){"Gal", "GalNAc", "Gal", "Glc"}},
+               {"ga2", new List<string>(){"GalNAc", "Gal", "Glc"}},
+               {"gb3", new List<string>(){"Gal", "Gal", "Glc"}},
+               {"gb4", new List<string>(){"GalNAc", "Gal", "Gal", "Glc"}},
+               {"gd1", new List<string>(){"Gal", "GalNAc", "NeuAc", "NeuAc", "Gal", "Glc"}},
+               {"gd1a", new List<string>(){"Hex", "Hex", "Hex", "HexNAc", "NeuAc", "NeuAc"}},
+               {"gd2", new List<string>(){"GalNAc", "NeuAc", "NeuAc", "Gal", "Glc"}},
+               {"gd3", new List<string>(){"NeuAc", "NeuAc", "Gal", "Glc"}},
+               {"gm1", new List<string>(){"Gal", "GalNAc", "NeuAc", "Gal", "Glc"}},
+               {"gm2", new List<string>(){"GalNAc", "NeuAc", "Gal", "Glc"}},
+               {"gm3", new List<string>(){"NeuAc", "Gal", "Glc"}},
+               {"gm4", new List<string>(){"NeuAc", "Gal"}},
+               {"gp1", new List<string>(){"NeuAc", "NeuAc", "Gal", "GalNAc", "NeuAc", "NeuAc", "NeuAc", "Gal", "Glc"}},
+               {"gq1", new List<string>(){"NeuAc", "Gal", "GalNAc", "NeuAc", "NeuAc", "NeuAc", "Gal", "Glc"}},
+               {"gt1", new List<string>(){"Gal", "GalNAc", "NeuAc", "NeuAc", "NeuAc", "Gal", "Glc"}},
+               {"gt2", new List<string>(){"GalNAc", "NeuAc", "NeuAc", "NeuAc", "Gal", "Glc"}},
+               {"gt3", new List<string>(){"NeuAc", "NeuAc", "NeuAc", "Gal", "Glc"}}};
+        
+        
         public Headgroup(string _headgroup, List<HeadgroupDecorator> _decorators = null, bool _use_headgroup = false)
         {
+            decorators = new List<HeadgroupDecorator>();
+            
+            string hg = _headgroup.ToLower();
+            if (glyco_table.ContainsKey(hg) && !_use_headgroup)
+            {
+                foreach (string carbohydrate in glyco_table[hg]){
+                    FunctionalGroup functional_group = null;
+                    try
+                    {
+                        functional_group = KnownFunctionalGroups.get_functional_group(carbohydrate);
+                    }
+                    catch
+                    {
+                        throw new LipidParsingException("Carbohydrate '" + carbohydrate + "' unknown");
+                    }
+                    
+                    functional_group.elements[Element.O] -= 1;
+                    decorators.Add((HeadgroupDecorator)functional_group);
+                }
+                _headgroup = "Cer";
+            }    
+                
+            
             headgroup = _headgroup;
             lipid_category = get_category(_headgroup);
             lipid_class = get_class(headgroup);
             use_headgroup = _use_headgroup;
-            decorators = new List<HeadgroupDecorator>();
             if (_decorators != null)
             {
                 foreach (HeadgroupDecorator hgd in _decorators) decorators.Add(hgd);
@@ -215,25 +256,31 @@ namespace csgoslin
             // adding prefixes to the headgroup
             if (!is_level(level, LipidLevel.COMPLETE_STRUCTURE | LipidLevel.FULL_STRUCTURE | LipidLevel.STRUCTURE_DEFINED))
             {
-                List<HeadgroupDecorator> decorators_tmp = new List<HeadgroupDecorator>();
+                List<HeadgroupDecorator> decorators_sorted = new List<HeadgroupDecorator>();
                 foreach (HeadgroupDecorator hgd in decorators)
                 {
-                    if (!hgd.suffix) decorators_tmp.Add((HeadgroupDecorator)hgd.copy());
+                    if (hgd.suffix) continue;
+                    
+                    HeadgroupDecorator hgd_copy = (HeadgroupDecorator)hgd.copy();
+                    hgd_copy.name = hgd_copy.name.Replace("Gal", "Hex");
+                    hgd_copy.name = hgd_copy.name.Replace("Glc", "Hex");
+                    hgd_copy.name = hgd_copy.name.Replace("S(3')", "S");
+                    decorators_sorted.Add(hgd_copy);
                 }
-                decorators_tmp.Sort(delegate(HeadgroupDecorator hi, HeadgroupDecorator hj){
+                decorators_sorted.Sort(delegate(HeadgroupDecorator hi, HeadgroupDecorator hj){
                     return hi.name.CompareTo(hj.name);
                 });
-                for (int i = decorators_tmp.Count - 1; i > 0; i--)
+                for (int i = decorators_sorted.Count - 1; i > 0; i--)
                 {
-                    HeadgroupDecorator hge = decorators_tmp[i];
-                    HeadgroupDecorator hge_before = decorators_tmp[i - 1];
+                    HeadgroupDecorator hge = decorators_sorted[i];
+                    HeadgroupDecorator hge_before = decorators_sorted[i - 1];
                     if (hge.name.Equals(hge_before.name))
                     {
                         hge_before.count += hge.count;
-                        decorators_tmp.RemoveAt(i);
+                        decorators_sorted.RemoveAt(i);
                     }
                 }
-                foreach (HeadgroupDecorator hge in decorators_tmp) headgoup_string.Append(hge.to_string(level));
+                foreach (HeadgroupDecorator hge in decorators_sorted) headgoup_string.Append(hge.to_string(level));
             }
             else
             {

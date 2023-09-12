@@ -99,9 +99,9 @@ namespace csgoslin
             registered_events.Add("carbohydrate_number_pre_event", set_carbohydrate_number);
 
             // set head group headgroup_decorators
-            registered_events.Add("carbohydrate_pre_event", set_carbohydrate);
-            registered_events.Add("carbohydrate_sulfo_pre_event", set_carbohydrate);
-            registered_events.Add("carbohydrate_structural_pre_event", set_carbohydrate_structural);
+            registered_events.Add("carbohydrate_sn_pre_event", set_carbohydrate);
+            registered_events.Add("carbohydrate_iso_pre_event", set_carbohydrate);
+            registered_events.Add("carbohydrate_sn_position_pre_event", set_carbohydrate_sn_position);
             registered_events.Add("carbohydrate_isomeric_pre_event", set_carbohydrate_isomeric);
             
             // fatty acyl events
@@ -309,9 +309,9 @@ namespace csgoslin
 
 
 
-        public void set_carbohydrate_structural(TreeNode node)
+        public void set_carbohydrate_sn_position(TreeNode node)
         {
-            set_lipid_level(LipidLevel.STRUCTURE_DEFINED);
+            set_lipid_level(LipidLevel.SN_POSITION);
             tmp.Add("func_group_head", 1);
         }
 
