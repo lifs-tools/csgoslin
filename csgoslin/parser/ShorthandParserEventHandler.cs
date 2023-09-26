@@ -666,6 +666,7 @@ namespace csgoslin
         public void set_cycle_start(TreeNode node)
         {
             ((Cycle)current_fas.back()).start = node.get_int();
+            ((Cycle)current_fas.back()).position = node.get_int();
         }
 
 

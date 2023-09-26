@@ -40,6 +40,7 @@ namespace csgoslin
         public string db_cistrans;
         public Dict furan = new Dict();
         public string func_type;
+        public List<FunctionalGroup> update_functional_groups = new List<FunctionalGroup>();
     
         public HmdbParserEventHandler() : base()
         {
@@ -236,6 +237,15 @@ namespace csgoslin
 
         public void append_fa(TreeNode node)
         {
+            if (update_functional_groups.Count > 0)
+            {
+                foreach (FunctionalGroup fg in update_functional_groups)
+                {
+                    fg.position += current_fa.num_carbon;
+                }
+                update_functional_groups.Clear();
+            }
+            
             if (current_fa.double_bonds.get_num() < 0)
             {
                 throw new LipidException("Double bond count does not match with number of double bond positions");
@@ -282,7 +292,8 @@ namespace csgoslin
         public void add_methyl(TreeNode node)
         {
             FunctionalGroup functional_group = KnownFunctionalGroups.get_functional_group("Me");
-            functional_group.position = current_fa.num_carbon - (node.get_text() == "i-" ? 1 : 2);
+            functional_group.position = -(node.get_text() == "i-" ? 1 : 2);
+            update_functional_groups.Add(functional_group);
             current_fa.num_carbon -= 1;
             if (!current_fa.functional_groups.ContainsKey("Me")) current_fa.functional_groups.Add("Me", new List<FunctionalGroup>());
             current_fa.functional_groups["Me"].Add(functional_group);

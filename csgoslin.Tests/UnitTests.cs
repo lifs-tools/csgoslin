@@ -320,7 +320,7 @@ namespace csgoslin.Tests
             
         
             l = parser.parse((string)"DG(a-21:0/20:5(5Z,8Z,10E,14Z,17Z)+=O(12S)/0:0)");
-            Assert.Equal(l.get_lipid_string(LipidLevel.FULL_STRUCTURE), (string)"DG 20:0;Me/20:5(5Z,8Z,10E,14Z,17Z);12oxo/0:0");
+            Assert.Equal(l.get_lipid_string(LipidLevel.FULL_STRUCTURE), (string)"DG 20:0;18Me/20:5(5Z,8Z,10E,14Z,17Z);12oxo/0:0");
             Assert.Equal(l.get_lipid_string(LipidLevel.STRUCTURE_DEFINED), (string)"DG 20:0;Me/20:5(5,8,10,14,17);oxo/0:0");
             Assert.Equal(l.get_lipid_string(LipidLevel.SN_POSITION), (string)"DG 21:0/20:6;O/0:0");
             Assert.Equal(l.get_lipid_string(LipidLevel.MOLECULAR_SPECIES), (string)"DG 21:0_20:6;O");
@@ -723,7 +723,11 @@ namespace csgoslin.Tests
             Assert.Equal("C20H24O3H'8", l.get_sum_formula());
             
     
-    
+            l = parser.parse((string)"NO2-OA");
+            Assert.Equal("FA 18:1;NO2", l.get_lipid_string(LipidLevel.STRUCTURE_DEFINED));
+            
+            l = parser.parse("7(R),14(S)-DiHDHA");
+            Assert.Equal("FA 22:6;(OH)2", l.get_lipid_string(LipidLevel.STRUCTURE_DEFINED));
     
             LipidAdduct lipid;
                 

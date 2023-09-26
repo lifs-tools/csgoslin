@@ -74,6 +74,35 @@ namespace csgoslin
         
         
         
+        public bool check_full_structure(FunctionalGroup obj)
+        {
+            bool full = true;
+            
+            bool is_fa = obj.GetType() == typeof(FattyAcid);
+            if (is_fa && ((FattyAcid)obj).num_carbon == 0) return true;
+            if (is_fa && obj.double_bonds.num_double_bonds > 0 && obj.double_bonds.double_bond_positions.Count == 0) return false;
+            if (is_fa && obj.double_bonds.double_bond_positions.Count != 0)
+            {
+                int sum = 0;
+                foreach (KeyValuePair<int, string> kv in obj.double_bonds.double_bond_positions) sum += (kv.Value.Equals("E") || kv.Value.Equals("Z") || (kv.Value.Equals("") && kv.Key == ((FattyAcid)obj).num_carbon - 1)) ? 1 : 0;
+                full &= (sum == obj.double_bonds.double_bond_positions.Count);
+            }
+
+            foreach (KeyValuePair<string, List<FunctionalGroup>> kv in obj.functional_groups)
+            {
+                foreach (FunctionalGroup fg in kv.Value)
+                {
+                    if (fg.name == "X") continue;
+                    if (fg.position < 0) return false;
+                    full &= check_full_structure(fg);
+                }
+            }
+            
+            return full;
+        }
+        
+        
+        
         public FattyAcid resolve_fa_synonym(string mediator_name)
         {
             switch(mediator_name)
@@ -263,6 +292,49 @@ namespace csgoslin
                         Cycle cy = new Cycle(5, 8, 12, new DoubleBonds(1), new Dictionary<string, List<FunctionalGroup>>(){{"oxo", new List<FunctionalGroup>(){f2}}});
                         return new FattyAcid("FA", 20, new DoubleBonds(2), new Dictionary<string, List<FunctionalGroup>>(){{"OH", new List<FunctionalGroup>(){f1}}, {"cy", new List<FunctionalGroup>(){cy}}});
                     }
+            
+            
+            
+                case "PGF1alpha":
+                    {
+                        FunctionalGroup f1 = KnownFunctionalGroups.get_functional_group("OH");
+                        FunctionalGroup f2 = KnownFunctionalGroups.get_functional_group("OH");
+                        FunctionalGroup f3 = KnownFunctionalGroups.get_functional_group("OH");
+                        f1.position = 15;
+                        f2.position = 9;
+                        f3.position = 11;
+                        //Cycle cy = new Cycle(5, 8, 12, null, new Dictionary<string, List<FunctionalGroup>>()/*{{"OH", new List<FunctionalGroup>>(){f2, f3}}})*/;
+                        Cycle cy = new Cycle(5, 8, 12, null, new Dictionary<string, List<FunctionalGroup>>(){{"OH", new List<FunctionalGroup>(){f2, f3}}});
+                        return new FattyAcid("FA", 20, new DoubleBonds(1), new Dictionary<string, List<FunctionalGroup>>(){{"OH", new List<FunctionalGroup>(){f1}}, {"cy", new List<FunctionalGroup>(){cy}}});
+                    }
+                    
+                case "PDX":
+                    {
+                        FunctionalGroup f1 = KnownFunctionalGroups.get_functional_group("OH");
+                        FunctionalGroup f2 = KnownFunctionalGroups.get_functional_group("OH");
+                        f1.position = 10;
+                        f2.position = 17;
+                        return new FattyAcid("FA", 22, new DoubleBonds(6), new Dictionary<string, List<FunctionalGroup>>(){{"OH", new List<FunctionalGroup>(){f1, f2}}});
+                    }
+                    
+                case "Oleic acid":
+                case "OA":
+                    return new FattyAcid("FA", 18, new DoubleBonds(1));
+                    
+                case "DGLA":
+                    return new FattyAcid("FA", 20, new DoubleBonds(3));
+                    
+                case "iPF2alpha-VI":
+                    {
+                        FunctionalGroup f1 = KnownFunctionalGroups.get_functional_group("OH");
+                        FunctionalGroup f2 = KnownFunctionalGroups.get_functional_group("OH");
+                        FunctionalGroup f3 = KnownFunctionalGroups.get_functional_group("OH");
+                        f1.position = 5;
+                        f2.position = 9;
+                        f3.position = 11;
+                        Cycle cy = new Cycle(5, 8, 12, null, new Dictionary<string, List<FunctionalGroup>>(){{"OH", new List<FunctionalGroup>(){f2, f3}}});
+                        return new FattyAcid("FA", 20, new DoubleBonds(1), new Dictionary<string, List<FunctionalGroup>>(){{"OH", new List<FunctionalGroup>(){f1}}, {"cy", new List<FunctionalGroup>(){cy}}});
+                    }
                 
                 default: return null;
             }
@@ -302,6 +374,20 @@ namespace csgoslin
                 headgroup.decorators.Clear();
                 headgroup = new Headgroup(head_group, headgroup_decorators, use_head_group);
                 poss_fa = LipidClasses.lipid_classes.ContainsKey(headgroup.lipid_class) ? LipidClasses.lipid_classes[headgroup.lipid_class].possible_num_fa : 0;
+            }
+    
+            // check if all functional groups have a position to be full structure
+            if (is_level(level, LipidLevel.COMPLETE_STRUCTURE | LipidLevel.FULL_STRUCTURE))
+            {
+                foreach (FattyAcid fa in fa_list)
+                {
+                    if (!check_full_structure(fa))
+                    {
+                        Console.WriteLine(fa.name + " " + fa.num_carbon);
+                        set_lipid_level(LipidLevel.STRUCTURE_DEFINED);
+                        break;
+                    }
+                }
             }
             
             if (level == LipidLevel.SPECIES)

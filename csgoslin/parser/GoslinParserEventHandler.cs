@@ -233,6 +233,13 @@ namespace csgoslin
                 if (mediator_function_positions.Count > 0) functional_group.position = mediator_function_positions[0];
             }
                 
+            else if (mediator_function.Equals("NO2"))
+            {
+                functional_group = KnownFunctionalGroups.get_functional_group("NO2");
+                fg = "NO2";
+                if (mediator_function_positions.Count > 0) functional_group.position = mediator_function_positions[0];
+            }
+                
             else if (mediator_function.Equals("E") || mediator_function.Equals("Ep"))
             {
                 functional_group = KnownFunctionalGroups.get_functional_group("Ep");
@@ -264,7 +271,17 @@ namespace csgoslin
             head_group = "FA";
             string mediator_name = node.get_text();
             
+            FattyAcid tmp_fa = current_fa;
             current_fa = resolve_fa_synonym(mediator_name);
+            if (tmp_fa != null)
+            {
+                foreach (KeyValuePair<string, List<FunctionalGroup>> kv in tmp_fa.functional_groups)
+                {
+                    if (!current_fa.functional_groups.ContainsKey(kv.Key)) current_fa.functional_groups.Add(kv.Key, new List<FunctionalGroup>());
+                    foreach (FunctionalGroup fg in kv.Value) current_fa.functional_groups[kv.Key].Add(fg);
+                }
+                tmp_fa.functional_groups.Clear();
+            }
             fa_list.Clear();
             fa_list.Add(current_fa);
             mediator_suffix = true;
