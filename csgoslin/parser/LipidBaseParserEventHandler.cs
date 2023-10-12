@@ -383,7 +383,6 @@ namespace csgoslin
                 {
                     if (!check_full_structure(fa))
                     {
-                        Console.WriteLine(fa.name + " " + fa.num_carbon);
                         set_lipid_level(LipidLevel.STRUCTURE_DEFINED);
                         break;
                     }

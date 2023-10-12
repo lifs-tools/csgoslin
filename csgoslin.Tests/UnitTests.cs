@@ -214,8 +214,6 @@ namespace csgoslin.Tests
                 string formula = data[2].Trim(trims);
                 string expected_lipid_name = data[3].Trim(trims);
                 
-                //Console.WriteLine(lipid_name);
-                
                 formula = StringFunctions.compute_sum_formula(SumFormulaParser.get_instance().parse(formula));
                 
                 LipidAdduct lipid = fatty_acid_parser.parse(lipid_name);
@@ -931,6 +929,25 @@ namespace csgoslin.Tests
             l = parser.parse((string)"EPC 34:2;O2");
             Assert.Equal(l.get_lipid_string(), (string)"EPC 34:2;O2");
             Assert.Equal(l.get_sum_formula(), (string)"C36H71N2O6P");
+    
+            l = parser.parse((string)"SPBP 18:1;O2");
+            Assert.Equal(l.get_lipid_string(), (string)"SPBP 18:1;O2");
+            Assert.Equal(l.get_sum_formula(), (string)"C18H38NO5P");
+                
+            l = parser.parse((string)"LSM 18:1;O2");
+            Assert.Equal(l.get_lipid_string(), (string)"LSM 18:1;O2");
+            
+            l = parser.parse((string)"LSM(1) 18:1(5Z);3OH");
+            Assert.Equal(l.get_lipid_string(), (string)"LSM(1) 18:1(5Z);3OH");
+            
+            l = parser.parse((string)"LHexCer 18:1;O2");
+            Assert.Equal(l.get_lipid_string(), (string)"LHexCer 18:1;O2");
+            
+            l = parser.parse((string)"LHexCer 18:1;O2/0:0");
+            Assert.Equal(l.get_lipid_string(), (string)"LHexCer 18:1;O2");
+            
+            l = parser.parse((string)"LHexCer(1) 18:1(5E);3OH/0:0");
+            Assert.Equal(l.get_lipid_string(), (string)"LHexCer(1) 18:1(5E);3OH");
             
             
             string prefixPath = Environment.CurrentDirectory;
