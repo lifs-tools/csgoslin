@@ -39,6 +39,7 @@ namespace csgoslin
         public static Dictionary<string, LipidCategory> StringCategory = new Dictionary<string, LipidCategory>();
         public static Dictionary<string, LipidClass> StringClass = new Dictionary<string, LipidClass>();
         public static Dictionary<LipidClass, string> ClassString = new Dictionary<LipidClass, string>();
+        public string unaltered_headgroup;
         public string headgroup;
         public LipidCategory lipid_category;
         public LipidClass lipid_class;
@@ -81,7 +82,8 @@ namespace csgoslin
         {
             decorators = new List<HeadgroupDecorator>();
             
-            string hg = _headgroup.ToLower();
+            unaltered_headgroup = _headgroup;
+            string hg = unaltered_headgroup.ToLower();
             if (glyco_table.ContainsKey(hg) && !_use_headgroup)
             {
                 foreach (string carbohydrate in glyco_table[hg]){
