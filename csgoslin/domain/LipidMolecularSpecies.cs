@@ -53,6 +53,7 @@ namespace csgoslin
             {
                 FattyAcid fatty_acid = new FattyAcid("FA" + Convert.ToString(i + 1));
                 fatty_acid.position = -1;
+                fatty_acid.unresolved_hidden_fa = (1 < _fa.Count && _fa.Count < info.poss_fa);
                 info.add(fatty_acid);
                 fa.Add(fatty_acid.name, fatty_acid);
                 fa_list.Add(fatty_acid);

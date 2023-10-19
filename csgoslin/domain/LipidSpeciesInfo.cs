@@ -38,6 +38,7 @@ namespace csgoslin
         public LipidLevel level;
         public int num_ethers;
         public int num_specified_fa;
+        public int poss_fa;
         public int total_fa;
         public LipidFaBondType extended_class;
         public static readonly string[] ether_prefix = {"", "O-", "dO-", "tO-", "eO-"};
@@ -52,6 +53,7 @@ namespace csgoslin
             extended_class = LipidFaBondType.ESTER;
             ClassMap lipid_classes = LipidClasses.lipid_classes;
             total_fa = lipid_classes.ContainsKey(lipid_class) ? lipid_classes[lipid_class].max_num_fa : 0;
+            poss_fa = lipid_classes.ContainsKey(lipid_class) ? lipid_classes[lipid_class].possible_num_fa : 0;
         }
         
         public override FunctionalGroup copy()

@@ -38,6 +38,7 @@ namespace csgoslin
         public int num_carbon;
         public LipidFaBondType lipid_FA_bond_type;
         public HashSet<string> fg_exceptions = new HashSet<string>{"acyl", "alkyl", "cy", "cc", "acetoxy"};
+        public bool unresolved_hidden_fa = false;
         
         public FattyAcid(string _name, int _num_carbon = 0, DoubleBonds _double_bonds = null, Dictionary<string, List<FunctionalGroup> > _functional_groups = null, LipidFaBondType _lipid_FA_bond_type = LipidFaBondType.ESTER, int _position = 0) : base(_name, _position, 1, _double_bonds, false, "", false, null, _functional_groups)
         {
@@ -284,6 +285,13 @@ namespace csgoslin
         public override void compute_elements()
         {
             foreach (Element e in Elements.element_order) elements[e] = 0;
+            
+            if(unresolved_hidden_fa)
+            {
+                elements[Element.O] = 1;
+                elements[Element.H] = -1;
+                return;
+            }
             
             int num_double_bonds = double_bonds.num_double_bonds;
             if (lipid_FA_bond_type == LipidFaBondType.ETHER_PLASMENYL) num_double_bonds += 1;

@@ -220,7 +220,7 @@ namespace csgoslin
         public void build_lipid(TreeNode node)
         {
             if (acer_species) fa_list[0].num_carbon -= 2;
-            Headgroup headgroup = prepare_headgroup_and_checks();
+            Headgroup headgroup = prepare_headgroup_and_checks(false);
 
             // add count numbers for fatty acyl chains
             int fa_it = (fa_list.Count > 0 && (fa_list[0].lipid_FA_bond_type == LipidFaBondType.LCB_EXCEPTION || fa_list[0].lipid_FA_bond_type == LipidFaBondType.LCB_REGULAR)) ? 1 : 0;

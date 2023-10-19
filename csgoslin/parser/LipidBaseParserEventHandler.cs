@@ -343,7 +343,7 @@ namespace csgoslin
         
         
         
-        public Headgroup prepare_headgroup_and_checks()
+        public Headgroup prepare_headgroup_and_checks(bool allow_class_shift = true)
         {
             Headgroup headgroup = new Headgroup(head_group, headgroup_decorators, use_head_group);
             if (use_head_group) return headgroup;
@@ -359,21 +359,24 @@ namespace csgoslin
             // make lyso
             bool can_be_lyso = LipidClasses.lipid_classes.ContainsKey(Headgroup.get_class("L" + head_group)) ? LipidClasses.lipid_classes[Headgroup.get_class("L" + head_group)].special_cases.Contains("Lyso") : false;
             
-            if ((true_fa + 1 == poss_fa || true_fa + 2 == poss_fa) && level != LipidLevel.SPECIES && headgroup.lipid_category == LipidCategory.GP && can_be_lyso)
+            if (allow_class_shift)
             {
-                if (true_fa + 1 == poss_fa) head_group = "L" + head_group;
-                else head_group = "DL" + head_group;
-                headgroup = new Headgroup(head_group, headgroup_decorators, use_head_group);
-                poss_fa = LipidClasses.lipid_classes.ContainsKey(headgroup.lipid_class) ? LipidClasses.lipid_classes[headgroup.lipid_class].possible_num_fa : 0;
-            }
-    
-            else if ((true_fa + 1 == poss_fa || true_fa + 2 == poss_fa) && level != LipidLevel.SPECIES && headgroup.lipid_category == LipidCategory.GL && head_group == "TG")
-            {
-                if (true_fa + 1 == poss_fa) head_group = "DG";
-                else head_group = "MG";
-                headgroup.decorators.Clear();
-                headgroup = new Headgroup(head_group, headgroup_decorators, use_head_group);
-                poss_fa = LipidClasses.lipid_classes.ContainsKey(headgroup.lipid_class) ? LipidClasses.lipid_classes[headgroup.lipid_class].possible_num_fa : 0;
+                if ((true_fa + 1 == poss_fa || true_fa + 2 == poss_fa) && level != LipidLevel.SPECIES && headgroup.lipid_category == LipidCategory.GP && can_be_lyso)
+                {
+                    if (true_fa + 1 == poss_fa) head_group = "L" + head_group;
+                    else head_group = "DL" + head_group;
+                    headgroup = new Headgroup(head_group, headgroup_decorators, use_head_group);
+                    poss_fa = LipidClasses.lipid_classes.ContainsKey(headgroup.lipid_class) ? LipidClasses.lipid_classes[headgroup.lipid_class].possible_num_fa : 0;
+                }
+        
+                else if ((true_fa + 1 == poss_fa || true_fa + 2 == poss_fa) && level != LipidLevel.SPECIES && headgroup.lipid_category == LipidCategory.GL && head_group == "TG")
+                {
+                    if (true_fa + 1 == poss_fa) head_group = "DG";
+                    else head_group = "MG";
+                    headgroup.decorators.Clear();
+                    headgroup = new Headgroup(head_group, headgroup_decorators, use_head_group);
+                    poss_fa = LipidClasses.lipid_classes.ContainsKey(headgroup.lipid_class) ? LipidClasses.lipid_classes[headgroup.lipid_class].possible_num_fa : 0;
+                }
             }
     
             // check if all functional groups have a position to be full structure

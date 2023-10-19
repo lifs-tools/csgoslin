@@ -949,6 +949,9 @@ namespace csgoslin.Tests
             l = parser.parse((string)"LHexCer(1) 18:1(5E);3OH/0:0");
             Assert.Equal(l.get_lipid_string(), (string)"LHexCer(1) 18:1(5E);3OH");
             
+            l = parser.parse((string)"TG 18:0_42:2");
+            Assert.Equal(l.get_lipid_string(), (string)"TG 18:0_42:2");
+            
             
             string prefixPath = Environment.CurrentDirectory;
             string test_file_name = Path.Combine(prefixPath, "..", "..", "..", "..", "data", "goslin", "testfiles", "shorthand-test.csv");
