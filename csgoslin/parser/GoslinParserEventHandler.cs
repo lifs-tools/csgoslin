@@ -219,7 +219,7 @@ namespace csgoslin
                 if (mediator_function_positions.Count > 0) functional_group.position = mediator_function_positions[0];
             }
                 
-            else if (mediator_function.Equals("Oxo"))
+            else if (mediator_function.Equals("Oxo") || mediator_function.Equals("oxo") || mediator_function.Equals("OXO"))
             {
                 functional_group = KnownFunctionalGroups.get_functional_group("oxo");
                 fg = "oxo";

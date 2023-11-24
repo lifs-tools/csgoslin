@@ -680,6 +680,10 @@ namespace csgoslin.Tests
             Assert.Equal(l.get_lipid_string(LipidLevel.MOLECULAR_SPECIES), (string)"EPC 16:2;O2/22:1;O");
             Assert.Equal(l.get_lipid_string(LipidLevel.SPECIES), (string)"EPC 38:3;O3");
             Assert.Equal(l.get_sum_formula(), (string)"C40H77N2O7P");
+            
+            l = parser.parse("13-oxoODE");
+            Assert.Equal(l.get_lipid_string(LipidLevel.MOLECULAR_SPECIES), (string)"FA 18:3;O");
+            Assert.Equal(l.get_sum_formula(), (string)"C18H30O3");
 
             l = parser.parse((string)"BMP 18:1-18:1");
             Assert.Equal("BMP 18:1_18:1", l.get_lipid_string());
@@ -821,6 +825,9 @@ namespace csgoslin.Tests
             Assert.Equal(l.get_sum_formula(), (string)"C42H83NO3");
             
             
+            l = parser.parse("cLPA 18:0");
+            Assert.Equal(l.get_lipid_string(), "CPA 18:0");
+            Assert.Equal(l.get_sum_formula(), "C21H41O6P");
             
             
             l = parser.parse((string)"Gal-Cer(1) 18:1(5Z);3OH/24:0");

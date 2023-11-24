@@ -85,6 +85,7 @@ namespace csgoslin
             registered_events.Add("pl_hg_single_pre_event", set_headgroup_name);
             registered_events.Add("pl_hg_double_pre_event", set_headgroup_name);
             registered_events.Add("pl_hg_quadro_pre_event", set_headgroup_name);
+            registered_events.Add("pl_cpa_head_pre_event", set_headgroup_name);
             registered_events.Add("sl_hg_single_pre_event", set_headgroup_name);
             registered_events.Add("sl_hg_glyco_pre_event", set_headgroup_name);
             registered_events.Add("pl_hg_double_fa_hg_pre_event", set_headgroup_name);
