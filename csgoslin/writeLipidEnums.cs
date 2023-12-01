@@ -102,6 +102,7 @@ namespace csgoslin
         {
             string prefixPath = Environment.CurrentDirectory;
             string lipid_list_file = Path.Combine(prefixPath, "data", "goslin", "lipid-list.csv");
+            string tm_file = Path.Combine(prefixPath, "data", "goslin", "trivial_mediators.csv");
             
             int SYNONYM_START_INDEX = 7;
             Dictionary<string, int> enum_names = new Dictionary<string, int>{{"GL", 1}, {"GP", 1}, {"SP", 1}, {"ST", 1}, {"FA", 1}, {"PK", 1}, {"SL", 1}, {"UNDEFINED", 1}};
@@ -111,6 +112,100 @@ namespace csgoslin
             List<string> list_keys = new List<string>();
             
             Dictionary<Element, string> table_symbol = new Dictionary<Element, string>{{Element.C, "Element.C"}, {Element.H, "Element.H"}, {Element.N, "Element.N"}, {Element.O, "Element.O"}, {Element.P, "Element.P"}, {Element.S, "Element.S"}, {Element.H2, "Element.H2"}, {Element.C13, "Element.C13"}, {Element.N15, "Element.N15"}, {Element.O17, "Element.O17"}, {Element.O18, "Element.O18"}, {Element.P32, "Element.P32"}, {Element.S33, "Element.S33"}, {Element.S34, "Element.S34"}, {Element.F, "Element.F"}, {Element.Cl, "Element.Cl"}, {Element.Br, "Element.Br"}, {Element.I, "Element.I"}, {Element.As, "Element.As"}};
+            
+            
+            Dictionary<string, string> trivial_mediators = new Dictionary<string, string>();
+            if (File.Exists(tm_file))
+            {
+                int lineCounter = 1;
+                try
+                {
+                    using (StreamReader sr = new StreamReader(tm_file))
+                    {
+                        String line = sr.ReadLine(); // omit titles
+                        while((line = sr.ReadLine()) != null)
+                        {
+                            lineCounter++;
+                            if (line.Length < 2) continue;
+                            
+                            List<string> tokens = split_string(line, '\t', '"', true);
+                            if (tokens.Count != 2) continue;
+                            
+                            if (trivial_mediators.ContainsKey(tokens[0])) continue;
+                            trivial_mediators.Add(tokens[0], tokens[1]);
+                        }
+                    }
+                }
+                
+                catch (Exception e)
+                {
+                    throw new Exception("The file '" + tm_file + "' in line '" + lineCounter + "' could not be read:\n" + e);
+                }
+                
+                
+                string output_tm_file = Path.Combine(prefixPath, "csgoslin", "domain", "TrivialMediatorsEnum.cs");
+                try
+                {
+                    using (StreamWriter sw = new StreamWriter(output_tm_file))
+                    {
+                        sw.Write("/* DO NOT CHANGE THE FILE, IT IS AUTOMATICALLY GENERATED */\n\n");
+                        sw.Write("/*\n");
+                        sw.Write("MIT License\n");
+                        sw.Write("\n");
+                        sw.Write("Copyright (c) the authors (listed in global LICENSE file)\n");
+                        sw.Write("\n");
+                        sw.Write("Permission is hereby granted, free of charge, to any person obtaining a copy\n");
+                        sw.Write("of this software and associated documentation files (the \"Software\"), to deal\n");
+                        sw.Write("in the Software without restriction, including without limitation the rights\n");
+                        sw.Write("to use, copy, modify, merge, publish, distribute, sublicense, and/or sell\n");
+                        sw.Write("copies of the Software, and to permit persons to whom the Software is\n");
+                        sw.Write("furnished to do so, subject to the following conditions:\n");
+                        sw.Write("\n");
+                        sw.Write("The above copyright notice and this permission notice shall be included in all\n");
+                        sw.Write("copies or substantial portions of the Software.\n");
+                        sw.Write("\n");
+                        sw.Write("THE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR\n");
+                        sw.Write("IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,\n");
+                        sw.Write("FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE\n");
+                        sw.Write("AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER\n");
+                        sw.Write("LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,\n");
+                        sw.Write("OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE\n");
+                        sw.Write("SOFTWARE.\n");
+                        sw.Write("*/\n");
+                        sw.Write("\n");
+                        sw.Write("\n");
+                        sw.Write("using System;\n");
+                        sw.Write("using System.Collections.Generic;\n");
+                        sw.Write("\n");
+                        sw.Write("namespace csgoslin\n");
+                        sw.Write("{\n");
+                        sw.Write("\n");
+                        sw.Write("    public class TrivialMediators\n");
+                        sw.Write("    {\n");
+                        sw.Write("        public static readonly Dictionary<string, List<int>> trivial_mediators = new Dictionary<string, List<int>>()\n");
+                        sw.Write("        {\n");
+                        
+                        int ii = 0;
+                        foreach (var kvp in trivial_mediators)
+                        {
+                            sw.Write("            " + String.Format("{{\"{0}\", new List<int>(){{{1}}}}}", kvp.Key, kvp.Value) + (++ii < trivial_mediators.Count ? "," : "") + "\n");
+                        }
+
+                        sw.Write("        };\n");
+                        sw.Write("    }\n");
+                        sw.Write("}");
+                    }
+                }
+                
+                catch (Exception e)
+                {
+                    throw new Exception("Could not write file '" + output_tm_file + "':\n" + e);
+                }
+            }
+            
+            
+            
+            
             
             if (File.Exists(lipid_list_file))
             {

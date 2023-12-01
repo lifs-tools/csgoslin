@@ -48,6 +48,7 @@ namespace csgoslin
         public bool mediator_suffix = false;
         public Element heavy_element = Element.C;
         public int heavy_element_number = 0;
+        public bool trivial_mediator = false;
     
         public static Dictionary<string, int> mediator_FA = new Dictionary<string, int>(){{"H", 17}, {"O", 18}, {"E", 20}, {"Do", 22}};
         public static Dictionary<string, int> mediator_DB = new Dictionary<string, int>(){{"M", 1}, {"D", 2}, {"Tr", 3}, {"T", 4}, {"P", 5}, {"H", 6}};
@@ -141,6 +142,7 @@ namespace csgoslin
             db_position = 0;
             db_cistrans = "";
             plasmalogen = '\0';
+            trivial_mediator = false;
         }
         
     
@@ -170,6 +172,7 @@ namespace csgoslin
 
         public void set_mediator_carbon(TreeNode node)
         {
+            trivial_mediator = true;
             current_fa.num_carbon += mediator_FA[node.get_text()];
         }
                 
@@ -219,14 +222,14 @@ namespace csgoslin
                 if (mediator_function_positions.Count > 0) functional_group.position = mediator_function_positions[0];
             }
                 
-            else if (mediator_function.Equals("Oxo") || mediator_function.Equals("oxo") || mediator_function.Equals("OXO"))
+            else if (mediator_function.ToLower().Equals("oxo"))
             {
                 functional_group = KnownFunctionalGroups.get_functional_group("oxo");
                 fg = "oxo";
                 if (mediator_function_positions.Count > 0) functional_group.position = mediator_function_positions[0];
             }
                 
-            else if (mediator_function.Equals("Hp"))
+            else if (mediator_function.ToLower().Equals("hp"))
             {
                 functional_group = KnownFunctionalGroups.get_functional_group("OOH");
                 fg = "OOH";
@@ -461,6 +464,20 @@ namespace csgoslin
             }
             
             Headgroup headgroup = prepare_headgroup_and_checks();
+            
+            string lipid_name = node.get_text().Trim(new char[]{(char)1});
+            Dictionary<string, List<int>> trivial_db = TrivialMediators.trivial_mediators;
+    
+    
+            
+            if (trivial_mediator && trivial_db.ContainsKey(lipid_name))
+            {
+                List<int> db_pos = trivial_db[lipid_name];
+                fa_list[0].double_bonds.num_double_bonds = db_pos.Count;
+                fa_list[0].double_bonds.double_bond_positions.Clear();
+                foreach (var p in db_pos) fa_list[0].double_bonds.double_bond_positions.Add(p, "");
+                level = LipidLevel.FULL_STRUCTURE;
+            }
             
             LipidAdduct lipid = new LipidAdduct();
             lipid.lipid = assemble_lipid(headgroup);
