@@ -168,6 +168,7 @@ namespace csgoslin
             registered_events.Add("acer_species_post_event", set_acer_species);
             
             registered_events.Add("sterol_definition_post_event", set_sterol_definition);
+            registered_events.Add("sterol_ester_definition_post_event", set_sterol_definition);
             registered_events.Add("adduct_heavy_element_pre_event", set_heavy_element);
             registered_events.Add("adduct_heavy_number_pre_event", set_heavy_number);
             registered_events.Add("adduct_heavy_component_post_event", add_heavy_component);

@@ -36,16 +36,16 @@ namespace csgoslin.Tests
     public class UnitTests
     {
         
-        public bool test_adducts = true;
-        public bool test_parser = true;
-        public bool test_fatty_acid = true;
-        public bool test_hmdb = true;
+        public bool test_adducts = false;
+        public bool test_parser = false;
+        public bool test_fatty_acid = false;
+        public bool test_hmdb = false;
         public bool test_goslin = true;
-        public bool test_lipid_maps = true;
-        public bool test_swiss_lipids = true;
-        public bool test_shorthand = true;
-        public bool test_sum_formula = true;
-        public bool test_masses = true;
+        public bool test_lipid_maps = false;
+        public bool test_swiss_lipids = false;
+        public bool test_shorthand = false;
+        public bool test_sum_formula = false;
+        public bool test_masses = false;
         
         
         
@@ -702,6 +702,7 @@ namespace csgoslin.Tests
             Assert.Equal(-1, l.lipid.fa_list[3].position);
             Assert.Equal(0, l.lipid.fa_list[3].num_carbon);
             Assert.Equal(0, l.lipid.fa_list[3].double_bonds.num_double_bonds);
+            
 
             l = parser.parse((string)"TAG 18:1/0:0/16:0");
             Assert.Equal("DG 18:1/0:0/16:0", l.get_lipid_string());

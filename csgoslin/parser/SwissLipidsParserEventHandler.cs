@@ -244,8 +244,8 @@ namespace csgoslin
         public void add_ether(TreeNode node)
         {
             string ether = node.get_text();
-            if (ether.Equals("O-")) current_fa.lipid_FA_bond_type = LipidFaBondType.ETHER_PLASMANYL;
-            else if (ether.Equals("P-")) current_fa.lipid_FA_bond_type = LipidFaBondType.ETHER_PLASMENYL;
+            if (ether.Equals("O")) current_fa.lipid_FA_bond_type = LipidFaBondType.ETHER_PLASMANYL;
+            else if (ether.Equals("P")) current_fa.lipid_FA_bond_type = LipidFaBondType.ETHER_PLASMENYL;
         }
             
             

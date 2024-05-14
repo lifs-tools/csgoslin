@@ -60,22 +60,31 @@ namespace csgoslin
         };
         
         public static Dictionary<string, List<string> > glyco_table = new Dictionary<string, List<string>>(){{"ga1", new List<string>(){"Gal", "GalNAc", "Gal", "Glc"}},
-               {"ga2", new List<string>(){"GalNAc", "Gal", "Glc"}},
-               {"gb3", new List<string>(){"Gal", "Gal", "Glc"}},
-               {"gb4", new List<string>(){"GalNAc", "Gal", "Gal", "Glc"}},
-               {"gd1", new List<string>(){"Gal", "GalNAc", "NeuAc", "NeuAc", "Gal", "Glc"}},
-               {"gd1a", new List<string>(){"Hex", "Hex", "Hex", "HexNAc", "NeuAc", "NeuAc"}},
-               {"gd2", new List<string>(){"GalNAc", "NeuAc", "NeuAc", "Gal", "Glc"}},
-               {"gd3", new List<string>(){"NeuAc", "NeuAc", "Gal", "Glc"}},
-               {"gm1", new List<string>(){"Gal", "GalNAc", "NeuAc", "Gal", "Glc"}},
-               {"gm2", new List<string>(){"GalNAc", "NeuAc", "Gal", "Glc"}},
-               {"gm3", new List<string>(){"NeuAc", "Gal", "Glc"}},
-               {"gm4", new List<string>(){"NeuAc", "Gal"}},
-               {"gp1", new List<string>(){"NeuAc", "NeuAc", "Gal", "GalNAc", "NeuAc", "NeuAc", "NeuAc", "Gal", "Glc"}},
-               {"gq1", new List<string>(){"NeuAc", "Gal", "GalNAc", "NeuAc", "NeuAc", "NeuAc", "Gal", "Glc"}},
-               {"gt1", new List<string>(){"Gal", "GalNAc", "NeuAc", "NeuAc", "NeuAc", "Gal", "Glc"}},
-               {"gt2", new List<string>(){"GalNAc", "NeuAc", "NeuAc", "NeuAc", "Gal", "Glc"}},
-               {"gt3", new List<string>(){"NeuAc", "NeuAc", "NeuAc", "Gal", "Glc"}}};
+            {"ga2", new List<string>(){"GalNAc", "Gal", "Glc"}},
+            {"gb3", new List<string>(){"Gal", "Gal", "Glc"}},
+            {"gb4", new List<string>(){"GalNAc", "Gal", "Gal", "Glc"}},
+            {"gd1", new List<string>(){"Gal", "GalNAc", "NeuAc", "NeuAc", "Gal", "Glc"}},
+            {"gd1a", new List<string>(){"Hex", "Hex", "Hex", "HexNAc", "NeuAc", "NeuAc"}},
+            {"gd2", new List<string>(){"GalNAc", "NeuAc", "NeuAc", "Gal", "Glc"}},
+            {"gd3", new List<string>(){"NeuAc", "NeuAc", "Gal", "Glc"}},
+            {"gm1", new List<string>(){"Gal", "GalNAc", "NeuAc", "Gal", "Glc"}},
+            {"gm2", new List<string>(){"GalNAc", "NeuAc", "Gal", "Glc"}},
+            {"gm3", new List<string>(){"NeuAc", "Gal", "Glc"}},
+            {"gm4", new List<string>(){"NeuAc", "Gal"}},
+            {"gp1", new List<string>(){"NeuAc", "NeuAc", "Gal", "GalNAc", "NeuAc", "NeuAc", "NeuAc", "Gal", "Glc"}},
+            {"gq1", new List<string>(){"NeuAc", "Gal", "GalNAc", "NeuAc", "NeuAc", "NeuAc", "Gal", "Glc"}},
+            {"gt1", new List<string>(){"Gal", "GalNAc", "NeuAc", "NeuAc", "NeuAc", "Gal", "Glc"}},
+            {"gt2", new List<string>(){"GalNAc", "NeuAc", "NeuAc", "NeuAc", "Gal", "Glc"}},
+            {"gt3", new List<string>(){"NeuAc", "NeuAc", "NeuAc", "Gal", "Glc"}},
+            {"gd0a", new List<string>(){"HexNAc", "Hex", "NeuAc", "HexNAc", "Hex", "NeuAc", "Hex"}},
+            {"gd1b", new List<string>(){"Gal", "GalNAc", "NeuAc", "NeuAc", "Gal", "Glc"}},
+            {"gq1b", new List<string>(){"NeuAc", "NeuAc", "Gal", "GalNAc", "NeuAc", "NeuAc", "Gal", "Glc"}},
+            {"gt1b", new List<string>(){"NeuAc", "Gal", "GalNAc", "NeuAc", "NeuAc", "Gal", "Glc"}},
+            {"gd1a-ac", new List<string>(){"Hex", "Hex", "Hex", "HexNAc", "NeuAc", "NeuAc", "NeuAc"}},
+            {"gq1-ac", new List<string>(){"NeuAc", "Gal", "GalNAc", "NeuAc", "NeuAc", "NeuAc", "NeuAc", "Gal", "Glc"}},
+            {"gt1b-ac", new List<string>(){"NeuAc", "Gal", "GalNAc", "NeuAc", "NeuAc", "NeuAc", "Gal", "Glc"}},
+            {"gt3-ac", new List<string>(){"NeuAc", "NeuAc", "NeuAc", "NeuAc", "NeuAc", "Gal", "Glc"}}
+        };
         
         
         public Headgroup(string _headgroup, List<HeadgroupDecorator> _decorators = null, bool _use_headgroup = false)
