@@ -466,16 +466,16 @@ namespace csgoslin
             Headgroup headgroup = prepare_headgroup_and_checks();
             
             string lipid_name = node.get_text().Trim(new char[]{(char)1});
-            Dictionary<string, List<int>> trivial_db = TrivialMediators.trivial_mediators;
+            Dictionary<string, Dictionary<int, string>> trivial_db = TrivialMediators.trivial_mediators;
     
     
             
             if (trivial_mediator && trivial_db.ContainsKey(lipid_name))
             {
-                List<int> db_pos = trivial_db[lipid_name];
+                Dictionary<int, string> db_pos = trivial_db[lipid_name];
                 fa_list[0].double_bonds.num_double_bonds = db_pos.Count;
                 fa_list[0].double_bonds.double_bond_positions.Clear();
-                foreach (var p in db_pos) fa_list[0].double_bonds.double_bond_positions.Add(p, "");
+                foreach (var kvp in db_pos) fa_list[0].double_bonds.double_bond_positions.Add(kvp.Key, kvp.Value);
                 level = LipidLevel.FULL_STRUCTURE;
             }
             
