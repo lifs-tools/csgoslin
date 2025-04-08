@@ -188,7 +188,7 @@ namespace csgoslin
                         int ii = 0;
                         foreach (var kvp in trivial_mediators)
                         {
-                            sw.Write("            {{\"" + kvp.Key + "\", new Dictionary<int, string>(){");
+                            sw.Write("            {\"" + kvp.Key + "\", new Dictionary<int, string>(){");
                             int iii = 0;
                             foreach (var token in kvp.Value.Split(',')){
                                 int len = token.Length;
@@ -200,7 +200,7 @@ namespace csgoslin
                                     sw.Write("{" + token + ", \"\"}");
                                 }
                             }
-                            sw.Write("}}}" + (++ii < trivial_mediators.Count ? "," : "") + "\n");
+                            sw.Write("}}" + (++ii < trivial_mediators.Count ? "," : "") + "\n");
                         }
 
                         sw.Write("        };\n");
