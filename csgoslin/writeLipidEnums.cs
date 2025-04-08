@@ -182,13 +182,25 @@ namespace csgoslin
                         sw.Write("\n");
                         sw.Write("    public class TrivialMediators\n");
                         sw.Write("    {\n");
-                        sw.Write("        public static readonly Dictionary<string, List<int>> trivial_mediators = new Dictionary<string, List<int>>()\n");
+                        sw.Write("        public static readonly Dictionary<string, Dictionary<int, string>> trivial_mediators = new Dictionary<string, Dictionary<int, string>>()\n");
                         sw.Write("        {\n");
                         
                         int ii = 0;
                         foreach (var kvp in trivial_mediators)
                         {
-                            sw.Write("            " + String.Format("{{\"{0}\", new List<int>(){{{1}}}}}", kvp.Key, kvp.Value) + (++ii < trivial_mediators.Count ? "," : "") + "\n");
+                            sw.Write("            {{\"" + kvp.Key + "\", new Dictionary<int, string>(){");
+                            int iii = 0;
+                            foreach (var token in kvp.Value.Split(',')){
+                                int len = token.Length;
+                                if (iii++ > 0) sw.Write(", ");
+                                if (token[len - 1] == 'E' || token[len - 1] == 'Z'){
+                                    sw.Write("{" + token.Substring(0, len - 1) + ", \"" + token[len - 1] + "\"}");
+                                }
+                                else {
+                                    sw.Write("{" + token + ", \"\"}");
+                                }
+                            }
+                            sw.Write("}}}" + (++ii < trivial_mediators.Count ? "," : "") + "\n");
                         }
 
                         sw.Write("        };\n");
