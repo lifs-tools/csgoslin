@@ -197,7 +197,6 @@ namespace csgoslin
         public void set_sterol_definition(TreeNode node)
         {
             head_group += " " + node.get_text();
-            fa_list.RemoveAt(0);
         }
 
 

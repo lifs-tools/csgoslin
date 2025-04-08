@@ -111,7 +111,7 @@ namespace csgoslin
             HashSet<string> keys = new HashSet<string>();
             List<string> list_keys = new List<string>();
             
-            Dictionary<Element, string> table_symbol = new Dictionary<Element, string>{{Element.C, "Element.C"}, {Element.H, "Element.H"}, {Element.N, "Element.N"}, {Element.O, "Element.O"}, {Element.P, "Element.P"}, {Element.S, "Element.S"}, {Element.H2, "Element.H2"}, {Element.C13, "Element.C13"}, {Element.N15, "Element.N15"}, {Element.O17, "Element.O17"}, {Element.O18, "Element.O18"}, {Element.P32, "Element.P32"}, {Element.S33, "Element.S33"}, {Element.S34, "Element.S34"}, {Element.F, "Element.F"}, {Element.Cl, "Element.Cl"}, {Element.Br, "Element.Br"}, {Element.I, "Element.I"}, {Element.As, "Element.As"}};
+            Dictionary<Element, string> table_symbol = new Dictionary<Element, string>{{Element.C, "Element.C"}, {Element.H, "Element.H"}, {Element.N, "Element.N"}, {Element.O, "Element.O"}, {Element.P, "Element.P"}, {Element.S, "Element.S"}, {Element.H2, "Element.H2"}, {Element.C13, "Element.C13"}, {Element.N15, "Element.N15"}, {Element.O17, "Element.O17"}, {Element.O18, "Element.O18"}, {Element.P32, "Element.P32"}, {Element.S33, "Element.S33"}, {Element.S34, "Element.S34"}, {Element.F, "Element.F"}, {Element.Cl, "Element.Cl"}, {Element.Br, "Element.Br"}, {Element.I, "Element.I"}, {Element.As, "Element.As"}, {Element.B, "Element.B"}};
             
             
             Dictionary<string, string> trivial_mediators = new Dictionary<string, string>();
